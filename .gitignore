@@ -4,3 +4,5 @@ data/lidar/*
 *.3dm.bak
 __pycache__/
 !data/lidar/.gitkeep
+# Large reproducible meshes (regenerate with scripts/02_dem_to_mesh.py)
+results/*.stl

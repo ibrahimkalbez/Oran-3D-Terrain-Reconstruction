@@ -1,0 +1,27 @@
+{
+  "source": "Copernicus DEM GLO-30 (DSM), tile N35 W001",
+  "bbox_wgs84": [
+    -0.72,
+    35.64,
+    -0.56,
+    35.76
+  ],
+  "crs": "EPSG:32630",
+  "pixel_size_m": 30.0,
+  "grid": [
+    431,
+    471
+  ],
+  "origin_utm_top_left": [
+    706440.0,
+    3959700.0
+  ],
+  "extent_m": [
+    14130.0,
+    12930.0
+  ],
+  "elev_min_m": 0.0,
+  "elev_max_m": 505.09820556640625,
+  "elev_mean_m": 108.32508087158203,
+  "sea_fraction": 0.2799444337712622
+}
