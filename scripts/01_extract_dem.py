@@ -32,6 +32,7 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--bbox", nargs=4, type=float, default=DEFAULT_BBOX)
     p.add_argument("--res", type=float, default=30.0, help="output pixel size (m)")
+    p.add_argument("--name", default="oran_dem", help="output file prefix in results/")
     a = p.parse_args()
     OUT.mkdir(exist_ok=True)
 
@@ -60,7 +61,7 @@ def main():
 
     prof = dict(driver="GTiff", height=dem.shape[0], width=dem.shape[1], count=1,
                 dtype="float32", crs=DST_CRS, transform=dt, compress="deflate")
-    with rasterio.open(OUT / "oran_dem_utm30n.tif", "w", **prof) as dst:
+    with rasterio.open(OUT / f"{a.name}_utm30n.tif", "w", **prof) as dst:
         dst.write(dem, 1)
 
     stats = {
@@ -76,7 +77,7 @@ def main():
         "elev_mean_m": float(dem.mean()),
         "sea_fraction": float((dem <= 0.5).mean()),
     }
-    (OUT / "oran_dem_stats.json").write_text(json.dumps(stats, indent=2))
+    (OUT / f"{a.name}_stats.json").write_text(json.dumps(stats, indent=2))
     print(json.dumps(stats, indent=2))
 
     import matplotlib
@@ -89,7 +90,7 @@ def main():
     fig, ax = plt.subplots(figsize=(9, 8))
     ax.imshow(rgb, extent=ext)
     ax.set(title="Oran - Copernicus GLO-30 (UTM 30N)", xlabel="km", ylabel="km")
-    fig.savefig(OUT / "oran_dem_hillshade.png", dpi=130, bbox_inches="tight")
+    fig.savefig(OUT / f"{a.name}_hillshade.png", dpi=130, bbox_inches="tight")
 
 
 if __name__ == "__main__":
