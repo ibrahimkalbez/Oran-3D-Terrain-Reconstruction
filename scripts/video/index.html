@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#f3f3f1;overflow:hidden}
+#lab{position:absolute;left:48px;bottom:42px;font:600 26px 'DejaVu Sans',sans-serif;color:#1a1a1a;letter-spacing:.5px}
+#bar{position:absolute;left:30px;bottom:40px;width:7px;height:34px;background:#E30613}
+#sig{position:absolute;right:40px;bottom:44px;font:13px 'DejaVu Sans',sans-serif;color:#777}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script></head>
+<body><div id="bar"></div><div id="lab"></div><div id="sig">ORAN 3D — maquette blanche — relief Copernicus GLO-30</div>
+<script type="module">
+import * as THREE from 'three';
+const W=1280,H=720;
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+r.setSize(W,H); r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFSoftShadowMap;
+r.toneMapping=THREE.ACESFilmicToneMapping; r.toneMappingExposure=1.05;
+document.body.appendChild(r.domElement);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0xf3f3f1);
+scene.fog=new THREE.Fog(0xf3f3f1,1500,5200);
+const cam=new THREE.PerspectiveCamera(42,W/H,5,12000);
+scene.add(new THREE.HemisphereLight(0xffffff,0xbdbdb8,1.25));
+const sun=new THREE.DirectionalLight(0xffffff,1.9); sun.position.set(-1200,1600,900);
+sun.castShadow=true; sun.shadow.mapSize.set(4096,4096);
+const sc=sun.shadow.camera; sc.left=-2600;sc.right=2600;sc.top=2600;sc.bottom=-2600;sc.near=10;sc.far=6000;
+sun.shadow.bias=-0.0004; sun.shadow.normalBias=1.5; scene.add(sun); scene.add(sun.target);
+async function bin(u,T){return new T(await (await fetch(u)).arrayBuffer());}
+const tp=await bin('terrain_pos.bin',Float32Array), ti=await bin('terrain_idx.bin',Uint32Array);
+let g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(tp,3)); g.setIndex(new THREE.BufferAttribute(ti,1)); g.computeVertexNormals();
+const terr=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0xe9e9e6,roughness:1,side:THREE.DoubleSide}));
+terr.receiveShadow=true; terr.castShadow=true; scene.add(terr);
+const bp=await bin('bld_pos.bin',Float32Array);
+g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(bp,3)); g.computeVertexNormals();
+const bld=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0xffffff,roughness:0.95,side:THREE.DoubleSide}));
+bld.castShadow=true; bld.receiveShadow=true; scene.add(bld);
+const S=await (await fetch('scene.json')).json();
+window.N=S.cam.length;
+window.renderFrame=(i)=>{const c=S.cam[i],t=S.tgt[i]; cam.position.set(...c); cam.lookAt(...t);
+  let lab=''; for(const [a,b,n] of S.labels) if(i>=a&&i<b) lab=n; document.getElementById('lab').textContent=lab;
+  r.render(scene,cam); return true;};
+window.ready=true;
+</script></body></html>

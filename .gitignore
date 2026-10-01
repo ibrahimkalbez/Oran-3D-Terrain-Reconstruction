@@ -1,0 +1,13 @@
+# Large binary data: keep out of git (share via release/LFS/drive)
+data/copernicus/*.tif
+data/lidar/*
+*.3dm.bak
+__pycache__/
+!data/lidar/.gitkeep
+# Large reproducible meshes (regenerate with scripts/02_dem_to_mesh.py)
+results/*.stl
+results/cache/
+results/*.3dm
+data/rhino/*.3dm
+export_3d_print/*.stl
+export_3d_print/*.obj

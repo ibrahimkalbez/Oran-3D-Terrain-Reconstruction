@@ -1,0 +1,7 @@
+numpy
+rasterio
+trimesh
+scipy
+matplotlib
+rhino3dm
+manifold3d
