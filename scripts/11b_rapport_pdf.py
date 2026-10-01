@@ -301,16 +301,13 @@ def story():
             "(calques COURBES_NIVEAU_10m et COURBES_NIVEAU_50m). Les courbes sont sur la surface du terrain."),
           P("La maquette blanche reprend tous les calques de détail, tous en blanc, et remplace la surface du terrain "
             "par un bloc fermé : terrain au-dessus, parois verticales, fond plat 60 m sous le niveau de la mer."),
-          P("Contrôle sur des points connus (même méthode, valeurs du MNT brut entre parenthèses) :", "h2"),
-          table([["Lieu", "Maquette", "Copernicus brut"],
-                 ["Sidi El Houari, bas du quartier", "68 m", "70 m"],
-                 ["Sidi El Houari, mosquée du Pacha", "54 m", "57 m"],
-                 ["Sidi El Houari, les Planteurs", "146 m", "147 m"],
-                 ["Santa Cruz", "282 m", "286 m"],
-                 ["Place du 1er Novembre", "117 m", "117 m"],
-                 ["Port (quai)", "6 m", "6 m"]],
-                [80 * mm, 40 * mm, 46 * mm]),
-          P("Coordonnées des lieux approximatives ; les écarts (0 à 4 m) viennent du pas de 25 m.", "cap")]
+          P("Contrôle sur les lieux nommés du fichier Rhino (position exacte = calques NAME_ / HISTORIC_) :", "h2"),
+          table([["Lieu (calque du modèle)", "Position", "Maquette", "Copernicus brut"]] +
+                [[r[0], r[1], f"{r[2]} m", f"{r[3]} m"] for r in
+                 json.loads((ROOT / "results/altitudes_lieux_fichier.json").read_text())],
+                [62 * mm, 46 * mm, 26 * mm, 32 * mm]),
+          P("Écarts de 0 à 4 m, sauf au Square Port Saïd (9 m) situé en bord de falaise : sur une pente "
+            "forte, la grille de 25 m et le pixel brut ne tombent pas au même endroit de la pente.", "cap")]
 
     # 08 --------------------------------------------------------------
     hd, op = prn["HD"], prn["OPT"]
