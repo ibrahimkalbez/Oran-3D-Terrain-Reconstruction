@@ -1,0 +1,6 @@
+terrain block 2042814 tris, volume 175.4 cm3
+{'buildings_in': 236575, 'kept': 236428, 'open_or_invalid': 108, 'outside': 39, 'floating_extended': 112} (57s)
+union: 8877456 tris, genus -1548 (492s)
+detached bodies removed: {'count': 1559, 'volume_mm3': -0.0, 'largest_mm3': 0.0}
+HD {'triangles': 8869284, 'vertices': 4434626, 'dimensions_mm': [200.0, 150.13, 12.37], 'min_z_mm': 0.0, 'watertight': True, 'open_edges': 0, 'nonmanifold_edges': 0, 'winding_consistent': True, 'bodies': 1, 'volume_cm3': 175.74, 'degenerate_faces': 348, 'stl_MB': 443.5, 'obj_MB': 351.7, 'stl_reread_ok': True} (583s)
+OPT {'triangles': 4764502, 'vertices': 2382249, 'dimensions_mm': [200.0, 150.13, 12.37], 'min_z_mm': 0.0, 'watertight': True, 'open_edges': 0, 'nonmanifold_edges': 0, 'winding_consistent': True, 'bodies': 1, 'volume_cm3': 175.75, 'degenerate_faces': 355, 'stl_MB': 238.2, 'obj_MB': 185.7, 'stl_reread_ok': True} (648s)

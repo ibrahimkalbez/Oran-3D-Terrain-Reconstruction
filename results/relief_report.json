@@ -1,0 +1,5228 @@
+{
+ "source": "brahim_ib9a.3dm",
+ "origin_lon_lat": [
+  -0.635,
+  35.699
+ ],
+ "terrain_grid": [
+  1164,
+  874
+ ],
+ "terrain_res_m": 25.0,
+ "terrain_extent_local_m": [
+  -15425.0,
+  -12250.0,
+  13650.0,
+  9575.0
+ ],
+ "terrain_z_m": [
+  0.0,
+  608.1292396122999
+ ],
+ "draping_grid_extent_local_m": [
+  -43975.0,
+  -34550.0,
+  25475.0,
+  13875.0
+ ],
+ "checks": {
+  "xy_roundtrip_max_m": 3.725318720062925e-09,
+  "rigid_height_change_max_m": 5.684341886080802e-14,
+  "rigid_float_gap_max_m": 0.0,
+  "drape_offset_err_max_m": 0.6311583160647842,
+  "drape_min_clearance_m": -0.03355221710066303
+ },
+ "foundation_extension_m_p50_p95_p99_max": [
+  0.36,
+  1.63,
+  2.9,
+  28.45
+ ],
+ "drape_tolerance_m": {
+  "HIGHWAY_RESIDENTIAL": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.046,
+   "max_dev_m": 0.454
+  },
+  "HIGHWAY_RESIDENTIAL_1000": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.031,
+   "max_dev_m": 0.55
+  },
+  "HIGHWAY_SERVICES": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.229,
+   "max_dev_m": 0.441
+  },
+  "HIGHWAY_CORRIDOR": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.142,
+   "max_dev_m": 0.397
+  },
+  "HIGHWAY_SERVICE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.025,
+   "max_dev_m": 0.477
+  },
+  "HIGHWAY_PEDESTRIAN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.037,
+   "max_dev_m": 0.464
+  },
+  "HIGHWAY_RACEWAY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.193,
+   "max_dev_m": 0.324
+  },
+  "HIGHWAY_LIVING_STREET": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.242,
+   "max_dev_m": 0.402
+  },
+  "HIGHWAY_REST_AREA": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.12,
+   "max_dev_m": 0.381
+  },
+  "HIGHWAY_PRIMARY_LINK": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.041,
+   "max_dev_m": 0.474
+  },
+  "HIGHWAY_CONSTRUCTION": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.026,
+   "max_dev_m": 0.477
+  },
+  "HIGHWAY_BRIDLEWAY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.057,
+   "max_dev_m": 0.473
+  },
+  "HIGHWAY_MOTORWAY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.036,
+   "max_dev_m": 0.479
+  },
+  "HIGHWAY_STEPS": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.089,
+   "max_dev_m": 0.426
+  },
+  "HIGHWAY_FOOTWAY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.033,
+   "max_dev_m": 0.47
+  },
+  "HIGHWAY_ROAD": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.259,
+   "max_dev_m": 0.385
+  },
+  "HIGHWAY_SECONDARY_LINK": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.093,
+   "max_dev_m": 0.444
+  },
+  "HIGHWAY_TERTIARY_LINK": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.114,
+   "max_dev_m": 0.437
+  },
+  "HIGHWAY_MOTORWAY_LINK": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.038,
+   "max_dev_m": 0.47
+  },
+  "HIGHWAY_TRACK": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.026,
+   "max_dev_m": 0.478
+  },
+  "HIGHWAY_PATH": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.046,
+   "max_dev_m": 0.469
+  },
+  "HIGHWAY_SERVICE_1000": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.032,
+   "max_dev_m": 0.468
+  },
+  "HIGHWAY_TERTIARY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.024,
+   "max_dev_m": 0.476
+  },
+  "HIGHWAY_TRUNK_LINK": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.478
+  },
+  "HIGHWAY_UNCLASSIFIED": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.035,
+   "max_dev_m": 0.475
+  },
+  "HIGHWAY_TRUNK": {
+   "tol_m": 0.48,
+   "min_clearance_m": -0.034,
+   "max_dev_m": 0.554
+  },
+  "HIGHWAY_SECONDARY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.036,
+   "max_dev_m": 0.475
+  },
+  "HIGHWAY_PRIMARY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.034,
+   "max_dev_m": 0.527
+  },
+  "ROUTE_ROAD": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.047,
+   "max_dev_m": 0.478
+  },
+  "RESTRICTION_ONLY_LEFT_TURN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.179,
+   "max_dev_m": 0.464
+  },
+  "RESTRICTION_ONLY_RIGHT_TURN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.122,
+   "max_dev_m": 0.43
+  },
+  "RESTRICTION_ONLY_STRAIGHT_ON": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.041,
+   "max_dev_m": 0.495
+  },
+  "RESTRICTION_NO_LEFT_TURN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.055,
+   "max_dev_m": 0.472
+  },
+  "RESTRICTION_NO_RIGHT_TURN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.065,
+   "max_dev_m": 0.448
+  },
+  "RESTRICTION_NO_U_TURN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.05,
+   "max_dev_m": 0.631
+  },
+  "RESTRICTION_NO_STRAIGHT_ON": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.045,
+   "max_dev_m": 0.473
+  },
+  "NAME_ARDIS_ORAN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.035,
+   "max_dev_m": 0.465
+  },
+  "NAME_ODEJ_ORAN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.285,
+   "max_dev_m": 0.221
+  },
+  "NAME_POLICE_SCIENTIFIQUE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.173,
+   "max_dev_m": 0.419
+  },
+  "NAME_ONAB_ORAN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.177,
+   "max_dev_m": 0.366
+  },
+  "NAME___________________": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.392,
+   "max_dev_m": 0.282
+  },
+  "NAME_SI_GE_DE_LA_DA_RA_D_ORAN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.056,
+   "max_dev_m": 0.444
+  },
+  "NAME_R_SIDENCE_ZABANA__CHERIF_": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.06,
+   "max_dev_m": 0.464
+  },
+  "NAME_ENPI": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.222,
+   "max_dev_m": 0.409
+  },
+  "NAME_DIRECTION_NAFTAL": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.035,
+   "max_dev_m": 0.476
+  },
+  "NAME_FORT_SANTON": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.05,
+   "max_dev_m": 0.45
+  },
+  "NAME_PLACE_COMMANDANT_MEDJDOUB": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.078,
+   "max_dev_m": 0.439
+  },
+  "NAME_SQUARE_PORT_SA_D": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.075,
+   "max_dev_m": 0.454
+  },
+  "NAME_DIRECTION_DE_LA_SANT_": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.193,
+   "max_dev_m": 0.437
+  },
+  "NAME_____________": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.053,
+   "max_dev_m": 0.463
+  },
+  "NAME_PLACE_1ER_NOVEMBRE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.123,
+   "max_dev_m": 0.441
+  },
+  "NAME_PLACE_A_SSAT_IDIR": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.057,
+   "max_dev_m": 0.462
+  },
+  "NAME_ONEC___ANNEXE_ORAN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.091,
+   "max_dev_m": 0.441
+  },
+  "NAME______________1": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.334,
+   "max_dev_m": 0.434
+  },
+  "NAME_DA_RA_ES_SENIA": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.077,
+   "max_dev_m": 0.445
+  },
+  "NAME_PEUGEOT_ES_SENIA": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.053,
+   "max_dev_m": 0.47
+  },
+  "NAME_DIRECTION_P_DAGOGIQUE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.097,
+   "max_dev_m": 0.42
+  },
+  "NAME______": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.049,
+   "max_dev_m": 0.451
+  },
+  "PLANE_10": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE_9": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE_8": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE_7": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE_6": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE_5": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE_4": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE_3": {
+   "tol_m": 0.336,
+   "min_clearance_m": 0.359,
+   "max_dev_m": 0.0
+  },
+  "PLANE_2": {
+   "tol_m": 0.338,
+   "min_clearance_m": 0.365,
+   "max_dev_m": 0.0
+  },
+  "PLANE_1": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "PLANE": {
+   "tol_m": 0.335,
+   "min_clearance_m": 0.358,
+   "max_dev_m": 0.0
+  },
+  "AEROWAY_RU": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.156,
+   "max_dev_m": 0.445
+  },
+  "AEROWAY_AE": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.025,
+   "max_dev_m": 0.495
+  },
+  "AEROWAY_TA": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.033,
+   "max_dev_m": 0.476
+  },
+  "AEROWAY_AP": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.498,
+   "max_dev_m": 0.382
+  },
+  "AMENITY_HO": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.279
+  },
+  "AMENITY_SC": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.029,
+   "max_dev_m": 0.277
+  },
+  "AMENITY_TO": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.054,
+   "max_dev_m": 0.25
+  },
+  "AMENITY_CL": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.046,
+   "max_dev_m": 0.269
+  },
+  "AMENITY_PL": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.039,
+   "max_dev_m": 0.262
+  },
+  "AMENITY_FI": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.046,
+   "max_dev_m": 0.254
+  },
+  "AMENITY_PA": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.027,
+   "max_dev_m": 0.273
+  },
+  "AMENITY_C1": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.032,
+   "max_dev_m": 0.272
+  },
+  "AMENITY_UN": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.028,
+   "max_dev_m": 0.273
+  },
+  "AMENITY_P0": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.071,
+   "max_dev_m": 0.23
+  },
+  "AMENITY_TA": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.071,
+   "max_dev_m": 0.251
+  },
+  "AMENITY_PO": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.043,
+   "max_dev_m": 0.267
+  },
+  "AMENITY_LI": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.153,
+   "max_dev_m": 0.147
+  },
+  "AMENITY_C0": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.062,
+   "max_dev_m": 0.238
+  },
+  "AMENITY_SA": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.184,
+   "max_dev_m": 0.192
+  },
+  "AMENITY_FU": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.057,
+   "max_dev_m": 0.252
+  },
+  "AMENITY_CO": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.033,
+   "max_dev_m": 0.267
+  },
+  "AMENITY_MA": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.057,
+   "max_dev_m": 0.243
+  },
+  "AMENITY_KI": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.09,
+   "max_dev_m": 0.242
+  },
+  "AMENITY_SO": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.028,
+   "max_dev_m": 0.272
+  },
+  "AMENITY_RE": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.117,
+   "max_dev_m": 0.197
+  },
+  "AMENITY_PR": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.043,
+   "max_dev_m": 0.257
+  },
+  "AMENITY_BU": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.074,
+   "max_dev_m": 0.252
+  },
+  "AMENITY_TH": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.07,
+   "max_dev_m": 0.256
+  },
+  "AMENITY_FE": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.041,
+   "max_dev_m": 0.264
+  },
+  "AMENITY_EV": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.084,
+   "max_dev_m": 0.23
+  },
+  "AMENITY_FO": {
+   "tol_m": 0.28,
+   "min_clearance_m": 0.116,
+   "max_dev_m": 0.184
+  },
+  "AREA_YES": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.41,
+   "max_dev_m": 0.245
+  },
+  "BARRIER_CI": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.04,
+   "max_dev_m": 0.475
+  },
+  "BARRIER_WA": {
+   "tol_m": 0.479,
+   "min_clearance_m": 0.038,
+   "max_dev_m": 0.477
+  },
+  "BARRIER_FE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.072,
+   "max_dev_m": 0.463
+  },
+  "BARRIER_YE": {
+   "tol_m": 0.479,
+   "min_clearance_m": 0.364,
+   "max_dev_m": 0.17
+  },
+  "BARRIER_RE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.052,
+   "max_dev_m": 0.466
+  },
+  "BARRIER_HE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.443,
+   "max_dev_m": 0.057
+  },
+  "BARRIER_KE": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.633,
+   "max_dev_m": 0.351
+  },
+  "BUILDING11": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.481,
+   "max_dev_m": 0.026
+  },
+  "BUILDING_0_1": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.078,
+   "max_dev_m": 0.432
+  },
+  "BUILDING_L": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.125,
+   "max_dev_m": 0.375
+  },
+  "LANDUSE_G0": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.029,
+   "max_dev_m": 0.281
+  },
+  "LANDUSE_OR": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.025,
+   "max_dev_m": 0.285
+  },
+  "LANDUSE_CE": {
+   "tol_m": 0.19,
+   "min_clearance_m": 0.027,
+   "max_dev_m": 0.189
+  },
+  "LANDUSE_V0": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.05,
+   "max_dev_m": 0.26
+  },
+  "LANDUSE_FO": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.027,
+   "max_dev_m": 0.286
+  },
+  "LANDUSE_F0": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.027,
+   "max_dev_m": 0.302
+  },
+  "LANDUSE_R2": {
+   "tol_m": 0.17,
+   "min_clearance_m": 0.023,
+   "max_dev_m": 0.167
+  },
+  "LANDUSE_IN": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.022,
+   "max_dev_m": 0.288
+  },
+  "LANDUSE_QU": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.028,
+   "max_dev_m": 0.282
+  },
+  "LANDUSE_MI": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.027,
+   "max_dev_m": 0.287
+  },
+  "LANDUSE_C0": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.031,
+   "max_dev_m": 0.284
+  },
+  "LANDUSE_ME": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.031,
+   "max_dev_m": 0.279
+  },
+  "LANDUSE_CO": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.283
+  },
+  "LANDUSE_FA": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.246,
+   "max_dev_m": 0.268
+  },
+  "LANDUSE_RA": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.028,
+   "max_dev_m": 0.282
+  },
+  "LANDUSE_R1": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.023,
+   "max_dev_m": 0.287
+  },
+  "LANDUSE_ED": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.088,
+   "max_dev_m": 0.222
+  },
+  "LANDUSE_PL": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.049,
+   "max_dev_m": 0.261
+  },
+  "LANDUSE_BR": {
+   "tol_m": 0.29,
+   "min_clearance_m": -0.032,
+   "max_dev_m": 0.342
+  },
+  "LANDUSE_GR": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.127,
+   "max_dev_m": 0.183
+  },
+  "LANDUSE_R0": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.077,
+   "max_dev_m": 0.233
+  },
+  "LANDUSE_HA": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.039,
+   "max_dev_m": 0.271
+  },
+  "LANDUSE_RE": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.25,
+   "max_dev_m": 0.112
+  },
+  "LANDUSE_BA": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.31,
+   "max_dev_m": 0.068
+  },
+  "LANDUSE_VI": {
+   "tol_m": 0.29,
+   "min_clearance_m": 0.088,
+   "max_dev_m": 0.236
+  },
+  "LEISURE_TR": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.343,
+   "max_dev_m": 0.467
+  },
+  "LEISURE_SW": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.373,
+   "max_dev_m": 0.441
+  },
+  "LEISURE_PI": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.29,
+   "max_dev_m": 0.47
+  },
+  "LEISURE_ST": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.117,
+   "max_dev_m": 0.479
+  },
+  "LEISURE_SP": {
+   "tol_m": 0.46,
+   "min_clearance_m": 0.038,
+   "max_dev_m": 0.456
+  },
+  "LEISURE_PL": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.359,
+   "max_dev_m": 0.476
+  },
+  "LEISURE_GA": {
+   "tol_m": 0.46,
+   "min_clearance_m": 0.011,
+   "max_dev_m": 0.469
+  },
+  "LEISURE_PA": {
+   "tol_m": 0.42,
+   "min_clearance_m": 0.043,
+   "max_dev_m": 0.397
+  },
+  "LEISURE_FO": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.78,
+   "max_dev_m": 0.073
+  },
+  "MAN_MADE_WORKS": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.082,
+   "max_dev_m": 0.472
+  },
+  "MAN_MADE_BREAKWATER": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.046,
+   "max_dev_m": 0.474
+  },
+  "MAN_MADE_PIER": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.046,
+   "max_dev_m": 0.47
+  },
+  "MAN_MADE_RESERVOIR_COVERED": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.492,
+   "max_dev_m": 0.103
+  },
+  "MAN_MADE_BRIDGE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.045,
+   "max_dev_m": 0.463
+  },
+  "MAN_MADE_WASTEWATER_PLANT": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.118,
+   "max_dev_m": 0.406
+  },
+  "MAN_MADE_STORAGE_TANK": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.255,
+   "max_dev_m": 0.266
+  },
+  "MAN_MADE_WATER_TOWER": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.22,
+   "max_dev_m": 0.324
+  },
+  "MAN_MADE_2": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.234,
+   "max_dev_m": 0.47
+  },
+  "MAN_MADE_S": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.232,
+   "max_dev_m": 0.448
+  },
+  "MAN_MADE_1": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.233,
+   "max_dev_m": 0.465
+  },
+  "MAN_MADE_0": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.213,
+   "max_dev_m": 0.467
+  },
+  "MAN_MADE_R": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.626,
+   "max_dev_m": 0.183
+  },
+  "MAN_MADE_B": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.215,
+   "max_dev_m": 0.465
+  },
+  "MAN_MADE_W": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.193,
+   "max_dev_m": 0.487
+  },
+  "NAME_______2": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.051,
+   "max_dev_m": 0.161
+  },
+  "NAME_______3": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.173
+  },
+  "NAME_DIRE1": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.039,
+   "max_dev_m": 0.161
+  },
+  "NAME_PEUGE": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.032,
+   "max_dev_m": 0.168
+  },
+  "NAME_DA_RA": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.05,
+   "max_dev_m": 0.153
+  },
+  "NAME_____0": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.045,
+   "max_dev_m": 0.155
+  },
+  "NAME_______4": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.173
+  },
+  "NAME_ONEC_": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.054,
+   "max_dev_m": 0.166
+  },
+  "NAME_PLAC1": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.045,
+   "max_dev_m": 0.155
+  },
+  "NAME_PLAC0": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.043,
+   "max_dev_m": 0.168
+  },
+  "NAME_______5": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.173
+  },
+  "NAME_DIRE0": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.054,
+   "max_dev_m": 0.146
+  },
+  "NAME_SQUAR": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.034,
+   "max_dev_m": 0.166
+  },
+  "NAME_PLACE": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.022,
+   "max_dev_m": 0.178
+  },
+  "NAME_FORT_": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.024,
+   "max_dev_m": 0.176
+  },
+  "NAME_DIREC": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.039,
+   "max_dev_m": 0.161
+  },
+  "NAME_ENPI_1": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.087,
+   "max_dev_m": 0.121
+  },
+  "NAME_R_SID": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.041,
+   "max_dev_m": 0.169
+  },
+  "NAME_SI_GE": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.048,
+   "max_dev_m": 0.169
+  },
+  "NAME_______6": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.038,
+   "max_dev_m": 0.162
+  },
+  "NAME_ONAB_": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.055,
+   "max_dev_m": 0.145
+  },
+  "NAME_POLIC": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.119,
+   "max_dev_m": 0.168
+  },
+  "NAME_ODEJ_": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.122,
+   "max_dev_m": 0.078
+  },
+  "NAME_ARDIS": {
+   "tol_m": 0.18,
+   "min_clearance_m": 0.048,
+   "max_dev_m": 0.167
+  },
+  "NATURAL_SC": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.111,
+   "max_dev_m": 0.494
+  },
+  "NATURAL_WO": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.11,
+   "max_dev_m": 0.49
+  },
+  "NATURAL_BE": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.177,
+   "max_dev_m": 0.466
+  },
+  "NATURAL_BA": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.108,
+   "max_dev_m": 0.494
+  },
+  "NATURAL_TR": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.427,
+   "max_dev_m": 0.342
+  },
+  "NATURAL_GR": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.23,
+   "max_dev_m": 0.37
+  },
+  "ROUTE_POWER": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.477
+  },
+  "POWER_LINE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.029,
+   "max_dev_m": 0.478
+  },
+  "POWER_MINO": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.058,
+   "max_dev_m": 0.472
+  },
+  "POWER_GENE": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.383,
+   "max_dev_m": 0.117
+  },
+  "ROUTE_TRAM": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.028,
+   "max_dev_m": 0.472
+  },
+  "ROUTE_RAILWAY": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.031,
+   "max_dev_m": 0.476
+  },
+  "ROUTE_TRAIN": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.025,
+   "max_dev_m": 0.565
+  },
+  "RAILWAY_DI": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.06,
+   "max_dev_m": 0.445
+  },
+  "RAILWAY_RA": {
+   "tol_m": 0.479,
+   "min_clearance_m": 0.027,
+   "max_dev_m": 0.629
+  },
+  "RAILWAY_TR": {
+   "tol_m": 0.479,
+   "min_clearance_m": 0.045,
+   "max_dev_m": 0.474
+  },
+  "RAILWAY_AB": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.03,
+   "max_dev_m": 0.475
+  },
+  "RAILWAY_PL": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.098,
+   "max_dev_m": 0.471
+  },
+  "RAILWAY_TU": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.396,
+   "max_dev_m": 0.104
+  },
+  "TOURISM_H0": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.033,
+   "max_dev_m": 0.487
+  },
+  "TOURISM_ZO": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.338,
+   "max_dev_m": 0.214
+  },
+  "TOURISM_TH": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.082,
+   "max_dev_m": 0.485
+  },
+  "TOURISM_MU": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.146,
+   "max_dev_m": 0.448
+  },
+  "TOURISM_AT": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.05,
+   "max_dev_m": 0.47
+  },
+  "TOURISM_HO": {
+   "tol_m": 0.5,
+   "min_clearance_m": 0.137,
+   "max_dev_m": 0.383
+  },
+  "TYPE_DESTI": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.17,
+   "max_dev_m": 0.413
+  },
+  "WATERWAY_C": {
+   "tol_m": 0.479,
+   "min_clearance_m": 0.052,
+   "max_dev_m": 0.459
+  },
+  "WATERWAY_0": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.074,
+   "max_dev_m": 0.467
+  },
+  "WATERWAY_D": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.074,
+   "max_dev_m": 0.449
+  },
+  "WAY_543389": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.47,
+   "max_dev_m": 0.082
+  },
+  "WAY_449700": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.488,
+   "max_dev_m": 0.016
+  },
+  "WAY_370418": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.463,
+   "max_dev_m": 0.049
+  },
+  "WAY_660704": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.362,
+   "max_dev_m": 0.146
+  },
+  "WAY_665209": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.298,
+   "max_dev_m": 0.444
+  },
+  "WAY_369268": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.042,
+   "max_dev_m": 0.459
+  },
+  "WAY_961334": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.154,
+   "max_dev_m": 0.346
+  },
+  "WAY_427799": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.269,
+   "max_dev_m": 0.276
+  },
+  "WAY_448990": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.059,
+   "max_dev_m": 0.441
+  },
+  "HISTORIC_C": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.065,
+   "max_dev_m": 0.435
+  },
+  "SHOP_CAR_R": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.11,
+   "max_dev_m": 0.406
+  },
+  "PUBLIC_TRA": {
+   "tol_m": 0.48,
+   "min_clearance_m": 0.076,
+   "max_dev_m": 0.437
+  }
+ },
+ "layers": {
+  "HIGHWAY_RESIDENTIAL": {
+   "faces_in": 746,
+   "valid_in": true,
+   "parts": 32,
+   "rigid_parts": 0,
+   "draped_parts": 32,
+   "faces_rigid": 0,
+   "tris_draped": 2148,
+   "open_edges": 0,
+   "nonmanifold_edges": 12,
+   "parts_flipped_outward": 27,
+   "ground_level_m": null
+  },
+  "HIGHWAY_RESIDENTIAL_1000": {
+   "faces_in": 168880,
+   "valid_in": false,
+   "parts": 6733,
+   "rigid_parts": 0,
+   "draped_parts": 6733,
+   "faces_rigid": 0,
+   "tris_draped": 853506,
+   "open_edges": 12,
+   "nonmanifold_edges": 18,
+   "parts_flipped_outward": 6730,
+   "ground_level_m": null
+  },
+  "HIGHWAY_SERVICES": {
+   "faces_in": 48,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 130,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "HIGHWAY_CORRIDOR": {
+   "faces_in": 22,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 140,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "HIGHWAY_SERVICE": {
+   "faces_in": 16364,
+   "valid_in": false,
+   "parts": 708,
+   "rigid_parts": 0,
+   "draped_parts": 708,
+   "faces_rigid": 0,
+   "tris_draped": 75859,
+   "open_edges": 0,
+   "nonmanifold_edges": 103,
+   "parts_flipped_outward": 686,
+   "ground_level_m": null
+  },
+  "HIGHWAY_PEDESTRIAN": {
+   "faces_in": 410,
+   "valid_in": true,
+   "parts": 11,
+   "rigid_parts": 0,
+   "draped_parts": 11,
+   "faces_rigid": 0,
+   "tris_draped": 1680,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 11,
+   "ground_level_m": null
+  },
+  "HIGHWAY_RACEWAY": {
+   "faces_in": 96,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 192,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "HIGHWAY_LIVING_STREET": {
+   "faces_in": 34,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 0,
+   "draped_parts": 3,
+   "faces_rigid": 0,
+   "tris_draped": 104,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 3,
+   "ground_level_m": null
+  },
+  "HIGHWAY_REST_AREA": {
+   "faces_in": 32,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 64,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "HIGHWAY_PRIMARY_LINK": {
+   "faces_in": 1606,
+   "valid_in": true,
+   "parts": 71,
+   "rigid_parts": 0,
+   "draped_parts": 71,
+   "faces_rigid": 0,
+   "tris_draped": 4690,
+   "open_edges": 0,
+   "nonmanifold_edges": 1,
+   "parts_flipped_outward": 71,
+   "ground_level_m": null
+  },
+  "HIGHWAY_CONSTRUCTION": {
+   "faces_in": 880,
+   "valid_in": true,
+   "parts": 26,
+   "rigid_parts": 0,
+   "draped_parts": 26,
+   "faces_rigid": 0,
+   "tris_draped": 31244,
+   "open_edges": 0,
+   "nonmanifold_edges": 16,
+   "parts_flipped_outward": 26,
+   "ground_level_m": null
+  },
+  "HIGHWAY_BRIDLEWAY": {
+   "faces_in": 124,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 666,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "HIGHWAY_MOTORWAY": {
+   "faces_in": 1306,
+   "valid_in": true,
+   "parts": 31,
+   "rigid_parts": 0,
+   "draped_parts": 31,
+   "faces_rigid": 0,
+   "tris_draped": 13305,
+   "open_edges": 0,
+   "nonmanifold_edges": 20,
+   "parts_flipped_outward": 27,
+   "ground_level_m": null
+  },
+  "HIGHWAY_STEPS": {
+   "faces_in": 432,
+   "valid_in": true,
+   "parts": 56,
+   "rigid_parts": 0,
+   "draped_parts": 56,
+   "faces_rigid": 0,
+   "tris_draped": 1022,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 56,
+   "ground_level_m": null
+  },
+  "HIGHWAY_FOOTWAY": {
+   "faces_in": 9518,
+   "valid_in": false,
+   "parts": 422,
+   "rigid_parts": 0,
+   "draped_parts": 422,
+   "faces_rigid": 0,
+   "tris_draped": 31874,
+   "open_edges": 0,
+   "nonmanifold_edges": 114,
+   "parts_flipped_outward": 394,
+   "ground_level_m": null
+  },
+  "HIGHWAY_ROAD": {
+   "faces_in": 76,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 168,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "HIGHWAY_SECONDARY_LINK": {
+   "faces_in": 546,
+   "valid_in": true,
+   "parts": 35,
+   "rigid_parts": 0,
+   "draped_parts": 35,
+   "faces_rigid": 0,
+   "tris_draped": 1350,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 35,
+   "ground_level_m": null
+  },
+  "HIGHWAY_TERTIARY_LINK": {
+   "faces_in": 192,
+   "valid_in": true,
+   "parts": 12,
+   "rigid_parts": 0,
+   "draped_parts": 12,
+   "faces_rigid": 0,
+   "tris_draped": 516,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 12,
+   "ground_level_m": null
+  },
+  "HIGHWAY_MOTORWAY_LINK": {
+   "faces_in": 7784,
+   "valid_in": true,
+   "parts": 154,
+   "rigid_parts": 0,
+   "draped_parts": 154,
+   "faces_rigid": 0,
+   "tris_draped": 20506,
+   "open_edges": 0,
+   "nonmanifold_edges": 10,
+   "parts_flipped_outward": 151,
+   "ground_level_m": null
+  },
+  "HIGHWAY_TRACK": {
+   "faces_in": 10676,
+   "valid_in": false,
+   "parts": 160,
+   "rigid_parts": 0,
+   "draped_parts": 160,
+   "faces_rigid": 0,
+   "tris_draped": 41244,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 160,
+   "ground_level_m": null
+  },
+  "HIGHWAY_PATH": {
+   "faces_in": 1654,
+   "valid_in": true,
+   "parts": 35,
+   "rigid_parts": 0,
+   "draped_parts": 35,
+   "faces_rigid": 0,
+   "tris_draped": 5280,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 35,
+   "ground_level_m": null
+  },
+  "HIGHWAY_SERVICE_1000": {
+   "faces_in": 27712,
+   "valid_in": false,
+   "parts": 859,
+   "rigid_parts": 0,
+   "draped_parts": 859,
+   "faces_rigid": 0,
+   "tris_draped": 98722,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 859,
+   "ground_level_m": null
+  },
+  "HIGHWAY_TERTIARY": {
+   "faces_in": 22982,
+   "valid_in": false,
+   "parts": 485,
+   "rigid_parts": 0,
+   "draped_parts": 485,
+   "faces_rigid": 0,
+   "tris_draped": 128047,
+   "open_edges": 1,
+   "nonmanifold_edges": 71,
+   "parts_flipped_outward": 465,
+   "ground_level_m": null
+  },
+  "HIGHWAY_TRUNK_LINK": {
+   "faces_in": 2368,
+   "valid_in": true,
+   "parts": 72,
+   "rigid_parts": 0,
+   "draped_parts": 72,
+   "faces_rigid": 0,
+   "tris_draped": 8050,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 72,
+   "ground_level_m": null
+  },
+  "HIGHWAY_UNCLASSIFIED": {
+   "faces_in": 19374,
+   "valid_in": true,
+   "parts": 276,
+   "rigid_parts": 0,
+   "draped_parts": 276,
+   "faces_rigid": 0,
+   "tris_draped": 86499,
+   "open_edges": 0,
+   "nonmanifold_edges": 30,
+   "parts_flipped_outward": 269,
+   "ground_level_m": null
+  },
+  "HIGHWAY_TRUNK": {
+   "faces_in": 8440,
+   "valid_in": true,
+   "parts": 99,
+   "rigid_parts": 0,
+   "draped_parts": 99,
+   "faces_rigid": 0,
+   "tris_draped": 63560,
+   "open_edges": 0,
+   "nonmanifold_edges": 34,
+   "parts_flipped_outward": 91,
+   "ground_level_m": null
+  },
+  "HIGHWAY_SECONDARY": {
+   "faces_in": 30258,
+   "valid_in": false,
+   "parts": 574,
+   "rigid_parts": 0,
+   "draped_parts": 574,
+   "faces_rigid": 0,
+   "tris_draped": 170957,
+   "open_edges": 0,
+   "nonmanifold_edges": 180,
+   "parts_flipped_outward": 533,
+   "ground_level_m": null
+  },
+  "HIGHWAY_PRIMARY": {
+   "faces_in": 15724,
+   "valid_in": true,
+   "parts": 274,
+   "rigid_parts": 0,
+   "draped_parts": 274,
+   "faces_rigid": 0,
+   "tris_draped": 121551,
+   "open_edges": 0,
+   "nonmanifold_edges": 66,
+   "parts_flipped_outward": 258,
+   "ground_level_m": null
+  },
+  "ROUTE_ROAD": {
+   "faces_in": 11218,
+   "valid_in": true,
+   "parts": 152,
+   "rigid_parts": 0,
+   "draped_parts": 152,
+   "faces_rigid": 0,
+   "tris_draped": 83936,
+   "open_edges": 0,
+   "nonmanifold_edges": 85,
+   "parts_flipped_outward": 130,
+   "ground_level_m": null
+  },
+  "RESTRICTION_ONLY_LEFT_TURN": {
+   "faces_in": 48,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 114,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "RESTRICTION_ONLY_RIGHT_TURN": {
+   "faces_in": 238,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 0,
+   "draped_parts": 5,
+   "faces_rigid": 0,
+   "tris_draped": 680,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 5,
+   "ground_level_m": null
+  },
+  "RESTRICTION_ONLY_STRAIGHT_ON": {
+   "faces_in": 1824,
+   "valid_in": true,
+   "parts": 39,
+   "rigid_parts": 0,
+   "draped_parts": 39,
+   "faces_rigid": 0,
+   "tris_draped": 8944,
+   "open_edges": 0,
+   "nonmanifold_edges": 5,
+   "parts_flipped_outward": 38,
+   "ground_level_m": null
+  },
+  "RESTRICTION_NO_LEFT_TURN": {
+   "faces_in": 1008,
+   "valid_in": true,
+   "parts": 53,
+   "rigid_parts": 0,
+   "draped_parts": 53,
+   "faces_rigid": 0,
+   "tris_draped": 6684,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 53,
+   "ground_level_m": null
+  },
+  "RESTRICTION_NO_RIGHT_TURN": {
+   "faces_in": 230,
+   "valid_in": true,
+   "parts": 13,
+   "rigid_parts": 0,
+   "draped_parts": 13,
+   "faces_rigid": 0,
+   "tris_draped": 680,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 13,
+   "ground_level_m": null
+  },
+  "RESTRICTION_NO_U_TURN": {
+   "faces_in": 2484,
+   "valid_in": true,
+   "parts": 47,
+   "rigid_parts": 0,
+   "draped_parts": 47,
+   "faces_rigid": 0,
+   "tris_draped": 8916,
+   "open_edges": 0,
+   "nonmanifold_edges": 2,
+   "parts_flipped_outward": 47,
+   "ground_level_m": null
+  },
+  "RESTRICTION_NO_STRAIGHT_ON": {
+   "faces_in": 228,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 3862,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "NAME_ARDIS_ORAN": {
+   "faces_in": 28,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 546,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_ODEJ_ORAN": {
+   "faces_in": 20,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 40,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_POLICE_SCIENTIFIQUE": {
+   "faces_in": 28,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 70,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_ONAB_ORAN": {
+   "faces_in": 16,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 78,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME___________________": {
+   "faces_in": 80,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 174,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_SI_GE_DE_LA_DA_RA_D_ORAN": {
+   "faces_in": 36,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 354,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_R_SIDENCE_ZABANA__CHERIF_": {
+   "faces_in": 44,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 324,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_ENPI": {
+   "faces_in": 20,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 72,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_DIRECTION_NAFTAL": {
+   "faces_in": 36,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 694,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_FORT_SANTON": {
+   "faces_in": 236,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 1154,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_PLACE_COMMANDANT_MEDJDOUB": {
+   "faces_in": 16,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 460,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_SQUARE_PORT_SA_D": {
+   "faces_in": 32,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 432,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_DIRECTION_DE_LA_SANT_": {
+   "faces_in": 40,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 100,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_____________": {
+   "faces_in": 78,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 3928,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "NAME_PLACE_1ER_NOVEMBRE": {
+   "faces_in": 80,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 358,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_PLACE_A_SSAT_IDIR": {
+   "faces_in": 24,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 520,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_ONEC___ANNEXE_ORAN": {
+   "faces_in": 36,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 214,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME______________1": {
+   "faces_in": 32,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 130,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "NAME_DA_RA_ES_SENIA": {
+   "faces_in": 16,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 194,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_PEUGEOT_ES_SENIA": {
+   "faces_in": 20,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 1074,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME_DIRECTION_P_DAGOGIQUE": {
+   "faces_in": 16,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 204,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NAME______": {
+   "faces_in": 20,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 620,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "PLANE_10": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    89.17800344759311,
+    89.44916245178099
+   ]
+  },
+  "PLANE_9": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.59198200156516,
+    88.70582339282352
+   ]
+  },
+  "PLANE_8": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.63950365839955,
+    88.7289943067697
+   ]
+  },
+  "PLANE_7": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.4948465425787,
+    88.59051484989743
+   ]
+  },
+  "PLANE_6": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.50252531890582,
+    88.54452940206595
+   ]
+  },
+  "PLANE_5": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.5637127484756,
+    88.71236011627832
+   ]
+  },
+  "PLANE_4": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.56461783611395,
+    88.68441564375891
+   ]
+  },
+  "PLANE_3": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 32,
+   "ground_level_m": [
+    88.5182519769919,
+    88.83728161702413
+   ]
+  },
+  "PLANE_2": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 11,
+   "draped_parts": 22,
+   "faces_rigid": 1696,
+   "tris_draped": 3360,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 32,
+   "ground_level_m": [
+    88.27135151926855,
+    88.48663566222385
+   ]
+  },
+  "PLANE_1": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.36027649982063,
+    88.52296175851514
+   ]
+  },
+  "PLANE": {
+   "faces_in": 3412,
+   "valid_in": true,
+   "parts": 33,
+   "rigid_parts": 10,
+   "draped_parts": 23,
+   "faces_rigid": 1628,
+   "tris_draped": 3480,
+   "open_edges": 13,
+   "nonmanifold_edges": 9,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    88.50364888812388,
+    88.54184568824705
+   ]
+  },
+  "AEROWAY_RU": {
+   "faces_in": 88,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 462,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "AEROWAY_AE": {
+   "faces_in": 171,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 29802,
+   "open_edges": 337,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "AEROWAY_TA": {
+   "faces_in": 2794,
+   "valid_in": true,
+   "parts": 83,
+   "rigid_parts": 0,
+   "draped_parts": 83,
+   "faces_rigid": 0,
+   "tris_draped": 5968,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 83,
+   "ground_level_m": null
+  },
+  "AEROWAY_AP": {
+   "faces_in": 9,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 26,
+   "open_edges": 20,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "AMENITY_HO": {
+   "faces_in": 99,
+   "valid_in": true,
+   "parts": 30,
+   "rigid_parts": 0,
+   "draped_parts": 30,
+   "faces_rigid": 0,
+   "tris_draped": 30157,
+   "open_edges": 244,
+   "nonmanifold_edges": 1,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_SC": {
+   "faces_in": 597,
+   "valid_in": true,
+   "parts": 193,
+   "rigid_parts": 0,
+   "draped_parts": 193,
+   "faces_rigid": 0,
+   "tris_draped": 25421,
+   "open_edges": 1445,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_TO": {
+   "faces_in": 11,
+   "valid_in": true,
+   "parts": 10,
+   "rigid_parts": 0,
+   "draped_parts": 10,
+   "faces_rigid": 0,
+   "tris_draped": 292,
+   "open_edges": 41,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_CL": {
+   "faces_in": 40,
+   "valid_in": true,
+   "parts": 19,
+   "rigid_parts": 0,
+   "draped_parts": 19,
+   "faces_rigid": 0,
+   "tris_draped": 1881,
+   "open_edges": 113,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_PL": {
+   "faces_in": 42,
+   "valid_in": true,
+   "parts": 23,
+   "rigid_parts": 0,
+   "draped_parts": 23,
+   "faces_rigid": 0,
+   "tris_draped": 1000,
+   "open_edges": 125,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_FI": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 124,
+   "open_edges": 19,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_PA": {
+   "faces_in": 168,
+   "valid_in": true,
+   "parts": 65,
+   "rigid_parts": 0,
+   "draped_parts": 65,
+   "faces_rigid": 0,
+   "tris_draped": 4850,
+   "open_edges": 439,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_C1": {
+   "faces_in": 65,
+   "valid_in": true,
+   "parts": 16,
+   "rigid_parts": 0,
+   "draped_parts": 16,
+   "faces_rigid": 0,
+   "tris_draped": 5131,
+   "open_edges": 151,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_UN": {
+   "faces_in": 126,
+   "valid_in": true,
+   "parts": 12,
+   "rigid_parts": 0,
+   "draped_parts": 12,
+   "faces_rigid": 0,
+   "tris_draped": 63194,
+   "open_edges": 255,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_P0": {
+   "faces_in": 11,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 200,
+   "open_edges": 21,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_TA": {
+   "faces_in": 15,
+   "valid_in": true,
+   "parts": 6,
+   "rigid_parts": 0,
+   "draped_parts": 6,
+   "faces_rigid": 0,
+   "tris_draped": 395,
+   "open_edges": 40,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_PO": {
+   "faces_in": 19,
+   "valid_in": true,
+   "parts": 11,
+   "rigid_parts": 0,
+   "draped_parts": 11,
+   "faces_rigid": 0,
+   "tris_draped": 715,
+   "open_edges": 57,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_LI": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 7,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_C0": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 0,
+   "draped_parts": 3,
+   "faces_rigid": 0,
+   "tris_draped": 276,
+   "open_edges": 18,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_SA": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 8,
+   "open_edges": 8,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_FU": {
+   "faces_in": 18,
+   "valid_in": true,
+   "parts": 7,
+   "rigid_parts": 0,
+   "draped_parts": 7,
+   "faces_rigid": 0,
+   "tris_draped": 267,
+   "open_edges": 47,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_CO": {
+   "faces_in": 11,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 0,
+   "draped_parts": 5,
+   "faces_rigid": 0,
+   "tris_draped": 1321,
+   "open_edges": 30,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_MA": {
+   "faces_in": 5,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 76,
+   "open_edges": 17,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_KI": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 44,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_SO": {
+   "faces_in": 7,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 913,
+   "open_edges": 15,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_RE": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 40,
+   "open_edges": 5,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_PR": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 0,
+   "draped_parts": 3,
+   "faces_rigid": 0,
+   "tris_draped": 2146,
+   "open_edges": 23,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_BU": {
+   "faces_in": 8,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 0,
+   "draped_parts": 3,
+   "faces_rigid": 0,
+   "tris_draped": 159,
+   "open_edges": 22,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_TH": {
+   "faces_in": 4,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 315,
+   "open_edges": 9,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_FE": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 1195,
+   "open_edges": 19,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_EV": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 87,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AMENITY_FO": {
+   "faces_in": 17,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 0,
+   "draped_parts": 3,
+   "faces_rigid": 0,
+   "tris_draped": 43,
+   "open_edges": 39,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "AREA_YES": {
+   "faces_in": 7,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 14,
+   "open_edges": 16,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "BARRIER_CI": {
+   "faces_in": 1098,
+   "valid_in": true,
+   "parts": 36,
+   "rigid_parts": 0,
+   "draped_parts": 36,
+   "faces_rigid": 0,
+   "tris_draped": 3650,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 36,
+   "ground_level_m": null
+  },
+  "BARRIER_WA": {
+   "faces_in": 4238,
+   "valid_in": true,
+   "parts": 144,
+   "rigid_parts": 0,
+   "draped_parts": 144,
+   "faces_rigid": 0,
+   "tris_draped": 26242,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 144,
+   "ground_level_m": null
+  },
+  "BARRIER_FE": {
+   "faces_in": 193,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 2542,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "BARRIER_YE": {
+   "faces_in": 12,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 24,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "BARRIER_RE": {
+   "faces_in": 436,
+   "valid_in": true,
+   "parts": 14,
+   "rigid_parts": 0,
+   "draped_parts": 14,
+   "faces_rigid": 0,
+   "tris_draped": 1812,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 14,
+   "ground_level_m": null
+  },
+  "BARRIER_HE": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 20,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "BARRIER_KE": {
+   "faces_in": 32,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 0,
+   "draped_parts": 3,
+   "faces_rigid": 0,
+   "tris_draped": 86,
+   "open_edges": 70,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 3,
+   "ground_level_m": null
+  },
+  "EXTRA_BUILD_BY_TURBOCG_COM": {
+   "faces_in": 1951384,
+   "valid_in": true,
+   "parts": 232288,
+   "rigid_parts": 232288,
+   "draped_parts": 0,
+   "faces_rigid": 1951384,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 185,
+   "parts_flipped_outward": 232288,
+   "ground_level_m": [
+    0.0,
+    539.4367324523216
+   ]
+  },
+  "BUILDING_U": {
+   "faces_in": 1357,
+   "valid_in": true,
+   "parts": 49,
+   "rigid_parts": 49,
+   "draped_parts": 0,
+   "faces_rigid": 1356,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 8,
+   "parts_flipped_outward": 49,
+   "ground_level_m": [
+    88.56643350569763,
+    195.06026967401417
+   ]
+  },
+  "BUILDING_I": {
+   "faces_in": 653,
+   "valid_in": true,
+   "parts": 67,
+   "rigid_parts": 67,
+   "draped_parts": 0,
+   "faces_rigid": 653,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 67,
+   "ground_level_m": [
+    3.1380807080670765,
+    146.90903926753407
+   ]
+  },
+  "BUILDING27": {
+   "faces_in": 725,
+   "valid_in": true,
+   "parts": 65,
+   "rigid_parts": 65,
+   "draped_parts": 0,
+   "faces_rigid": 724,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 14,
+   "parts_flipped_outward": 64,
+   "ground_level_m": [
+    63.734518108099614,
+    163.74585284137422
+   ]
+  },
+  "BUILDING26": {
+   "faces_in": 9059,
+   "valid_in": true,
+   "parts": 997,
+   "rigid_parts": 997,
+   "draped_parts": 0,
+   "faces_rigid": 9051,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 118,
+   "parts_flipped_outward": 989,
+   "ground_level_m": [
+    0.2962707606548085,
+    426.0022274556833
+   ]
+  },
+  "BUILDING25": {
+   "faces_in": 253,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 3,
+   "draped_parts": 0,
+   "faces_rigid": 253,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 3,
+   "ground_level_m": [
+    103.24807368657416,
+    168.3763416738273
+   ]
+  },
+  "BUILDING_P": {
+   "faces_in": 431,
+   "valid_in": true,
+   "parts": 20,
+   "rigid_parts": 20,
+   "draped_parts": 0,
+   "faces_rigid": 431,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 20,
+   "ground_level_m": [
+    20.22606313410744,
+    185.02747424061928
+   ]
+  },
+  "BUILDING24": {
+   "faces_in": 686,
+   "valid_in": true,
+   "parts": 20,
+   "rigid_parts": 20,
+   "draped_parts": 0,
+   "faces_rigid": 686,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 20,
+   "ground_level_m": [
+    56.79933106644837,
+    133.06537362912462
+   ]
+  },
+  "BUILDING_M": {
+   "faces_in": 398,
+   "valid_in": true,
+   "parts": 34,
+   "rigid_parts": 34,
+   "draped_parts": 0,
+   "faces_rigid": 396,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 6,
+   "parts_flipped_outward": 33,
+   "ground_level_m": [
+    61.95440283811335,
+    204.42719620544187
+   ]
+  },
+  "BUILDING23": {
+   "faces_in": 46,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 46,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    135.28951282347052,
+    135.28951282347052
+   ]
+  },
+  "BUILDING22": {
+   "faces_in": 25,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 3,
+   "draped_parts": 0,
+   "faces_rigid": 25,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 3,
+   "ground_level_m": [
+    3.35896727309062,
+    105.15629943115924
+   ]
+  },
+  "BUILDING_9": {
+   "faces_in": 383,
+   "valid_in": true,
+   "parts": 30,
+   "rigid_parts": 30,
+   "draped_parts": 0,
+   "faces_rigid": 382,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 4,
+   "parts_flipped_outward": 29,
+   "ground_level_m": [
+    6.341448484469888,
+    186.94736205689196
+   ]
+  },
+  "BUILDING_A": {
+   "faces_in": 2011,
+   "valid_in": true,
+   "parts": 51,
+   "rigid_parts": 51,
+   "draped_parts": 0,
+   "faces_rigid": 2011,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 1,
+   "parts_flipped_outward": 51,
+   "ground_level_m": [
+    91.25152561296935,
+    174.17602737595507
+   ]
+  },
+  "BUILDING_8": {
+   "faces_in": 114,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 4,
+   "draped_parts": 0,
+   "faces_rigid": 114,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": [
+    66.19108101948834,
+    192.17058676302977
+   ]
+  },
+  "BUILDING_7": {
+   "faces_in": 92,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 92,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    89.39817387524766,
+    89.51273980184311
+   ]
+  },
+  "BUILDING_6": {
+   "faces_in": 408,
+   "valid_in": true,
+   "parts": 56,
+   "rigid_parts": 56,
+   "draped_parts": 0,
+   "faces_rigid": 408,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 56,
+   "ground_level_m": [
+    67.29776373100074,
+    135.50475535407344
+   ]
+  },
+  "BUILDING_5": {
+   "faces_in": 29,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 3,
+   "draped_parts": 0,
+   "faces_rigid": 29,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 3,
+   "ground_level_m": [
+    90.90336586705098,
+    169.6110315232848
+   ]
+  },
+  "BUILDING_4": {
+   "faces_in": 343,
+   "valid_in": true,
+   "parts": 16,
+   "rigid_parts": 16,
+   "draped_parts": 0,
+   "faces_rigid": 343,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 2,
+   "parts_flipped_outward": 16,
+   "ground_level_m": [
+    2.8518902285809977,
+    95.22739413241922
+   ]
+  },
+  "BUILDING_R": {
+   "faces_in": 32,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 4,
+   "draped_parts": 0,
+   "faces_rigid": 32,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 1,
+   "parts_flipped_outward": 4,
+   "ground_level_m": [
+    5.0325407347378786,
+    180.14981349229075
+   ]
+  },
+  "BUILDING_3": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 6,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    118.64298090018431,
+    118.64298090018431
+   ]
+  },
+  "BUILDING_2": {
+   "faces_in": 89,
+   "valid_in": true,
+   "parts": 13,
+   "rigid_parts": 13,
+   "draped_parts": 0,
+   "faces_rigid": 89,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 13,
+   "ground_level_m": [
+    94.82452866425018,
+    148.97143671793745
+   ]
+  },
+  "BUILDING_T": {
+   "faces_in": 227,
+   "valid_in": true,
+   "parts": 10,
+   "rigid_parts": 10,
+   "draped_parts": 0,
+   "faces_rigid": 227,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 10,
+   "ground_level_m": [
+    87.56729858503851,
+    427.03701148289394
+   ]
+  },
+  "BUILDING_C": {
+   "faces_in": 313,
+   "valid_in": true,
+   "parts": 20,
+   "rigid_parts": 20,
+   "draped_parts": 0,
+   "faces_rigid": 313,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 20,
+   "ground_level_m": [
+    59.646747763767536,
+    164.06009735106096
+   ]
+  },
+  "BUILDING_H": {
+   "faces_in": 15,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 15,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    68.19738178290602,
+    86.83335494919224
+   ]
+  },
+  "BUILDING_1": {
+   "faces_in": 900,
+   "valid_in": true,
+   "parts": 30,
+   "rigid_parts": 30,
+   "draped_parts": 0,
+   "faces_rigid": 900,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 30,
+   "ground_level_m": [
+    3.360348610192224,
+    6.782669964144983
+   ]
+  },
+  "BUILDING_Y": {
+   "faces_in": 8260,
+   "valid_in": true,
+   "parts": 690,
+   "rigid_parts": 690,
+   "draped_parts": 0,
+   "faces_rigid": 8259,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 68,
+   "parts_flipped_outward": 688,
+   "ground_level_m": [
+    0.7126426434073714,
+    309.5623881118624
+   ]
+  },
+  "BUILDING_0": {
+   "faces_in": 52,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 5,
+   "draped_parts": 0,
+   "faces_rigid": 52,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 5,
+   "ground_level_m": [
+    100.12179152088461,
+    162.68763077409162
+   ]
+  },
+  "BUILDING_W": {
+   "faces_in": 15,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 15,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    84.75107855372998,
+    86.18749614808063
+   ]
+  },
+  "BUILDING_D": {
+   "faces_in": 372,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 4,
+   "draped_parts": 0,
+   "faces_rigid": 372,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": [
+    132.00075038620452,
+    205.01066590273416
+   ]
+  },
+  "BUILDING_F": {
+   "faces_in": 32,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 32,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    143.85077971497736,
+    143.85077971497736
+   ]
+  },
+  "BUILDING_G": {
+   "faces_in": 14,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 14,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    165.68555137359803,
+    165.68555137359803
+   ]
+  },
+  "BUILDING_S": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 6,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    175.1392213126876,
+    175.1392213126876
+   ]
+  },
+  "BUILDING21": {
+   "faces_in": 17374,
+   "valid_in": true,
+   "parts": 911,
+   "rigid_parts": 911,
+   "draped_parts": 0,
+   "faces_rigid": 17358,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 76,
+   "parts_flipped_outward": 893,
+   "ground_level_m": [
+    31.284170343868766,
+    208.50901999902402
+   ]
+  },
+  "BUILDING20": {
+   "faces_in": 340,
+   "valid_in": true,
+   "parts": 21,
+   "rigid_parts": 21,
+   "draped_parts": 0,
+   "faces_rigid": 340,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 21,
+   "ground_level_m": [
+    49.79478616443194,
+    186.36055440391078
+   ]
+  },
+  "BUILDING19": {
+   "faces_in": 1337,
+   "valid_in": true,
+   "parts": 109,
+   "rigid_parts": 109,
+   "draped_parts": 0,
+   "faces_rigid": 1337,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 1,
+   "parts_flipped_outward": 109,
+   "ground_level_m": [
+    36.56293959298634,
+    208.8414061645548
+   ]
+  },
+  "BUILDING18": {
+   "faces_in": 3752,
+   "valid_in": true,
+   "parts": 158,
+   "rigid_parts": 158,
+   "draped_parts": 0,
+   "faces_rigid": 3751,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 4,
+   "parts_flipped_outward": 156,
+   "ground_level_m": [
+    82.81343517822594,
+    186.39812962259697
+   ]
+  },
+  "BUILDING17": {
+   "faces_in": 604,
+   "valid_in": true,
+   "parts": 28,
+   "rigid_parts": 28,
+   "draped_parts": 0,
+   "faces_rigid": 604,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 28,
+   "ground_level_m": [
+    111.7483558309607,
+    172.0534192497001
+   ]
+  },
+  "BUILDING16": {
+   "faces_in": 2552,
+   "valid_in": true,
+   "parts": 94,
+   "rigid_parts": 94,
+   "draped_parts": 0,
+   "faces_rigid": 2552,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 94,
+   "ground_level_m": [
+    102.22949045843566,
+    171.2654858787002
+   ]
+  },
+  "BUILDING15": {
+   "faces_in": 3755,
+   "valid_in": true,
+   "parts": 305,
+   "rigid_parts": 305,
+   "draped_parts": 0,
+   "faces_rigid": 3752,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 15,
+   "parts_flipped_outward": 301,
+   "ground_level_m": [
+    29.76577669803096,
+    207.52594062796294
+   ]
+  },
+  "BUILDING14": {
+   "faces_in": 2601,
+   "valid_in": true,
+   "parts": 152,
+   "rigid_parts": 152,
+   "draped_parts": 0,
+   "faces_rigid": 2600,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 8,
+   "parts_flipped_outward": 150,
+   "ground_level_m": [
+    31.534682818655533,
+    174.79527401584417
+   ]
+  },
+  "BUILDING13": {
+   "faces_in": 591,
+   "valid_in": true,
+   "parts": 23,
+   "rigid_parts": 23,
+   "draped_parts": 0,
+   "faces_rigid": 591,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 23,
+   "ground_level_m": [
+    30.649818908267974,
+    207.81982656841674
+   ]
+  },
+  "BUILDING12": {
+   "faces_in": 1193,
+   "valid_in": true,
+   "parts": 86,
+   "rigid_parts": 86,
+   "draped_parts": 0,
+   "faces_rigid": 1193,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 11,
+   "parts_flipped_outward": 86,
+   "ground_level_m": [
+    31.57537404675098,
+    174.3307853439361
+   ]
+  },
+  "BUILDING11": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 12,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "BUILDING10": {
+   "faces_in": 33,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 4,
+   "draped_parts": 0,
+   "faces_rigid": 33,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": [
+    101.53279648211674,
+    110.24927203003159
+   ]
+  },
+  "BUILDING_9_1": {
+   "faces_in": 828,
+   "valid_in": true,
+   "parts": 37,
+   "rigid_parts": 37,
+   "draped_parts": 0,
+   "faces_rigid": 828,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 37,
+   "ground_level_m": [
+    94.76448358817204,
+    168.65307223138126
+   ]
+  },
+  "BUILDING_8_1": {
+   "faces_in": 79,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 79,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    95.69807306687898,
+    100.81350011150832
+   ]
+  },
+  "BUILDING_7_1": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 10,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    105.5379564370141,
+    105.5379564370141
+   ]
+  },
+  "BUILDING_6_1": {
+   "faces_in": 9,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 9,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    81.4971026763174,
+    81.4971026763174
+   ]
+  },
+  "BUILDING_5_1": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 6,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    54.96251601425841,
+    54.96251601425841
+   ]
+  },
+  "BUILDING_4_1": {
+   "faces_in": 39,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 39,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    56.143744666733824,
+    112.98507414821496
+   ]
+  },
+  "BUILDING_3_1": {
+   "faces_in": 44,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 44,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    115.32249655851588,
+    183.14698754073407
+   ]
+  },
+  "BUILDING_2_1": {
+   "faces_in": 18,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 3,
+   "draped_parts": 0,
+   "faces_rigid": 18,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 3,
+   "ground_level_m": [
+    98.61505953913081,
+    172.95535769690838
+   ]
+  },
+  "BUILDING_1_1": {
+   "faces_in": 54,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 54,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    122.78802209891968,
+    122.78802209891968
+   ]
+  },
+  "BUILDING_0_1": {
+   "faces_in": 14,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 140,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "BUILDING_L": {
+   "faces_in": 33,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 162,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "BUILDING_P_1": {
+   "faces_in": 74,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 74,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    107.89523284118286,
+    111.6796948643381
+   ]
+  },
+  "HEIGHT_20": {
+   "faces_in": 68,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 68,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    88.59405022798403,
+    88.59405022798403
+   ]
+  },
+  "HEIGHT_25": {
+   "faces_in": 37,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 37,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    90.93287031185571,
+    90.93287031185571
+   ]
+  },
+  "HEIGHT_35": {
+   "faces_in": 12,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 12,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    82.81032467219916,
+    84.61480490307247
+   ]
+  },
+  "HEIGHT_28": {
+   "faces_in": 18,
+   "valid_in": true,
+   "parts": 3,
+   "rigid_parts": 3,
+   "draped_parts": 0,
+   "faces_rigid": 18,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 3,
+   "ground_level_m": [
+    83.92925908777755,
+    89.34318366629728
+   ]
+  },
+  "HEIGHT_26": {
+   "faces_in": 35,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 4,
+   "draped_parts": 0,
+   "faces_rigid": 35,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": [
+    83.1702074997102,
+    88.90403888456046
+   ]
+  },
+  "HEIGHT_40": {
+   "faces_in": 30,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 30,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    9.486045496596109,
+    9.486045496596109
+   ]
+  },
+  "HEIGHT_104": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 6,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    117.72494946135637,
+    117.72494946135637
+   ]
+  },
+  "HEIGHT_18": {
+   "faces_in": 59,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 2,
+   "draped_parts": 0,
+   "faces_rigid": 59,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": [
+    127.61033463834981,
+    133.94446338270592
+   ]
+  },
+  "HEIGHT_111": {
+   "faces_in": 56,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 4,
+   "draped_parts": 0,
+   "faces_rigid": 56,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": [
+    75.13434349725645,
+    81.55234358480033
+   ]
+  },
+  "HEIGHT_77": {
+   "faces_in": 36,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 36,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    133.1638259420801,
+    133.1638259420801
+   ]
+  },
+  "HEIGHT_70": {
+   "faces_in": 22,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 22,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    146.55070713712055,
+    146.55070713712055
+   ]
+  },
+  "HEIGHT_106": {
+   "faces_in": 30,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 30,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    148.18516121774624,
+    148.18516121774624
+   ]
+  },
+  "LANDUSE_G0": {
+   "faces_in": 299,
+   "valid_in": true,
+   "parts": 65,
+   "rigid_parts": 0,
+   "draped_parts": 65,
+   "faces_rigid": 0,
+   "tris_draped": 2501,
+   "open_edges": 692,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_OR": {
+   "faces_in": 324,
+   "valid_in": true,
+   "parts": 53,
+   "rigid_parts": 0,
+   "draped_parts": 53,
+   "faces_rigid": 0,
+   "tris_draped": 75146,
+   "open_edges": 701,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_CE": {
+   "faces_in": 136,
+   "valid_in": true,
+   "parts": 18,
+   "rigid_parts": 0,
+   "draped_parts": 18,
+   "faces_rigid": 0,
+   "tris_draped": 28542,
+   "open_edges": 292,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_V0": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 113,
+   "open_edges": 6,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_FO": {
+   "faces_in": 473,
+   "valid_in": true,
+   "parts": 6,
+   "rigid_parts": 0,
+   "draped_parts": 6,
+   "faces_rigid": 0,
+   "tris_draped": 618551,
+   "open_edges": 917,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_F0": {
+   "faces_in": 274,
+   "valid_in": true,
+   "parts": 19,
+   "rigid_parts": 0,
+   "draped_parts": 19,
+   "faces_rigid": 0,
+   "tris_draped": 64845,
+   "open_edges": 546,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_R2": {
+   "faces_in": 1000,
+   "valid_in": true,
+   "parts": 97,
+   "rigid_parts": 0,
+   "draped_parts": 97,
+   "faces_rigid": 0,
+   "tris_draped": 807419,
+   "open_edges": 2045,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_IN": {
+   "faces_in": 540,
+   "valid_in": true,
+   "parts": 48,
+   "rigid_parts": 0,
+   "draped_parts": 48,
+   "faces_rigid": 0,
+   "tris_draped": 244303,
+   "open_edges": 1099,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_QU": {
+   "faces_in": 14,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 18522,
+   "open_edges": 29,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_MI": {
+   "faces_in": 436,
+   "valid_in": true,
+   "parts": 20,
+   "rigid_parts": 0,
+   "draped_parts": 20,
+   "faces_rigid": 0,
+   "tris_draped": 126050,
+   "open_edges": 870,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_C0": {
+   "faces_in": 182,
+   "valid_in": true,
+   "parts": 16,
+   "rigid_parts": 0,
+   "draped_parts": 16,
+   "faces_rigid": 0,
+   "tris_draped": 48338,
+   "open_edges": 386,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_ME": {
+   "faces_in": 44,
+   "valid_in": true,
+   "parts": 10,
+   "rigid_parts": 0,
+   "draped_parts": 10,
+   "faces_rigid": 0,
+   "tris_draped": 2566,
+   "open_edges": 102,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_CO": {
+   "faces_in": 109,
+   "valid_in": true,
+   "parts": 20,
+   "rigid_parts": 0,
+   "draped_parts": 20,
+   "faces_rigid": 0,
+   "tris_draped": 18587,
+   "open_edges": 238,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_FA": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 14,
+   "open_edges": 6,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_RA": {
+   "faces_in": 59,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 0,
+   "draped_parts": 5,
+   "faces_rigid": 0,
+   "tris_draped": 5608,
+   "open_edges": 120,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_R1": {
+   "faces_in": 15,
+   "valid_in": true,
+   "parts": 6,
+   "rigid_parts": 0,
+   "draped_parts": 6,
+   "faces_rigid": 0,
+   "tris_draped": 13857,
+   "open_edges": 40,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_ED": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 84,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_PL": {
+   "faces_in": 12,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 1251,
+   "open_edges": 32,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_BR": {
+   "faces_in": 8,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 631,
+   "open_edges": 18,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_GR": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 15,
+   "open_edges": 7,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_R0": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 12,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_HA": {
+   "faces_in": 18,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 2863,
+   "open_edges": 36,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_RE": {
+   "faces_in": 3,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 6,
+   "open_edges": 8,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_BA": {
+   "faces_in": 9,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 17,
+   "open_edges": 19,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LANDUSE_VI": {
+   "faces_in": 38,
+   "valid_in": true,
+   "parts": 9,
+   "rigid_parts": 0,
+   "draped_parts": 9,
+   "faces_rigid": 0,
+   "tris_draped": 80,
+   "open_edges": 87,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LEISURE_TR": {
+   "faces_in": 99,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 616,
+   "open_edges": 195,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "LEISURE_SW": {
+   "faces_in": 63,
+   "valid_in": true,
+   "parts": 10,
+   "rigid_parts": 0,
+   "draped_parts": 10,
+   "faces_rigid": 0,
+   "tris_draped": 193,
+   "open_edges": 139,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 10,
+   "ground_level_m": null
+  },
+  "LEISURE_PI": {
+   "faces_in": 163,
+   "valid_in": true,
+   "parts": 123,
+   "rigid_parts": 0,
+   "draped_parts": 123,
+   "faces_rigid": 0,
+   "tris_draped": 1537,
+   "open_edges": 552,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 123,
+   "ground_level_m": null
+  },
+  "LEISURE_ST": {
+   "faces_in": 158,
+   "valid_in": true,
+   "parts": 49,
+   "rigid_parts": 0,
+   "draped_parts": 49,
+   "faces_rigid": 0,
+   "tris_draped": 4503,
+   "open_edges": 399,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 49,
+   "ground_level_m": null
+  },
+  "LEISURE_SP": {
+   "faces_in": 78,
+   "valid_in": true,
+   "parts": 14,
+   "rigid_parts": 0,
+   "draped_parts": 14,
+   "faces_rigid": 0,
+   "tris_draped": 8163,
+   "open_edges": 172,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LEISURE_PL": {
+   "faces_in": 58,
+   "valid_in": true,
+   "parts": 9,
+   "rigid_parts": 0,
+   "draped_parts": 9,
+   "faces_rigid": 0,
+   "tris_draped": 211,
+   "open_edges": 129,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 9,
+   "ground_level_m": null
+  },
+  "LEISURE_GA": {
+   "faces_in": 118,
+   "valid_in": true,
+   "parts": 32,
+   "rigid_parts": 0,
+   "draped_parts": 32,
+   "faces_rigid": 0,
+   "tris_draped": 11012,
+   "open_edges": 282,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LEISURE_PA": {
+   "faces_in": 118,
+   "valid_in": true,
+   "parts": 25,
+   "rigid_parts": 0,
+   "draped_parts": 25,
+   "faces_rigid": 0,
+   "tris_draped": 6018,
+   "open_edges": 268,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "LEISURE_FO": {
+   "faces_in": 8,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 16,
+   "open_edges": 18,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "MAN_MADE_WORKS": {
+   "faces_in": 104,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 1788,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "MAN_MADE_BREAKWATER": {
+   "faces_in": 336,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 3004,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "MAN_MADE_PIER": {
+   "faces_in": 130,
+   "valid_in": true,
+   "parts": 17,
+   "rigid_parts": 0,
+   "draped_parts": 17,
+   "faces_rigid": 0,
+   "tris_draped": 3314,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 17,
+   "ground_level_m": null
+  },
+  "MAN_MADE_RESERVOIR_COVERED": {
+   "faces_in": 52,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 104,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "MAN_MADE_BRIDGE": {
+   "faces_in": 108,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 922,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "MAN_MADE_WASTEWATER_PLANT": {
+   "faces_in": 128,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 570,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "MAN_MADE_STORAGE_TANK": {
+   "faces_in": 1144,
+   "valid_in": true,
+   "parts": 16,
+   "rigid_parts": 0,
+   "draped_parts": 16,
+   "faces_rigid": 0,
+   "tris_draped": 2288,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 16,
+   "ground_level_m": null
+  },
+  "MAN_MADE_WATER_TOWER": {
+   "faces_in": 304,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 608,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "MAN_MADE_2": {
+   "faces_in": 36,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 259,
+   "open_edges": 76,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "MAN_MADE_S": {
+   "faces_in": 131,
+   "valid_in": true,
+   "parts": 16,
+   "rigid_parts": 0,
+   "draped_parts": 16,
+   "faces_rigid": 0,
+   "tris_draped": 341,
+   "open_edges": 286,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 16,
+   "ground_level_m": null
+  },
+  "MAN_MADE_1": {
+   "faces_in": 15,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 1651,
+   "open_edges": 32,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "MAN_MADE_0": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 278,
+   "open_edges": 27,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "MAN_MADE_R": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 11,
+   "open_edges": 13,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "MAN_MADE_B": {
+   "faces_in": 40,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 1158,
+   "open_edges": 84,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "MAN_MADE_W": {
+   "faces_in": 12,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 2577,
+   "open_edges": 26,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "NAME_______2": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 458,
+   "open_edges": 5,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_______3": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 875,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_DIRE1": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 132,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_PEUGE": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 625,
+   "open_edges": 5,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_DA_RA": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 159,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_____0": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 37,
+   "open_edges": 8,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_______4": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 875,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_ONEC_": {
+   "faces_in": 4,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 184,
+   "open_edges": 9,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_PLAC1": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 272,
+   "open_edges": 6,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_PLAC0": {
+   "faces_in": 9,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 611,
+   "open_edges": 20,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_______5": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 875,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_DIRE0": {
+   "faces_in": 4,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 33,
+   "open_edges": 10,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_SQUAR": {
+   "faces_in": 3,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 291,
+   "open_edges": 8,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_PLACE": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 269,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_FORT_": {
+   "faces_in": 31,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 2549,
+   "open_edges": 59,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_DIREC": {
+   "faces_in": 4,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 536,
+   "open_edges": 9,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_ENPI_1": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 43,
+   "open_edges": 5,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_R_SID": {
+   "faces_in": 5,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 205,
+   "open_edges": 11,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_SI_GE": {
+   "faces_in": 4,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 729,
+   "open_edges": 9,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_______6": {
+   "faces_in": 9,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 306,
+   "open_edges": 20,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_ONAB_": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 34,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_POLIC": {
+   "faces_in": 3,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 15,
+   "open_edges": 7,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_ODEJ_": {
+   "faces_in": 2,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 4,
+   "open_edges": 5,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NAME_ARDIS": {
+   "faces_in": 3,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 592,
+   "open_edges": 7,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "NATURAL_SC": {
+   "faces_in": 347,
+   "valid_in": true,
+   "parts": 9,
+   "rigid_parts": 0,
+   "draped_parts": 9,
+   "faces_rigid": 0,
+   "tris_draped": 358731,
+   "open_edges": 676,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 9,
+   "ground_level_m": null
+  },
+  "NATURAL_WO": {
+   "faces_in": 587,
+   "valid_in": true,
+   "parts": 17,
+   "rigid_parts": 0,
+   "draped_parts": 17,
+   "faces_rigid": 0,
+   "tris_draped": 1013980,
+   "open_edges": 1062,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 17,
+   "ground_level_m": null
+  },
+  "NATURAL_BE": {
+   "faces_in": 69,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 659,
+   "open_edges": 142,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "NATURAL_BA": {
+   "faces_in": 76,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 18739,
+   "open_edges": 152,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "NATURAL_TR": {
+   "faces_in": 9,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 17,
+   "open_edges": 19,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "NATURAL_GR": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 0,
+   "draped_parts": 5,
+   "faces_rigid": 0,
+   "tris_draped": 63,
+   "open_edges": 30,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 5,
+   "ground_level_m": null
+  },
+  "ROUTE_POWER": {
+   "faces_in": 4304,
+   "valid_in": true,
+   "parts": 22,
+   "rigid_parts": 0,
+   "draped_parts": 22,
+   "faces_rigid": 0,
+   "tris_draped": 313056,
+   "open_edges": 0,
+   "nonmanifold_edges": 4,
+   "parts_flipped_outward": 21,
+   "ground_level_m": null
+  },
+  "POWER_LINE": {
+   "faces_in": 2465,
+   "valid_in": true,
+   "parts": 26,
+   "rigid_parts": 0,
+   "draped_parts": 26,
+   "faces_rigid": 0,
+   "tris_draped": 168810,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 26,
+   "ground_level_m": null
+  },
+  "POWER_MINO": {
+   "faces_in": 474,
+   "valid_in": true,
+   "parts": 13,
+   "rigid_parts": 0,
+   "draped_parts": 13,
+   "faces_rigid": 0,
+   "tris_draped": 6918,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 13,
+   "ground_level_m": null
+  },
+  "POWER_GENE": {
+   "faces_in": 916,
+   "valid_in": true,
+   "parts": 51,
+   "rigid_parts": 0,
+   "draped_parts": 51,
+   "faces_rigid": 0,
+   "tris_draped": 1776,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 51,
+   "ground_level_m": null
+  },
+  "POWER_SUBS": {
+   "faces_in": 53,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 5,
+   "draped_parts": 0,
+   "faces_rigid": 53,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 5,
+   "ground_level_m": [
+    97.14390766234449,
+    181.1254553690882
+   ]
+  },
+  "POWER_PLAN": {
+   "faces_in": 14,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 1,
+   "draped_parts": 0,
+   "faces_rigid": 14,
+   "tris_draped": 0,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": [
+    147.20382915928187,
+    147.20382915928187
+   ]
+  },
+  "ROUTE_TRAM": {
+   "faces_in": 2458,
+   "valid_in": true,
+   "parts": 15,
+   "rigid_parts": 0,
+   "draped_parts": 15,
+   "faces_rigid": 0,
+   "tris_draped": 27780,
+   "open_edges": 0,
+   "nonmanifold_edges": 2,
+   "parts_flipped_outward": 15,
+   "ground_level_m": null
+  },
+  "ROUTE_RAILWAY": {
+   "faces_in": 994,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 0,
+   "draped_parts": 5,
+   "faces_rigid": 0,
+   "tris_draped": 31182,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 5,
+   "ground_level_m": null
+  },
+  "ROUTE_TRAIN": {
+   "faces_in": 2278,
+   "valid_in": true,
+   "parts": 26,
+   "rigid_parts": 0,
+   "draped_parts": 26,
+   "faces_rigid": 0,
+   "tris_draped": 47731,
+   "open_edges": 0,
+   "nonmanifold_edges": 13,
+   "parts_flipped_outward": 24,
+   "ground_level_m": null
+  },
+  "RAILWAY_DI": {
+   "faces_in": 56,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 314,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "RAILWAY_RA": {
+   "faces_in": 3246,
+   "valid_in": true,
+   "parts": 131,
+   "rigid_parts": 0,
+   "draped_parts": 131,
+   "faces_rigid": 0,
+   "tris_draped": 21626,
+   "open_edges": 0,
+   "nonmanifold_edges": 4,
+   "parts_flipped_outward": 130,
+   "ground_level_m": null
+  },
+  "RAILWAY_TR": {
+   "faces_in": 774,
+   "valid_in": true,
+   "parts": 29,
+   "rigid_parts": 0,
+   "draped_parts": 29,
+   "faces_rigid": 0,
+   "tris_draped": 3788,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 29,
+   "ground_level_m": null
+  },
+  "RAILWAY_AB": {
+   "faces_in": 116,
+   "valid_in": true,
+   "parts": 6,
+   "rigid_parts": 0,
+   "draped_parts": 6,
+   "faces_rigid": 0,
+   "tris_draped": 610,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 6,
+   "ground_level_m": null
+  },
+  "RAILWAY_PL": {
+   "faces_in": 82,
+   "valid_in": true,
+   "parts": 8,
+   "rigid_parts": 0,
+   "draped_parts": 8,
+   "faces_rigid": 0,
+   "tris_draped": 922,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 8,
+   "ground_level_m": null
+  },
+  "RAILWAY_TU": {
+   "faces_in": 272,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 544,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "TOURISM_H0": {
+   "faces_in": 104,
+   "valid_in": true,
+   "parts": 12,
+   "rigid_parts": 0,
+   "draped_parts": 12,
+   "faces_rigid": 0,
+   "tris_draped": 4026,
+   "open_edges": 215,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 12,
+   "ground_level_m": null
+  },
+  "TOURISM_ZO": {
+   "faces_in": 3,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 19,
+   "open_edges": 8,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "TOURISM_TH": {
+   "faces_in": 15,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 688,
+   "open_edges": 32,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "TOURISM_MU": {
+   "faces_in": 4,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 165,
+   "open_edges": 12,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "TOURISM_AT": {
+   "faces_in": 13,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 560,
+   "open_edges": 26,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "TOURISM_HO": {
+   "faces_in": 1,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 56,
+   "open_edges": 4,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "TYPE_DESTI": {
+   "faces_in": 36,
+   "valid_in": true,
+   "parts": 2,
+   "rigid_parts": 0,
+   "draped_parts": 2,
+   "faces_rigid": 0,
+   "tris_draped": 114,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 2,
+   "ground_level_m": null
+  },
+  "NATURAL_WA": {
+   "faces_in": 571,
+   "valid_in": true,
+   "parts": 11,
+   "rigid_parts": 0,
+   "draped_parts": 11,
+   "faces_rigid": 0,
+   "tris_draped": 1040,
+   "open_edges": 1058,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 11,
+   "ground_level_m": null
+  },
+  "BAY": {
+   "faces_in": 660,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 1108,
+   "open_edges": 1110,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "WATERWAY_C": {
+   "faces_in": 406,
+   "valid_in": true,
+   "parts": 11,
+   "rigid_parts": 0,
+   "draped_parts": 11,
+   "faces_rigid": 0,
+   "tris_draped": 3110,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 11,
+   "ground_level_m": null
+  },
+  "WATERWAY_0": {
+   "faces_in": 44,
+   "valid_in": true,
+   "parts": 4,
+   "rigid_parts": 0,
+   "draped_parts": 4,
+   "faces_rigid": 0,
+   "tris_draped": 1468,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 4,
+   "ground_level_m": null
+  },
+  "WATERWAY_D": {
+   "faces_in": 30,
+   "valid_in": true,
+   "parts": 5,
+   "rigid_parts": 0,
+   "draped_parts": 5,
+   "faces_rigid": 0,
+   "tris_draped": 346,
+   "open_edges": 0,
+   "nonmanifold_edges": 8,
+   "parts_flipped_outward": 3,
+   "ground_level_m": null
+  },
+  "WAY_543389": {
+   "faces_in": 18,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 36,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_449700": {
+   "faces_in": 76,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 152,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_370418": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 20,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_660704": {
+   "faces_in": 10,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 20,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_665209": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 48,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_369268": {
+   "faces_in": 58,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 292,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_961334": {
+   "faces_in": 20,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 102,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_427799": {
+   "faces_in": 6,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 28,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "WAY_448990": {
+   "faces_in": 40,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 344,
+   "open_edges": 0,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 1,
+   "ground_level_m": null
+  },
+  "HISTORIC_C": {
+   "faces_in": 11,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 146,
+   "open_edges": 22,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "SHOP_CAR_R": {
+   "faces_in": 4,
+   "valid_in": true,
+   "parts": 1,
+   "rigid_parts": 0,
+   "draped_parts": 1,
+   "faces_rigid": 0,
+   "tris_draped": 147,
+   "open_edges": 10,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "PUBLIC_TRA": {
+   "faces_in": 135,
+   "valid_in": true,
+   "parts": 10,
+   "rigid_parts": 0,
+   "draped_parts": 10,
+   "faces_rigid": 0,
+   "tris_draped": 513,
+   "open_edges": 246,
+   "nonmanifold_edges": 0,
+   "parts_flipped_outward": 0,
+   "ground_level_m": null
+  },
+  "BASE": "replaced by terrain"
+ },
+ "runtime_s": 1437
+}

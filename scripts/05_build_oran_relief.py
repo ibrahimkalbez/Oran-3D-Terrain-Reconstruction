@@ -12,16 +12,22 @@ Method (documentation/methodologie_fusion.md, rapport_final.md)
     Z is kept (already true metres). Pure per-point projection, no fitting.
  2. Meshes are welded (1e-4 m), degenerate/duplicate faces removed, and split
     into parts at non-manifold edges (each building = its own closed part).
- 3. Terrain = Copernicus GLO-30, bilinear on a 15 m grid, sea flattened to 0 m.
+ 3. Terrain = Copernicus GLO-30 on a 25 m grid (its native resolution here),
+    sea flattened to 0 m.
     One exact surface function T(x,y) (same triangulation as the terrain
     mesh) is used for everything below, so nothing floats or sinks.
  4. Parts taller than 1.5 m (buildings, towers, aircraft) are lifted as rigid
-    blocks: dz = min of T over their footprint -> geometry and heights exact,
-    base touches the ground at its lowest point, never floats.
+    blocks to the MEDIAN ground level under their footprint (true height above
+    ground kept exactly); the base of every grounded part is then extended
+    vertically down to the LOWEST ground point of its footprint (foundation),
+    so nothing floats on slopes and nothing is buried uphill. XY untouched.
  5. Thin parts (roads, rail, land use, water, barriers...) are refined
-    adaptively (deviation from the terrain <= 5 cm) and draped vertex by vertex: z = T(x,y) + z_orig + 0.5
+    adaptively and draped vertex by vertex: z = T(x,y) + z_orig + 0.5
     (0.5 m = the original BASE plate at z = -0.5, which the terrain replaces,
     so the original stacking order of all layers is preserved exactly).
+    Per layer, the refinement tolerance is kept below the layer's height above
+    the ground (<= 0.5 m) -> no draped surface ever dips under the terrain.
+    Water (BAY, NATURAL_WA) stays flat at the median level of its outline.
 """
 import json
 import sys
@@ -43,12 +49,14 @@ SRC = ROOT / "data/rhino/brahim_ib9a.3dm"
 OUT3DM = ROOT / "results/Oran_relief_Copernicus_Rhino8.3dm"
 CACHE = ROOT / "results/cache"
 TILES = [ROOT / f"data/copernicus/Copernicus_DSM_N35_W00{i}.tif" for i in (1, 2)]
-RES = 15.0            # terrain grid (m)
+RES = 25.0            # terrain grid (m) ~ native Copernicus 1" (25 x 31 m here)
 RIGID_MIN_H = 1.5     # parts taller than this are lifted rigidly
-DRAPE_TOL = 0.05     # max draping deviation from the terrain surface (m)
+DRAPE_TOL_MAX = 0.5  # max draping deviation (m); per layer: < its height above ground
+DRAPE_MIN_EDGE = 0.05  # edges shorter than this are never split (m)
 BASE_OFFSET = 0.5     # original BASE plate was at z = -0.5
 WELD = 1e-4           # weld tolerance (m)
-SKIP_LAYERS = {"BASE"}  # flat 30 km plate, replaced by the terrain
+SKIP_LAYERS = {"BASE"}
+WATER_LAYERS = {"BAY", "NATURAL_WA"}  # flat water surfaces  # flat 30 km plate, replaced by the terrain
 
 
 # ----------------------------------------------------------------- read / cache
@@ -122,10 +130,19 @@ class Terrain:
             out[~inside] = np.maximum(np.nan_to_num(self.dem(lon, lat)), 0.0)
         return out
 
+    def set_window(self, x0, y0, x1, y1):
+        """Displayed / printed terrain = this window of the (larger) draping grid."""
+        self.wi = slice(int(round((x0 - self.x[0]) / RES)), int(round((x1 - self.x[0]) / RES)) + 1)
+        self.wj = slice(int(round((y0 - self.y[0]) / RES)), int(round((y1 - self.y[0]) / RES)) + 1)
+
+    def window(self):
+        return self.x[self.wi], self.y[self.wj], self.Z[self.wj, self.wi]
+
     def mesh(self):
-        ny, nx = self.Z.shape
-        X, Y = np.meshgrid(self.x, self.y)
-        V = np.c_[X.ravel(), Y.ravel(), self.Z.ravel()]
+        wx, wy, wz = self.window()
+        ny, nx = wz.shape
+        X, Y = np.meshgrid(wx, wy)
+        V = np.c_[X.ravel(), Y.ravel(), wz.ravel()]
         i = (np.arange(ny - 1)[:, None] * nx + np.arange(nx - 1)[None, :]).ravel()
         F = np.vstack([np.c_[i, i + 1, i + nx], np.c_[i + 1, i + nx + 1, i + nx]])
         return V, F
@@ -177,36 +194,122 @@ def clean_and_split(V, F):
     return V2, F2, part, npart, stats
 
 
+def group_median(g, v, n):
+    """Median of v per group id g (0..n-1); NaN for empty groups."""
+    out = np.full(n, np.nan)
+    if not len(v):
+        return out
+    o = np.lexsort((v, g))
+    g, v = g[o], v[o]
+    starts = np.r_[0, np.nonzero(np.diff(g))[0] + 1]
+    cnt = np.diff(np.r_[starts, len(g)])
+    lo = v[starts + (cnt - 1) // 2]
+    hi = v[starts + cnt // 2]
+    out[g[starts]] = 0.5 * (lo + hi)
+    return out
+
+
+def orient_outward(V, F, part, npart):
+    """Flip every closed part whose signed volume is negative (inward normals
+    in the source model) so that all solids have outward-facing normals."""
+    q = F[:, 2] != F[:, 3]
+    T = np.r_[F[:, [0, 1, 2]], F[q][:, [0, 2, 3]]]
+    tp = np.r_[part, part[q]]
+    a, b, c = V[T[:, 0]], V[T[:, 1]], V[T[:, 2]]
+    vol = np.zeros(npart)
+    np.add.at(vol, tp, np.einsum("ij,ij->i", a, np.cross(b, c)) / 6.0)
+    flip = (vol < 0)[part]
+    F = F.copy()
+    F[flip] = np.where(q[flip, None], F[flip][:, [0, 3, 2, 1]], F[flip][:, [0, 2, 1, 1]])
+    return F, int((vol < 0).sum())
+
+
 def tris(F):
     q = F[:, 2] != F[:, 3]
     return np.r_[F[:, [0, 1, 2]], F[q][:, [0, 2, 3]]]
 
 
-def subdivide(V, T, surf, tol, min_edge=2.0, max_iter=20):
-    """Adaptive conforming refinement for draping.
-    An edge is split when the terrain surface deviates by more than `tol`
-    from the straight edge (tested at 1/4, 1/2, 3/4) and it is longer than
-    `min_edge`; a triangle whose centroid deviates by more than `tol` has all
-    its edges split. Triangles with 1, 2 or 3 split edges become 2, 3 or 4
-    triangles: no slivers, no T-junctions, closed meshes stay closed.
-    Flat areas (sea, plains) are not refined at all."""
+def _edge_dev(A, B, surf):
+    """Exact max |terrain - chord| along segments AB (XY): the terrain is
+    piecewise linear, so the extremum is at a crossing with a grid line,
+    a grid column or a cell diagonal. Outside the grid: samples at 1/4..3/4."""
+    za, zb = surf(A[:, 0], A[:, 1]), surf(B[:, 0], B[:, 1])
+    dev = np.zeros(len(A))
+    for t in (0.25, 0.5, 0.75):
+        P = A + (B - A) * t
+        dev = np.maximum(dev, np.abs(surf(P[:, 0], P[:, 1]) - (za + (zb - za) * t)))
+    if not hasattr(surf, "x"):
+        return dev
+    x0, y0 = surf.x[0], surf.y[0]
+    for f in ((1, 0), (0, 1), (1, 1)):
+        sa = f[0] * (A[:, 0] - x0) + f[1] * (A[:, 1] - y0)
+        sb = f[0] * (B[:, 0] - x0) + f[1] * (B[:, 1] - y0)
+        k0 = np.floor(np.minimum(sa, sb) / RES) + 1
+        k1 = np.ceil(np.maximum(sa, sb) / RES) - 1
+        n = np.clip(k1 - k0 + 1, 0, None).astype(np.int64)
+        if not n.sum():
+            continue
+        e = np.repeat(np.arange(len(A)), n)
+        k = np.repeat(k0, n) + (np.arange(n.sum()) - np.repeat(np.cumsum(n) - n, n))
+        t = (k * RES - sa[e]) / (sb[e] - sa[e])
+        P = A[e] + (B[e] - A[e]) * t[:, None]
+        d = np.abs(surf(P[:, 0], P[:, 1]) - (za[e] + (zb[e] - za[e]) * t))
+        np.maximum.at(dev, e, d)
+    return dev
+
+
+def _node_dev(V, T, surf):
+    """Exact max |terrain - plane| at terrain grid nodes inside each triangle."""
+    dev = np.zeros(len(T))
+    if not hasattr(surf, "x"):
+        return dev
+    x0, y0, nx, ny = surf.x[0], surf.y[0], len(surf.x), len(surf.y)
+    A, B, C = V[T[:, 0], :2], V[T[:, 1], :2], V[T[:, 2], :2]
+    det = (B[:, 0] - A[:, 0]) * (C[:, 1] - A[:, 1]) - (C[:, 0] - A[:, 0]) * (B[:, 1] - A[:, 1])
+    lo, hi = np.minimum(np.minimum(A, B), C), np.maximum(np.maximum(A, B), C)
+    i0 = np.clip(np.floor((lo[:, 0] - x0) / RES) + 1, 0, nx - 1).astype(np.int64)
+    i1 = np.clip(np.floor((hi[:, 0] - x0) / RES), -1, nx - 1).astype(np.int64)
+    j0 = np.clip(np.floor((lo[:, 1] - y0) / RES) + 1, 0, ny - 1).astype(np.int64)
+    j1 = np.clip(np.floor((hi[:, 1] - y0) / RES), -1, ny - 1).astype(np.int64)
+    ni, nj = np.clip(i1 - i0 + 1, 0, None), np.clip(j1 - j0 + 1, 0, None)
+    n = ni * nj * (np.abs(det) > 1e-9)
+    if not n.sum():
+        return dev
+    za, zb, zc = (surf(P[:, 0], P[:, 1]) for P in (A, B, C))
+    for chunk in np.array_split(np.arange(len(T)), max(1, int(n.sum() // 5_000_000) + 1)):
+        nc = n[chunk]
+        if not nc.sum():
+            continue
+        e = np.repeat(chunk, nc)
+        r = np.arange(nc.sum()) - np.repeat(np.cumsum(nc) - nc, nc)
+        ii = i0[e] + r % ni[e]
+        jj = j0[e] + r // ni[e]
+        px, py = x0 + ii * RES, y0 + jj * RES
+        u = ((px - A[e, 0]) * (C[e, 1] - A[e, 1]) - (C[e, 0] - A[e, 0]) * (py - A[e, 1])) / det[e]
+        w = ((B[e, 0] - A[e, 0]) * (py - A[e, 1]) - (px - A[e, 0]) * (B[e, 1] - A[e, 1])) / det[e]
+        m = (u >= 0) & (w >= 0) & (u + w <= 1)
+        d = np.abs(surf.Z[jj[m], ii[m]] - (za[e[m]] + u[m] * (zb[e[m]] - za[e[m]]) + w[m] * (zc[e[m]] - za[e[m]])))
+        np.maximum.at(dev, e[m], d)
+    return dev
+
+
+def subdivide(V, T, surf, tol, min_edge=0.5, max_iter=40):
+    """Adaptive conforming refinement for draping, with an EXACT error test:
+    the deviation between a flat triangle and the piecewise-linear terrain is
+    maximal at the terrain lines crossing its edges or at the terrain nodes
+    inside it; edges (resp. all 3 edges) are split while that deviation
+    exceeds `tol` and the edge is longer than `min_edge`. Triangles with 1, 2
+    or 3 split edges become 2, 3 or 4 triangles: no slivers, no T-junctions,
+    closed meshes stay closed. Flat areas (sea, plains) are not refined."""
     for _ in range(max_iter):
         e = np.sort(np.r_[T[:, [0, 1]], T[:, [1, 2]], T[:, [2, 0]]], axis=1)
         ue, inv = np.unique(e, axis=0, return_inverse=True)
         inv = inv.ravel().reshape(3, -1).T
-        A, B = V[ue[:, 0], :2], V[ue[:, 1], :2]
-        L = np.linalg.norm(B - A, axis=1)
-        za, zb = surf(A[:, 0], A[:, 1]), surf(B[:, 0], B[:, 1])
-        err = np.zeros(len(ue))
-        for t in (0.25, 0.5, 0.75):
-            P = A + (B - A) * t
-            err = np.maximum(err, np.abs(surf(P[:, 0], P[:, 1]) - (za + (zb - za) * t)))
-        split = (err > tol) & (L > min_edge)
-        C = (V[T[:, 0], :2] + V[T[:, 1], :2] + V[T[:, 2], :2]) / 3
-        zc = (surf(V[T[:, 0], 0], V[T[:, 0], 1]) + surf(V[T[:, 1], 0], V[T[:, 1], 1]) +
-              surf(V[T[:, 2], 0], V[T[:, 2], 1])) / 3
-        bad_t = (np.abs(surf(C[:, 0], C[:, 1]) - zc) > tol) & (L[inv].max(1) > min_edge)
+        L = np.linalg.norm(V[ue[:, 0], :2] - V[ue[:, 1], :2], axis=1)
+        split = (_edge_dev(V[ue[:, 0], :2], V[ue[:, 1], :2], surf) > tol) & (L > min_edge)
+        bad_t = (_node_dev(V, T, surf) > tol) & (L[inv].max(1) > min_edge)
         split[inv[bad_t].ravel()] = True
+        split &= L > min_edge
         if not split.any():
             break
         mid = -np.ones(len(ue), np.int64)
@@ -232,89 +335,6 @@ def subdivide(V, T, surf, tol, min_edge=2.0, max_iter=20):
     return V, T
 
 
-def _canon_cross(P, Q, sP, sQ, L):
-    """Point where segment PQ crosses the line s = L, computed on the
-    lexicographically ordered endpoints -> bit-identical for both neighbours."""
-    swap = (P[:, 0] > Q[:, 0]) | ((P[:, 0] == Q[:, 0]) &
-                                  ((P[:, 1] > Q[:, 1]) | ((P[:, 1] == Q[:, 1]) & (P[:, 2] > Q[:, 2]))))
-    P2 = np.where(swap[:, None], Q, P); Q2 = np.where(swap[:, None], P, Q)
-    s1 = np.where(swap, sQ, sP); s2 = np.where(swap, sP, sQ)
-    t = (L - s1) / (s2 - s1)
-    return P2 + t[:, None] * (Q2 - P2)
-
-
-def imprint(V, T, x0, y0, nx, ny, eps=1e-7):
-    """Cut triangles exactly along the terrain triangulation: grid lines
-    x = x0 + iR, y = y0 + jR and cell diagonals (x-x0)+(y-y0) = kR.
-    Each triangle is clipped at once into the strips between consecutive
-    lines (convex pieces, fan-triangulated), family after family. Every
-    resulting triangle lies inside ONE planar terrain facet, so draping its
-    vertices reproduces the terrain surface exactly (zero deviation).
-    Crossing points are computed on canonically ordered edge endpoints:
-    neighbours create bit-identical points, the exact weld at the end makes
-    the mesh conforming (no cracks / T-junctions); closed meshes stay closed."""
-    fams = [(lambda P: P[:, 0] - x0, nx - 1), (lambda P: P[:, 1] - y0, ny - 1),
-            (lambda P: (P[:, 0] - x0) + (P[:, 1] - y0), nx + ny - 2)]
-    for sfun, K in fams:
-        s = sfun(V)
-        S = s[T]
-        k0 = np.clip(np.floor((S.min(1) + eps) / RES), 0, K - 1).astype(np.int64)
-        k1 = np.clip(np.ceil((S.max(1) - eps) / RES) - 1, 0, K - 1).astype(np.int64)
-        keep = k0 >= k1
-        Tk = T[keep]
-        cut = np.nonzero(~keep)[0]
-        if len(cut):
-            nrep = (k1 - k0 + 1)[cut]
-            ti = np.repeat(cut, nrep)
-            kk = np.repeat(k0[cut], nrep) + (np.arange(nrep.sum()) - np.repeat(np.cumsum(nrep) - nrep, nrep))
-            L1 = np.where(kk == 0, -np.inf, kk * RES)
-            L2 = np.where(kk == K - 1, np.inf, (kk + 1) * RES)
-            tri = T[ti]
-            pts, val = [], []
-            for e in range(3):
-                ia, ib = tri[:, e], tri[:, (e + 1) % 3]
-                A, B = V[ia], V[ib]
-                sa, sb = s[ia], s[ib]
-                vin = (sa >= L1 - eps) & (sa <= L2 + eps)
-                c1 = ((sa < L1 - eps) & (sb > L1 + eps)) | ((sa > L1 + eps) & (sb < L1 - eps))
-                c2 = ((sa < L2 - eps) & (sb > L2 + eps)) | ((sa > L2 + eps) & (sb < L2 - eps))
-                with np.errstate(invalid="ignore", divide="ignore"):
-                    P1 = _canon_cross(A, B, sa, sb, np.where(c1, L1, 0.0))
-                    P2 = _canon_cross(A, B, sa, sb, np.where(c2, L2, 0.0))
-                    t1 = np.where(c1, (L1 - sa) / (sb - sa), 9.0)
-                    t2 = np.where(c2, (L2 - sa) / (sb - sa), 9.0)
-                first2 = t2 < t1
-                Pf = np.where(first2[:, None], P2, P1); Ps = np.where(first2[:, None], P1, P2)
-                cf = np.where(first2, c2, c1); cs = np.where(first2, c1, c2)
-                pts += [A, Pf, Ps]
-                val += [vin, cf, cs]
-            P = np.stack(pts, 1)            # (m, 9, 3) boundary-ordered candidates
-            ok = np.stack(val, 1)
-            order = np.argsort(~ok, axis=1, kind="stable")
-            P = np.take_along_axis(P, order[:, :, None], 1)
-            cnt = ok.sum(1)
-            newT, newV = [], []
-            base = len(V)
-            P = P[:, :5]                    # a triangle/strip intersection has <= 5 corners
-            flat = P.reshape(-1, 3)
-            idx = base + np.arange(len(P) * 5).reshape(-1, 5)
-            for i in range(1, 4):
-                m = cnt > i + 1
-                newT.append(np.c_[idx[m, 0], idx[m, i], idx[m, i + 1]])
-            V = np.vstack([V, flat])
-            Tk = np.vstack([Tk] + newT)
-        # exact weld + drop degenerate faces
-        Vu, inv = np.unique(V, axis=0, return_inverse=True)
-        T = inv.ravel()[Tk]
-        T = T[(T[:, 0] != T[:, 1]) & (T[:, 1] != T[:, 2]) & (T[:, 2] != T[:, 0])]
-        a, b, c = Vu[T[:, 0]], Vu[T[:, 1]], Vu[T[:, 2]]
-        T = T[0.5 * np.linalg.norm(np.cross(b - a, c - a), axis=1) > 1e-12]
-        used = np.unique(T)
-        rm = -np.ones(len(Vu), np.int64); rm[used] = np.arange(len(used))
-        V, T = Vu[used], rm[T]
-    return V, T
-
-
 # ----------------------------------------------------------------- main
 def main():
     t0 = time.time()
@@ -328,23 +348,32 @@ def main():
     lx, ly = model_to_local(pts[:, 0], pts[:, 1])
     lo = np.percentile(np.c_[lx, ly], 0.05, axis=0) - 400
     hi = np.percentile(np.c_[lx, ly], 99.95, axis=0) + 400
-    # always include every building
     dem = Dem()
     x0, y0 = np.floor(lo / RES) * RES
     x1, y1 = np.ceil(hi / RES) * RES
-    terrain = Terrain(dem, x0, y0, x1, y1)
-    print(f"terrain {terrain.Z.shape[1]}x{terrain.Z.shape[0]} @ {RES} m, "
-          f"z {terrain.Z.min():.1f}..{terrain.Z.max():.1f} m ({time.time() - t0:.0f}s)")
+    # draping grid = same lattice extended to ALL geometry (long OSM routes up to 40 km)
+    allp = np.vstack([V[:, :2] for a, V, F, _ in objs if layers[a.LayerIndex].Name not in SKIP_LAYERS])
+    ax_, ay_ = model_to_local(allp[:, 0], allp[:, 1])
+    fx0 = min(x0, np.floor((ax_.min() - 200) / RES) * RES); fy0 = min(y0, np.floor((ay_.min() - 200) / RES) * RES)
+    fx1 = max(x1, np.ceil((ax_.max() + 200) / RES) * RES); fy1 = max(y1, np.ceil((ay_.max() + 200) / RES) * RES)
+    terrain = Terrain(dem, fx0, fy0, fx1, fy1)
+    terrain.set_window(x0, y0, x1, y1)
+    wx, wy, wz = terrain.window()
+    print(f"terrain {wz.shape[1]}x{wz.shape[0]} @ {RES} m (draping grid {terrain.Z.shape[1]}x"
+          f"{terrain.Z.shape[0]}), z {wz.min():.1f}..{wz.max():.1f} m ({time.time() - t0:.0f}s)")
 
     out_objs, solids, report_layers = [], [], {}
     chk = {"xy_roundtrip_max_m": 0.0, "rigid_height_change_max_m": 0.0,
            "rigid_float_gap_max_m": 0.0, "drape_offset_err_max_m": 0.0}
+    drape_tol = {}
+    fnd = []
     for attr, V, F, valid in objs:
         lname = layers[attr.LayerIndex].Name
         if lname in SKIP_LAYERS:
             report_layers[lname] = "replaced by terrain"
             continue
         V2, F2, part, npart, st = clean_and_split(V, F)
+        F2, st["parts_flipped_outward"] = orient_outward(V2, F2, part, npart)
         # XY projection (per point, exact)
         X, Y = model_to_local(V2[:, 0], V2[:, 1])
         L = np.c_[X, Y, V2[:, 2]]
@@ -372,39 +401,74 @@ def main():
             S_ = A[idx] + (B[idx] - A[idx]) * u[:, None] + (C[idx] - A[idx]) * w[:, None]
             smp_x.append(S_[:, 0]); smp_y.append(S_[:, 1]); smp_p.append(tpart[bt][idx])
         sx, sy, sp = map(np.concatenate, (smp_x, smp_y, smp_p))
+        tz_s = terrain(sx, sy) if len(sx) else np.zeros(0)
         tmin = np.full(npart, np.inf)
-        if len(sx):
-            np.minimum.at(tmin, sp, terrain(sx, sy))
-        dz = np.where(rigid, tmin - zmin, 0.0)
-        # ---- thin parts: subdivide then drape
+        np.minimum.at(tmin, sp, tz_s)
+        gmed = group_median(sp, tz_s, npart)       # ground level of the footprint
+        grounded = rigid & (zmin <= 0.05)           # parts standing on the ground (z = 0)
+        # ---- rigid parts: rigid lift to the median ground level (true height kept),
+        #      base of grounded parts extended vertically down to the lowest ground point
         keepF = rigid[part]
         Fr = F2[keepF]
         used = np.unique(Fr.ravel())
         remap = -np.ones(len(L), np.int64); remap[used] = np.arange(len(used))
-        Vr = L[used].copy(); Vr[:, 2] += dz[vpart[used]]
+        pu = vpart[used]
+        Vr = L[used].copy()
+        Vr[:, 2] += np.where(rigid[pu], gmed[pu], 0.0)
+        base = grounded[pu] & (L[used, 2] <= zmin[pu] + 0.05)
+        Vr[base, 2] = tmin[pu][base]
         Fr = remap[Fr]
-        # checks (rigid)
         if rigid.any():
-            hr = np.full(npart, -np.inf); lr = np.full(npart, np.inf)
-            np.maximum.at(hr, vpart[used], Vr[:, 2]); np.minimum.at(lr, vpart[used], Vr[:, 2])
-            rp = rigid & np.isfinite(hr)
+            hr = np.full(npart, -np.inf)
+            np.maximum.at(hr, pu, Vr[:, 2])
+            rp = rigid & np.isfinite(hr) & np.isfinite(gmed)
             chk["rigid_height_change_max_m"] = max(chk["rigid_height_change_max_m"],
-                                                   float(np.abs((hr - lr) - (zmax - zmin))[rp].max()))
-            gap = lr[sp] - terrain(sx, sy)   # >= 0 everywhere, == 0 at the lowest point
-            gmin = np.full(npart, np.inf); np.minimum.at(gmin, sp, gap)
-            chk["rigid_float_gap_max_m"] = max(chk["rigid_float_gap_max_m"],
-                                               float(np.abs(gmin[rp & np.isfinite(gmin)]).max()))
+                                                   float(np.abs((hr - gmed) - zmax)[rp].max()))
+            g = grounded & np.isfinite(tmin)
+            if g.any():
+                above = np.full(npart, -np.inf)       # base minus ground at every footprint sample
+                np.maximum.at(above, sp, tmin[sp] - tz_s)
+                chk["rigid_float_gap_max_m"] = max(chk["rigid_float_gap_max_m"], float(above[g].max()))
+                fnd.append((gmed - tmin)[g])
         Fd = tris(F2[~keepF])
         Vd = np.zeros((0, 3)); Td = np.zeros((0, 3), np.int64)
         if len(Fd):
             usedd = np.unique(Fd.ravel())
             rm = -np.ones(len(L), np.int64); rm[usedd] = np.arange(len(usedd))
-            Vd, Td = subdivide(L[usedd].copy(), rm[Fd], terrain, DRAPE_TOL)
-            zorig = Vd[:, 2].copy()
-            Vd[:, 2] = terrain(Vd[:, 0], Vd[:, 1]) + zorig + BASE_OFFSET
-            chk["drape_offset_err_max_m"] = max(
-                chk["drape_offset_err_max_m"],
-                float(np.abs(Vd[:, 2] - terrain(Vd[:, 0], Vd[:, 1]) - zorig - BASE_OFFSET).max()))
+            if lname in WATER_LAYERS:
+                # water is flat: each water body at the median terrain level of its outline
+                Vd, Td = L[usedd].copy(), rm[Fd]
+                vp = vpart[usedd]
+                lev = np.zeros(npart)
+                for q in np.unique(vp):
+                    mq = vp == q
+                    lev[q] = np.median(terrain(Vd[mq, 0], Vd[mq, 1]))
+                Vd[:, 2] = lev[vp] + Vd[:, 2] + BASE_OFFSET
+            else:
+                # tolerance below the layer's height above the ground -> never sinks
+                off_min = float((L[usedd, 2] + BASE_OFFSET).min())
+                tol = float(np.clip(off_min - 0.02, 0.05, DRAPE_TOL_MAX))
+                Vd, Td = subdivide(L[usedd].copy(), rm[Fd], terrain, tol, min_edge=DRAPE_MIN_EDGE)
+                zorig = Vd[:, 2].copy()
+                Vd[:, 2] = terrain(Vd[:, 0], Vd[:, 1]) + zorig + BASE_OFFSET
+                # check inside faces (random points) : draped surface == terrain + offset
+                # check: random points spread proportionally to AREA (what is seen)
+                rng = np.random.default_rng(1)
+                ar = 0.5 * np.linalg.norm(np.cross(Vd[Td[:, 1]] - Vd[Td[:, 0]], Vd[Td[:, 2]] - Vd[Td[:, 0]]), axis=1)
+                ft = rng.choice(len(Td), min(len(Td) * 3, 60000), p=ar / ar.sum())
+                w = rng.dirichlet([1, 1, 1], len(ft))
+                P0 = (Vd[Td[ft]] * w[:, :, None]).sum(1)
+                Z0 = (zorig[Td[ft]] * w).sum(1)
+                inside = ((P0[:, 0] > terrain.x[0]) & (P0[:, 0] < terrain.x[-1]) &
+                          (P0[:, 1] > terrain.y[0]) & (P0[:, 1] < terrain.y[-1]))
+                if inside.any():
+                    Tq = terrain(P0[inside, 0], P0[inside, 1])
+                    dev = np.abs(P0[inside, 2] - Tq - Z0[inside] - BASE_OFFSET)
+                    chk["drape_offset_err_max_m"] = max(chk["drape_offset_err_max_m"], float(dev.max()))
+                    clr = float((P0[inside, 2] - Tq).min())
+                    chk["drape_min_clearance_m"] = min(chk.get("drape_min_clearance_m", 9e9), clr)
+                    drape_tol[lname] = {"tol_m": round(tol, 3), "min_clearance_m": round(clr, 3),
+                                        "max_dev_m": round(float(dev.max()), 3)}
         # XY round-trip check on a sample (local -> lon/lat -> model)
         from oran_georef import X0_WM, Y0_WM, _WM
         s = slice(None, None, max(1, len(L) // 2000))
@@ -420,7 +484,7 @@ def main():
             "faces_in": int(len(F)), "valid_in": bool(valid), "parts": int(npart),
             "rigid_parts": int(rigid.sum()), "draped_parts": int((~rigid).sum()),
             "faces_rigid": int(len(Fr)), "tris_draped": int(len(Td)), **st,
-            "lift_m": [float(dz[rigid].min()), float(dz[rigid].max())] if rigid.any() else None,
+            "ground_level_m": [float(np.nanmin(gmed[rigid])), float(np.nanmax(gmed[rigid]))] if rigid.any() else None,
         }
         print(f"  {lname:32s} parts {npart:6d} rigid {rigid.sum():6d} draped tris {len(Td):8d} "
               f"({time.time() - t0:.0f}s)")
@@ -428,16 +492,38 @@ def main():
     write_rhino(model, layers, out_objs, terrain)
     save_cache(terrain, solids)
     rep = {"source": str(SRC.name), "origin_lon_lat": [ORIGIN_LON, ORIGIN_LAT],
-           "terrain_grid": [int(terrain.Z.shape[1]), int(terrain.Z.shape[0])], "terrain_res_m": RES,
-           "terrain_extent_local_m": [float(terrain.x[0]), float(terrain.y[0]),
-                                      float(terrain.x[-1]), float(terrain.y[-1])],
-           "terrain_z_m": [float(terrain.Z.min()), float(terrain.Z.max())],
-           "checks": chk, "layers": report_layers, "runtime_s": round(time.time() - t0)}
+           "terrain_grid": [int(wz.shape[1]), int(wz.shape[0])], "terrain_res_m": RES,
+           "terrain_extent_local_m": [float(wx[0]), float(wy[0]), float(wx[-1]), float(wy[-1])],
+           "terrain_z_m": [float(wz.min()), float(wz.max())],
+           "draping_grid_extent_local_m": [float(terrain.x[0]), float(terrain.y[0]),
+                                           float(terrain.x[-1]), float(terrain.y[-1])],
+           "checks": chk,
+           "foundation_extension_m_p50_p95_p99_max": (np.percentile(np.concatenate(fnd), [50, 95, 99, 100]).round(2).tolist() if fnd else None), "drape_tolerance_m": drape_tol, "layers": report_layers, "runtime_s": round(time.time() - t0)}
     (ROOT / "results/relief_report.json").write_text(json.dumps(rep, indent=1, ensure_ascii=False))
     print(json.dumps(chk, indent=1))
 
 
+def clean_for_rhino(V, F):
+    """Final clean-up (Rhino 'CullDegenerateFaces' + 'Weld' + 'Compact'):
+    weld vertices at identical positions, drop faces with repeated corners
+    (degenerate) and exact duplicate faces, drop unused vertices."""
+    if F.shape[1] == 3:
+        F = np.c_[F, F[:, 2]]
+    Vu, inv = np.unique(V, axis=0, return_inverse=True)
+    F = inv.ravel()[F]
+    tri = F[:, 2] == F[:, 3]
+    a, b, c, d = F.T
+    ok3 = (a != b) & (b != c) & (c != a)
+    F = F[np.where(tri, ok3, ok3 & (d != a) & (d != b) & (d != c))]
+    _, first = np.unique(np.sort(F, 1), axis=0, return_index=True)
+    F = F[np.sort(first)]
+    used = np.unique(F)
+    rm = -np.ones(len(Vu), np.int64); rm[used] = np.arange(len(used))
+    return Vu[used], rm[F]
+
+
 def add_mesh(out, V, F, attr):
+    V, F = clean_for_rhino(V, F)
     m = r3.Mesh()
     m.Vertices.UseDoublePrecisionVertices = True
     for x, y, z in V.tolist():
@@ -485,7 +571,7 @@ def write_rhino(model, layers, out_objs, terrain):
         if len(F):
             add_mesh(out, V, F, a)
     TV, TF = terrain.mesh()
-    ta = r3.ObjectAttributes(); ta.LayerIndex = tl; ta.Name = "Terrain Copernicus GLO-30 15m"
+    ta = r3.ObjectAttributes(); ta.LayerIndex = tl; ta.Name = f"Terrain Copernicus GLO-30 {RES:.0f} m"
     add_mesh(out, TV, TF, ta)
     OUT3DM.parent.mkdir(exist_ok=True)
     out.Write(str(OUT3DM), 8)
@@ -494,7 +580,8 @@ def write_rhino(model, layers, out_objs, terrain):
 
 def save_cache(terrain, solids):
     CACHE.mkdir(parents=True, exist_ok=True)
-    d = {"tx": terrain.x, "ty": terrain.y, "tz": terrain.Z}
+    wx, wy, wz = terrain.window()
+    d = {"tx": wx, "ty": wy, "tz": wz}
     for i, (name, V, F, vp) in enumerate(solids):
         d[f"s{i}_V"], d[f"s{i}_F"], d[f"s{i}_P"] = V, F, vp
     d["names"] = np.array([s[0] for s in solids])

@@ -1,0 +1,75 @@
+{
+ "scale": "1:145,375",
+ "mm_per_m": 0.006878761822871883,
+ "zexag": 2.0,
+ "base_mm": 4.0,
+ "embed_mm": 0.3,
+ "terrain_step_m": 25.0,
+ "extent_m": [
+  29075.0,
+  21825.0
+ ],
+ "parts": {
+  "buildings_in": 236575,
+  "kept": 236428,
+  "open_or_invalid": 108,
+  "outside": 39,
+  "floating_extended": 112
+ },
+ "detached_bodies_removed": {
+  "count": 1559,
+  "volume_mm3": -0.0,
+  "largest_mm3": 0.0
+ },
+ "buildings_below_nozzle": 235247,
+ "building_min_dim_mm_percentiles_5_50_95": [
+  0.029,
+  0.079,
+  0.189
+ ],
+ "HD": {
+  "triangles": 8869284,
+  "vertices": 4434626,
+  "dimensions_mm": [
+   200.0,
+   150.13,
+   12.37
+  ],
+  "min_z_mm": 0.0,
+  "watertight": true,
+  "open_edges": 0,
+  "nonmanifold_edges": 0,
+  "winding_consistent": true,
+  "bodies": 1,
+  "volume_cm3": 175.74,
+  "degenerate_faces": 348,
+  "stl_MB": 443.5,
+  "obj_MB": 351.7,
+  "stl_reread_ok": true
+ },
+ "OPT_simplify_detached": {
+  "count": 663,
+  "volume_mm3": 0.0091,
+  "largest_mm3": 0.0006
+ },
+ "OPT": {
+  "triangles": 4764502,
+  "vertices": 2382249,
+  "dimensions_mm": [
+   200.0,
+   150.13,
+   12.37
+  ],
+  "min_z_mm": 0.0,
+  "watertight": true,
+  "open_edges": 0,
+  "nonmanifold_edges": 0,
+  "winding_consistent": true,
+  "bodies": 1,
+  "volume_cm3": 175.75,
+  "degenerate_faces": 355,
+  "stl_MB": 238.2,
+  "obj_MB": 185.7,
+  "stl_reread_ok": true
+ }
+}
