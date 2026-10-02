@@ -33,6 +33,7 @@ namespace RhinoMcpBridge.Plugin
       RhinoHandlers.Register(d);
       ViewHandlers.Register(d);
       GrasshopperHandlers.Register(d);
+      AnalysisHandlers.Register(d);
       return d;
     }
 

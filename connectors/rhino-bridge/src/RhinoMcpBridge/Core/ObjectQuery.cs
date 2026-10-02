@@ -22,6 +22,8 @@ namespace RhinoMcpBridge.Core
     public List<ObjectType> Types = new List<ObjectType>();
     public string Name;
     public Dictionary<string, string> UserText = new Dictionary<string, string>();
+    /// <summary>Objects matching any of these user-text sets are left out (e.g. analysis meshes).</summary>
+    public List<Dictionary<string, string>> ExcludeUserText = new List<Dictionary<string, string>>();
     public bool? Selected;
     public bool IncludeHidden = true;
     public bool IncludeLocked = true;
@@ -43,6 +45,9 @@ namespace RhinoMcpBridge.Core
         foreach (var kv in ut) q.UserText[kv.Key] = kv.Value?.Type == JTokenType.Null ? "*" : kv.Value?.ToString() ?? "*";
       else if (f["user_text_key"] != null)
         q.UserText[f.Value<string>("user_text_key")] = f.Value<string>("user_text_value") ?? "*";
+      var exclude = f["exclude_user_text"];
+      foreach (var set in exclude is JArray ex ? ex.OfType<JObject>() : exclude is JObject one ? new[] { one } : new JObject[0])
+        q.ExcludeUserText.Add(set.Properties().ToDictionary(x => x.Name, x => x.Value.Type == JTokenType.Null ? "*" : x.Value.ToString()));
       if (Args.Has(f, "selected")) q.Selected = Args.Bool(f, "selected", false);
       q.IncludeHidden = Args.Bool(f, "include_hidden", true);
       q.IncludeLocked = Args.Bool(f, "include_locked", true);
@@ -116,6 +121,7 @@ namespace RhinoMcpBridge.Core
       }
       var nameRx = Name != null ? RhinoUtil.Wildcard(Name) : null;
       var userRx = UserText.ToDictionary(kv => kv.Key, kv => kv.Value == "*" ? null : RhinoUtil.Wildcard(kv.Value));
+      var excludeRx = ExcludeUserText.Select(set => set.ToDictionary(kv => kv.Key, kv => kv.Value == "*" ? null : RhinoUtil.Wildcard(kv.Value))).ToList();
 
       return obj =>
       {
@@ -128,6 +134,15 @@ namespace RhinoMcpBridge.Core
           var value = obj.Attributes.GetUserString(kv.Key);
           if (value == null) return false;
           if (kv.Value != null && !kv.Value.IsMatch(value)) return false;
+        }
+        foreach (var set in excludeRx)
+        {
+          bool all = set.All(kv =>
+          {
+            var value = obj.Attributes.GetUserString(kv.Key);
+            return value != null && (kv.Value == null || kv.Value.IsMatch(value));
+          });
+          if (all && set.Count > 0) return false;
         }
         return true;
       };

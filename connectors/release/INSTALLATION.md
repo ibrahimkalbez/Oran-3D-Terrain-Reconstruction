@@ -1,13 +1,20 @@
-# Installation — Rhino Grasshopper Connector 1.0.0
-
-Deux fichiers à installer, une seule fois :
+# Installation — connecteurs Claude pour Rhino / Grasshopper / ANSYS
 
 | Fichier | Où l'installer | Rôle |
 |---|---|---|
-| `RhinoMcpBridge.rhp` | Rhino 8 (Windows) | Plug-in qui ouvre une passerelle locale sécurisée vers Rhino et Grasshopper |
-| `RhinoGrasshopperConnector-1.0.0.mcpb` | Claude Desktop | Le connecteur : les 39 outils que Claude utilise |
+| `RhinoMcpBridge.rhp` (v1.1.0) | Rhino 8 (Windows) | Plug-in : passerelle locale sécurisée vers Rhino et Grasshopper (nécessaire aux deux connecteurs) |
+| `FusionRhinoGrasshopperAnsys-1.0.0.mcpb` | Claude Desktop | **Connecteur 2** (58 outils) : tout le connecteur 1 + règles d'urbanisme, variantes, arbres, simulations / ANSYS |
+| `RhinoGrasshopperConnector-1.0.1.mcpb` | Claude Desktop | **Connecteur 1** seul (39 outils) : Rhino, Grasshopper, variantes |
+
+Installez le plug-in, puis **un seul** des deux connecteurs : le Fusion contient déjà tout le connecteur 1
+(si vous aviez installé le connecteur 1, désactivez-le dans Claude Desktop pour éviter les outils en double).
 
 Prérequis : Windows 10/11, **Rhino 8** (n'importe quelle version 8.x) et **Claude Desktop** à jour. Rien d'autre à installer : ni Python, ni Node.js.
+ANSYS (Workbench, Fluent, Mechanical…) n'est nécessaire que pour les simulations ANSYS du connecteur 2.
+
+> **Mise à jour depuis la version 1.0.0 du plug-in** : fermez Rhino, remplacez `RhinoMcpBridge.rhp` dans son
+> dossier permanent par la version 1.1.0, débloquez-le (étape 1.2) et rouvrez Rhino. `McpBridgeStatus` doit
+> afficher `1.1.0`.
 
 ---
 
@@ -22,7 +29,7 @@ Prérequis : Windows 10/11, **Rhino 8** (n'importe quelle version 8.x) et **Clau
 4. Tapez `McpBridgeStatus` dans la ligne de commande. Vous devez lire :
 
    ```
-   Rhino MCP Bridge 1.0.0: running on http://127.0.0.1:8642
+   Rhino MCP Bridge 1.1.0: running on http://127.0.0.1:8642
    ```
 
 Le plug-in démarre ensuite **automatiquement à chaque lancement de Rhino**.
@@ -37,7 +44,7 @@ Commandes Rhino disponibles :
 
 ## 2. Installer le connecteur dans Claude Desktop (1 minute)
 
-1. **Double-cliquez** sur `RhinoGrasshopperConnector-1.0.0.mcpb`.
+1. **Double-cliquez** sur `FusionRhinoGrasshopperAnsys-1.0.0.mcpb` (ou `RhinoGrasshopperConnector-1.0.1.mcpb`).
    (Ou : Claude Desktop → *Paramètres* → *Extensions* → *Installer une extension…* → choisir le fichier.)
 2. Cliquez sur **Installer**. Les réglages sont facultatifs :
    - **Dossier de travail** : où sont enregistrées les variantes (par défaut `Documents\RhinoMCP`) ;
@@ -62,6 +69,15 @@ Avec vos propres définitions : ouvrez le fichier `.gh` (« Ouvre `C:\…\mon_pr
 [guide de préparation des définitions](../docs/GRASSHOPPER_CONVENTIONS.md) pour que Claude trouve
 paramètres et résultats sans ambiguïté.
 
+Avec le connecteur 2 (Fusion), essayez ensuite :
+
+7. « **Détecte les calques du site et vérifie le règlement exemple.** » → tableau ✅/❌ et bâtiments fautifs en rouge.
+8. « **Plante des ficus tous les 8 m le long des rues, en évitant les bâtiments.** »
+9. « **Calcule l'ensoleillement au 21 décembre sur l'espace public.** » → carte colorée dans Rhino.
+10. « **Explore la hauteur de 12 à 30 m avec le règlement comme contrainte et garde la meilleure variante.** »
+
+Guide complet du connecteur 2 : [`docs/FUSION.md`](../docs/FUSION.md) (règles, variantes, arbres, simulations, préparation d'un projet ANSYS Workbench).
+
 ## Dépannage
 
 | Problème | Solution |
@@ -83,6 +99,7 @@ paramètres et résultats sans ambiguïté.
 ## Empreintes SHA-256
 
 ```
-59fdf2fb8dde0f3f161e8137a8a3c226a47941c3faef9e0098caa14eb6d34561  RhinoGrasshopperConnector-1.0.0.mcpb
-17ede58e0e63891f48f8e89cf9693eb3afadd1b95b06449b22d5655a999ea569  RhinoMcpBridge.rhp
+113e0f29f1cf3694465d88d4fe6b255ab8dfdfe00302fe8db483b7a0534b8189  FusionRhinoGrasshopperAnsys-1.0.0.mcpb
+98a7ab575fe098700f24dd1ed6acfa7c14ddd98a8a513320792f9b4b3418b9e2  RhinoGrasshopperConnector-1.0.1.mcpb
+c9a2db5d5f5f6b94cab0b9ba4e5cdb89fc91c4b72ce6b3c2324b996e4175bf13  RhinoMcpBridge.rhp
 ```

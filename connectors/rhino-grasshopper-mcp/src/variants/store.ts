@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 
@@ -111,7 +112,8 @@ export class VariantStore {
   async save(record: VariantRecord): Promise<void> {
     await fs.mkdir(record.dir, { recursive: true });
     const file = path.join(record.dir, "variant.json");
-    const tmp = file + ".tmp";
+    // Unique temporary name: a background job and a tool may save the same variant concurrently.
+    const tmp = `${file}.${randomUUID().slice(0, 8)}.tmp`;
     await fs.writeFile(tmp, JSON.stringify(record, null, 2), "utf8");
     await fs.rename(tmp, file);
   }

@@ -10,7 +10,7 @@ import { JobManager } from "./util/jobs.js";
 import { VariantStore } from "./variants/store.js";
 
 export const SERVER_NAME = "rhino-grasshopper-connector";
-export const SERVER_VERSION = "1.0.0";
+export const SERVER_VERSION = "1.0.1";
 
 export const INSTRUCTIONS = `Rhino Grasshopper Connector — drives the user's open Rhino 8 and Grasshopper through the RhinoMcpBridge plug-in.
 
@@ -28,19 +28,29 @@ export interface CreatedServer {
   context: ToolContext;
 }
 
-export function createServer(config: Config = loadConfig()): CreatedServer {
-  const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION }, { instructions: INSTRUCTIONS });
-  const context: ToolContext = {
+/** Shared services for a server (also used by the Fusion connector, which extends this one). */
+export function createContext(server: McpServer, config: Config): ToolContext {
+  return {
     server,
     bridge: new BridgeClient(config),
     config,
     variants: new VariantStore(config.workspace),
     jobs: new JobManager(),
   };
+}
+
+/** Registers the Rhino, Grasshopper and variant tools and the prompts of this connector. */
+export function registerCoreTools(context: ToolContext): void {
   registerRhinoTools(context);
   registerGrasshopperTools(context);
   registerVariantTools(context);
-  registerPrompts(server);
+  registerPrompts(context.server);
+}
+
+export function createServer(config: Config = loadConfig()): CreatedServer {
+  const server = new McpServer({ name: SERVER_NAME, version: SERVER_VERSION }, { instructions: INSTRUCTIONS });
+  const context = createContext(server, config);
+  registerCoreTools(context);
   return { server, context };
 }
 

@@ -1082,6 +1082,13 @@ namespace RhinoMcpBridge.Handlers
       return groups;
     }
 
+    /// <summary>Geometry of the definition outputs (or of p["outputs"]), for analysis.* methods.</summary>
+    internal static List<(string name, List<GeometryBase> geometry)> OutputGeometry(JObject p)
+    {
+      var doc = ResolveDocument(p);
+      return CollectGeometry(doc, p, "outputs");
+    }
+
     /// <summary>
     /// Called by rhino.capture_viewport: draws the Grasshopper result through the bridge's own
     /// conduit and switches Grasshopper's preview off until the returned scope is disposed,

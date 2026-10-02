@@ -1,0 +1,75 @@
+{
+  "manifest_version": "0.3",
+  "name": "fusion-rhino-grasshopper-ansys",
+  "display_name": "Fusion Rhino Grasshopper ANSYS",
+  "version": "{{VERSION}}",
+  "description": "Conception urbaine paramétrique avec Claude : Rhino + Grasshopper, règles d'urbanisme, génération de variantes et d'arbres, simulations (ensoleillement, ANSYS).",
+  "long_description": "Inclut tous les outils du connecteur Rhino Grasshopper, plus :\n- moteur de règles d'urbanisme (hauteur, gabarit, CES, COS, espaces verts, reculs, prospects, règles sur les métriques Grasshopper) ;\n- générateur de variantes (grille, aléatoire, hypercube latin, front de Pareto) et optimisation génétique sous contraintes ;\n- générateur d'arbres (alignements, parcs, évitement des bâtiments, pose sur le relief, palette méditerranéenne) ;\n- gestionnaire de simulations : ensoleillement natif, projets ANSYS Workbench paramétrés, scripts PyAnsys / journaux Fluent-MAPDL, dimensionnement du domaine de calcul au vent.\n\nPrérequis : Rhino 8 (Windows) avec le plug-in RhinoMcpBridge.rhp version 1.1 ou plus ; ANSYS facultatif (pour les simulations ANSYS).",
+  "author": {
+    "name": "KALBEZ Ibrahim El Khalil",
+    "url": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction"
+  },
+  "homepage": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction/tree/main/connectors",
+  "documentation": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction/tree/main/connectors/docs",
+  "keywords": ["rhino", "grasshopper", "ansys", "urbanisme", "simulation", "parametric", "architecture", "arbres", "ensoleillement"],
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.cjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.cjs"],
+      "env": {
+        "RHINO_MCP_WORKSPACE": "${user_config.workspace}",
+        "RHINO_MCP_INSTANCE": "${user_config.rhino_instance}",
+        "RHINO_MCP_TIMEOUT_S": "${user_config.timeout_s}",
+        "RHINO_MCP_LONG_TIMEOUT_S": "${user_config.long_timeout_s}"
+      }
+    }
+  },
+  "tools": [],
+  "tools_generated": false,
+  "user_config": {
+    "workspace": {
+      "type": "directory",
+      "title": "Dossier de travail",
+      "description": "Variantes, explorations, règles d'urbanisme, simulations et exports y sont enregistrés.",
+      "default": "${DOCUMENTS}/RhinoMCP",
+      "required": false
+    },
+    "rhino_instance": {
+      "type": "string",
+      "title": "Instance Rhino préférée (facultatif)",
+      "description": "Si plusieurs Rhino sont ouverts : numéro de processus (PID) ou partie du nom du fichier .3dm. Vide = le Rhino démarré en dernier.",
+      "default": "",
+      "required": false
+    },
+    "timeout_s": {
+      "type": "number",
+      "title": "Délai d'une requête (secondes)",
+      "description": "Temps maximal d'attente d'une réponse simple de Rhino.",
+      "default": 120,
+      "min": 10,
+      "max": 3600,
+      "required": false
+    },
+    "long_timeout_s": {
+      "type": "number",
+      "title": "Délai des calculs longs (secondes)",
+      "description": "Temps maximal pour une solution Grasshopper, une analyse ou un export.",
+      "default": 1800,
+      "min": 60,
+      "max": 14400,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": ["win32", "darwin"],
+    "runtimes": { "node": ">=18.0.0" }
+  }
+}

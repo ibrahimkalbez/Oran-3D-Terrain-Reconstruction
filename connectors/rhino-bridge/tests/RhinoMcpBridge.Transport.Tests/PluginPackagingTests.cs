@@ -56,8 +56,11 @@ public class PluginPackagingTests
       .Select(File.ReadAllText).Aggregate((a, b) => a + b);
     var registered = new HashSet<string>(Regex.Matches(sources, "(?:Register\\(|\\[)\"([a-z]+\\.[a-z_]+)\"").Select(m => m.Groups[1].Value));
 
-    var serverSrc = Path.GetFullPath(Path.Combine(Root, "../rhino-grasshopper-mcp/src"));
-    var used = Directory.GetFiles(serverSrc, "*.ts", SearchOption.AllDirectories)
+    // Both connectors: the Rhino Grasshopper connector and the Fusion connector built on it.
+    var serverSources = new[] { "../rhino-grasshopper-mcp/src", "../fusion-rga-mcp/src" }
+      .Select(d => Path.GetFullPath(Path.Combine(Root, d))).Where(Directory.Exists).ToList();
+    Assert.Equal(2, serverSources.Count);
+    var used = serverSources.SelectMany(d => Directory.GetFiles(d, "*.ts", SearchOption.AllDirectories))
       .SelectMany(f => Regex.Matches(File.ReadAllText(f), "call(?:<[^>]*>)?\\(\\s*\"([a-z]+\\.[a-z_]+)\"").Select(m => m.Groups[1].Value))
       .Distinct().OrderBy(x => x).ToList();
 

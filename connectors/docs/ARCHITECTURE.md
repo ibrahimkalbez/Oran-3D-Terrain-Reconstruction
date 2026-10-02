@@ -6,6 +6,8 @@ Claude (Claude Desktop / Claude Code)
    ▼
 Serveur MCP « rhino-grasshopper-connector »        connectors/rhino-grasshopper-mcp  (TypeScript → Node.js)
    │  39 outils · découverte de Rhino · variantes · tâches de fond
+   │  (le connecteur 2 « fusion-rhino-grasshopper-ansys », connectors/fusion-rga-mcp, enregistre ces
+   │   mêmes outils puis ajoute règles, exploration, arbres et simulations : 58 outils)
    │  HTTP + JSON-RPC 2.0 sur 127.0.0.1, jeton Bearer
    ▼
 Plug-in Rhino « RhinoMcpBridge.rhp »                connectors/rhino-bridge  (C# · RhinoCommon · Grasshopper SDK)
@@ -97,6 +99,10 @@ Si Rhino redémarre (nouveau port ou jeton), le serveur redécouvre et rejoue la
 | `grasshopper.search_components`, `create_component`, `connect_components` | Édition du graphe |
 | `grasshopper.export_geometry` | Bake dans Rhino (calques, user text, remplacement par étiquette) ou fichier `.3dm` |
 | `grasshopper.capture_canvas` | Image du canevas Grasshopper |
+| `analysis.footprints` *(1.1)* | Emprises au sol (contours projetés, cours intérieures), hauteurs, volumes — objets Rhino ou sorties Grasshopper |
+| `analysis.curves` *(1.1)* | Courbes, bords de surfaces, hachures et maillages en polylignes (parcelles, voirie, espaces verts) |
+| `analysis.drape_points` *(1.1)* | Altitude du relief sous des points (lancer de rayons vertical) |
+| `analysis.ray_visibility` *(1.1)* | Visibilité pondérée de directions (heures d'ensoleillement, ombres) par lancer de rayons |
 
 Codes d'erreur : `-32001` pas de document, `-32002` Grasshopper indisponible, `-32003` introuvable
 (avec `data.available`), `-32004` Rhino occupé, `-32005` ambigu (avec `data.candidates`), `-32006` échec,
@@ -132,6 +138,7 @@ suit la progression avec `job_status`. Aucun appel d'outil ne reste ouvert plusi
 | Compilation | Tout le plug-in compile sans avertissement contre RhinoCommon et Grasshopper 8.0 | `dotnet build -c Release` |
 | Transport (14 tests xUnit) | HTTP, gros corps, chunked, jeton, Origin, Host, erreurs, ports, fichier de découverte ; structure du `.rhp` (classe plug-in, GUID, commandes, DLL intégrée) ; **chaque méthode appelée par le serveur MCP existe dans le plug-in** | `rhino-bridge/tests` |
 | Serveur MCP (19 tests) | Client MCP réel sur stdio ↔ serveur ↔ faux bridge au protocole identique : outils, schémas, découverte, création, +10 %, erreurs, variantes, comparaison, tâches ; rejoués **sur le serveur extrait du `.mcpb`** | `rhino-grasshopper-mcp/test` |
+| Connecteur 2 (35 tests) | 24 unitaires (règles, géométrie, arbres, exploration, soleil, vent, Workbench, solveur externe) + 11 de bout en bout (site, règlement, arbres, exploration sous contraintes, optimisation, ensoleillement lié à une variante, script externe, domaine de vent), rejoués sur le `.mcpb` | `fusion-rga-mcp/test` |
 | Rhino réel | Le premier lancement dans Rhino 8 sous Windows (non disponible dans l'environnement de construction) | voir `release/INSTALLATION.md`, §3 |
 
 ## Construire depuis les sources
@@ -141,9 +148,9 @@ suit la progression avec `job_status`. Aucun appel d'outil ne reste ouvert plusi
 cd connectors/rhino-bridge/src/RhinoMcpBridge && dotnet build -c Release
 cd ../../tests/RhinoMcpBridge.Transport.Tests && dotnet test
 
-# Serveur MCP + extension Claude Desktop
-cd connectors/rhino-grasshopper-mcp && npm ci && npm test && npm run pack:mcpb
-#   → connectors/release/RhinoGrasshopperConnector-<version>.mcpb
+# Serveurs MCP + extensions Claude Desktop (espace de travail npm : un seul node_modules)
+cd connectors && npm ci && npm test && npm run pack
+#   → connectors/release/RhinoGrasshopperConnector-<version>.mcpb et FusionRhinoGrasshopperAnsys-<version>.mcpb
 ```
 
 Utilisation avec Claude Code (sans `.mcpb`) :
@@ -152,9 +159,26 @@ Utilisation avec Claude Code (sans `.mcpb`) :
 claude mcp add rhino-grasshopper -- node <chemin>/rhino-grasshopper-mcp/dist/index.js
 ```
 
+## Connecteur 2 (Fusion)
+
+```
+fusion-rga-mcp/src/
+  server.ts            serveur « fusion-rhino-grasshopper-ansys » : outils du connecteur 1 + modules ci-dessous
+  site.ts              modèle de site (bâti, parcelles, voirie, espaces verts) depuis Rhino ou Grasshopper
+  geometry/            géométrie 2D (aires, distances, inclusion), échantillonnage (quinconce, Poisson, alignements)
+  rules/               langage d'expressions sûr, moteur de règles, jeux d'exemples et stockage des règlements
+  explore/             plans d'expériences (grille, aléatoire, hypercube latin), Pareto, algorithme génétique
+  trees/               catalogue d'essences, placement avec obstacles, maillages fermés d'arbres
+  sim/                 cas de simulation (dossier + case.json), exécution de processus, soleil (NOAA),
+                       confort au vent (Lawson), domaine de calcul ; adaptateurs solar, ansys_workbench, command
+  tools/               urban_*, design_*, trees_*, sim_*
+```
+
+Les calculs lourds de géométrie 3D (contours, lancer de rayons) se font dans Rhino (méthodes `analysis.*`
+du plug-in 1.1) ; les règles, l'échantillonnage, l'optimisation et le post-traitement sont en TypeScript,
+testés sans Rhino. Les solveurs ANSYS tournent dans des processus séparés, suivis comme tâches de fond.
+
 ## Évolutions prévues
 
-- **Connecteur 2 — Fusion Rhino Grasshopper ANSYS** : réutilise ce bridge, le client, les variantes et les
-  tâches de fond, et ajoute règles d'urbanisme, générateur de variantes, arbres et simulations ANSYS.
 - Adaptateur Rhino.Compute pour calculer des séries de variantes sans interface.
 - Paquet Yak pour le gestionnaire de paquets de Rhino.

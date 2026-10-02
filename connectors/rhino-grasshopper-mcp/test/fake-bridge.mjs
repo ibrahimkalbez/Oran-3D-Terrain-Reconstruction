@@ -9,6 +9,26 @@ import path from "node:path";
 // 1×1 PNG
 const PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
+// Bounding box of a geometry spec (enough for the tests).
+function bboxOf(g) {
+  const pts = [];
+  const add = (p) => p && pts.push([p[0], p[1], p[2] ?? 0]);
+  (g.profile ?? g.points ?? g.vertices ?? []).forEach(add);
+  add(g.location);
+  add(g.from);
+  add(g.to);
+  if (pts.length === 0) return null;
+  const zTop = g.height ? Math.max(...pts.map((p) => p[2])) + g.height : Math.max(...pts.map((p) => p[2]));
+  const min = [Math.min(...pts.map((p) => p[0])), Math.min(...pts.map((p) => p[1])), Math.min(...pts.map((p) => p[2]))];
+  const max = [Math.max(...pts.map((p) => p[0])), Math.max(...pts.map((p) => p[1])), zTop];
+  return { min, max, size: max.map((v, i) => v - min[i]), center: max.map((v, i) => (v + min[i]) / 2) };
+}
+
+function matchesUserText(o, filter) {
+  if (!filter) return true;
+  return Object.entries(filter).every(([k, v]) => k in o.user_text && (v === "*" || String(o.user_text[k]) === String(v)));
+}
+
 export function createFakeBridge({ token = "fake-token" } = {}) {
   const state = {
     objects: new Map(),
@@ -73,24 +93,28 @@ export function createFakeBridge({ token = "fake-token" } = {}) {
       if (p.layer) list = list.filter((o) => o.layer === p.layer || o.layer.startsWith(p.layer + "::"));
       if (p.ids) list = list.filter((o) => p.ids.includes(o.id));
       if (p.types) list = list.filter((o) => p.types.includes(o.type));
-      return { total: list.length, offset: 0, returned: list.length, truncated: false, objects: list };
+      list = list.filter((o) => matchesUserText(o, p.user_text));
+      const objects = list.map(({ spec, ...o }) => o);
+      return { total: list.length, offset: 0, returned: list.length, truncated: false, objects };
     },
     "rhino.create_geometry": (p) => {
       const created = [];
       for (const [i, g] of (p.geometries ?? []).entries()) {
-        if (!["point", "line", "box", "extrusion", "polyline", "circle", "rectangle"].includes(g.type)) throw err(-32602, `geometries[${i}] (${g.type}): Unknown geometry type`);
+        if (!["point", "line", "box", "extrusion", "polyline", "circle", "rectangle", "mesh", "text_dot"].includes(g.type)) throw err(-32602, `geometries[${i}] (${g.type}): Unknown geometry type`);
         if (g.type === "extrusion" && !(g.height > 0)) throw err(-32602, `geometries[${i}] (extrusion): 'height' is required.`);
         const layer = g.layer ?? p.defaults?.layer ?? "Default";
         if (!state.layers.has(layer)) state.layers.set(layer, { color: "#000000" });
         const id = `00000000-0000-0000-0000-${String(state.nextId++).padStart(12, "0")}`;
-        const obj = { id, type: g.type === "extrusion" ? "extrusion" : g.type === "box" ? "brep" : "curve", name: g.name ?? "", layer, user_text: g.user_text ?? {} };
+        const type = { extrusion: "extrusion", box: "brep", mesh: "mesh", text_dot: "text_dot", point: "point" }[g.type] ?? "curve";
+        const user_text = Object.fromEntries(Object.entries({ ...(p.defaults?.user_text ?? {}), ...(g.user_text ?? {}) }).map(([k, v]) => [k, String(v)]));
+        const obj = { id, type, name: g.name ?? "", layer, user_text, spec: g, bbox: bboxOf(g) };
         state.objects.set(id, obj);
         created.push({ index: i, id, geometry_type: obj.type, layer });
       }
       return { created_count: created.length, created };
     },
     "rhino.delete_objects": (p) => {
-      const ids = p.ids ?? [...state.objects.values()].filter((o) => p.layer && o.layer === p.layer).map((o) => o.id);
+      const ids = p.ids ?? [...state.objects.values()].filter((o) => (p.layer ? o.layer === p.layer : true) && (p.user_text ? matchesUserText(o, p.user_text) : Boolean(p.layer))).map((o) => o.id);
       if (p.dry_run) return { dry_run: true, would_delete: ids.length };
       let n = 0;
       for (const id of ids) if (state.objects.delete(id)) n++;
@@ -184,6 +208,7 @@ export function createFakeBridge({ token = "fake-token" } = {}) {
 
   return {
     state,
+    methods,
     server,
     token,
     async start(dir) {

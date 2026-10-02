@@ -34,6 +34,10 @@ export const FilterShape = {
     .record(z.string(), z.string())
     .optional()
     .describe("User text that must be present: {key: value}; value '*' = any value; wildcards allowed"),
+  exclude_user_text: z
+    .array(z.record(z.string(), z.string()))
+    .optional()
+    .describe("Leave out objects matching any of these user-text sets, e.g. [{\"mcp.kind\": \"analysis\"}]"),
   selected: z.boolean().optional().describe("true = only selected objects"),
   include_hidden: z.boolean().optional().describe("Include hidden objects (default true)"),
   include_locked: z.boolean().optional().describe("Include locked objects (default true)"),

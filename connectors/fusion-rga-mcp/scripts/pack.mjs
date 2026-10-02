@@ -1,10 +1,11 @@
-// Builds the Claude Desktop extension: bundle + manifest (tool list read from the server itself)
-// + icon, validated and packed with the official mcpb CLI into ../release/.
+// Builds the Fusion connector extension: one-file bundle (connector 1 sources included) +
+// manifest (tool list read from the server) + icon, validated and packed with the mcpb CLI.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
-import path from "node:path";
 import { createRequire } from "node:module";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
@@ -12,16 +13,23 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pkg = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
 const stage = path.join(root, "build", "mcpb");
 const release = path.resolve(root, "..", "release");
-const out = path.join(release, `RhinoGrasshopperConnector-${pkg.version}.mcpb`);
-// Resolved through Node so it works with the workspace's shared node_modules.
+const out = path.join(release, `FusionRhinoGrasshopperAnsys-${pkg.version}.mcpb`);
 const mcpb = path.join(path.dirname(createRequire(import.meta.url).resolve("@anthropic-ai/mcpb")), "cli", "cli.js");
 
 fs.rmSync(stage, { recursive: true, force: true });
 fs.mkdirSync(path.join(stage, "server"), { recursive: true });
-execFileSync(process.execPath, [path.join(root, "scripts", "bundle.mjs"), path.join(stage, "server", "index.cjs")], { stdio: "inherit" });
+await build({
+  entryPoints: [path.join(root, "src", "index.ts")],
+  outfile: path.join(stage, "server", "index.cjs"),
+  bundle: true,
+  platform: "node",
+  target: "node18",
+  format: "cjs",
+  legalComments: "inline",
+  logLevel: "warning",
+});
 fs.copyFileSync(path.join(root, "assets", "icon.png"), path.join(stage, "icon.png"));
 
-// Ask the bundled server for its tools and prompts so the manifest is always in sync.
 const client = new Client({ name: "pack", version: "1" });
 await client.connect(new StdioClientTransport({ command: process.execPath, args: [path.join(stage, "server", "index.cjs")], stderr: "ignore" }));
 const { tools } = await client.listTools();

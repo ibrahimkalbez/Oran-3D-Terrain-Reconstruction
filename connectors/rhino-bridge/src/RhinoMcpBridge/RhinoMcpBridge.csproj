@@ -15,9 +15,9 @@
     <AssemblyName>RhinoMcpBridge</AssemblyName>
     <RootNamespace>RhinoMcpBridge</RootNamespace>
     <TargetExt>.rhp</TargetExt>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
     <Company>KALBEZ Ibrahim El Khalil</Company>
     <Product>Rhino Grasshopper Connector — Rhino bridge</Product>
     <Description>Local JSON-RPC bridge between the Rhino Grasshopper MCP connector and Rhino 8 / Grasshopper.</Description>

@@ -1,0 +1,11 @@
+{
+  "name": "claude-rhino-connectors",
+  "private": true,
+  "description": "Workspace of the Claude connectors for Rhino / Grasshopper / ANSYS.",
+  "workspaces": ["rhino-grasshopper-mcp", "fusion-rga-mcp"],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm test --workspaces",
+    "pack": "npm run pack:mcpb --workspaces"
+  }
+}

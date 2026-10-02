@@ -1,8 +1,7 @@
 {
   "name": "rhino-grasshopper-connector",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "MCP server that lets Claude drive Rhino 8 and Grasshopper through the Rhino MCP Bridge plug-in.",
-  "license": "MIT",
   "author": "KALBEZ Ibrahim El Khalil",
   "type": "module",
   "main": "dist/index.js",
