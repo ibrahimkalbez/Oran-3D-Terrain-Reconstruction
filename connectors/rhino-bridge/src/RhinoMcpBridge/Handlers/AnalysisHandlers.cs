@@ -267,16 +267,32 @@ namespace RhinoMcpBridge.Handlers
     // ------------------------------------------------------------------ analysis.drape_points
 
     /// <summary>Obstacle or terrain mesh from a target filter (default: every visible solid/mesh).</summary>
-    private static Mesh TargetMesh(RhinoDoc doc, JObject target, out BoundingBox box)
+    /// <summary>
+    /// Mesh of the target: one source (filter or {grasshopper}) or a list of sources whose
+    /// geometry is combined — e.g. the Grasshopper design plus the surrounding Rhino city.
+    /// </summary>
+    private static Mesh TargetMesh(RhinoDoc doc, JToken target, out BoundingBox box)
     {
-      // Default obstacles: every visible solid or mesh, except the analysis results and
-      // helper volumes created by the connectors (sun-hours maps, wind domains).
-      var items = target != null ? Collect(doc, target) : Collect(doc, new JObject
+      var items = new List<Item>();
+      if (target is JArray sources)
       {
-        ["types"] = new JArray("brep", "extrusion", "mesh", "subd", "surface"),
-        ["include_hidden"] = false,
-        ["exclude_user_text"] = new JArray(new JObject { ["mcp.kind"] = "analysis" }, new JObject { ["mcp.kind"] = "wind_domain" }),
-      });
+        foreach (var source in sources.OfType<JObject>()) items.AddRange(Collect(doc, source));
+      }
+      else if (target is JObject one)
+      {
+        items = Collect(doc, one);
+      }
+      else
+      {
+        // Default obstacles: every visible solid or mesh, except the analysis results and
+        // helper volumes created by the connectors (sun-hours maps, wind domains).
+        items = Collect(doc, new JObject
+        {
+          ["types"] = new JArray("brep", "extrusion", "mesh", "subd", "surface"),
+          ["include_hidden"] = false,
+          ["exclude_user_text"] = new JArray(new JObject { ["mcp.kind"] = "analysis" }, new JObject { ["mcp.kind"] = "wind_domain" }),
+        });
+      }
       var mesh = new Mesh();
       var mp = MeshingParameters.Default;
       foreach (var item in items)
@@ -292,7 +308,9 @@ namespace RhinoMcpBridge.Handlers
     {
       var doc = RhinoUtil.Doc();
       var points = Args.Points(Args.Get(p, "points"), "points");
-      var mesh = TargetMesh(doc, p["target"] as JObject ?? throw RpcException.InvalidParams("'target' (filter of the terrain objects) is required."), out var box);
+      var target = p["target"];
+      if (target == null || target.Type == JTokenType.Null) throw RpcException.InvalidParams("'target' (filter of the terrain objects) is required.");
+      var mesh = TargetMesh(doc, target, out var box);
       if (mesh.Faces.Count == 0) throw RpcException.NotFound("The target contains no surface or mesh.");
       double top = box.Max.Z + 10;
       double offset = Args.Num(p, "offset", 0);
@@ -339,7 +357,8 @@ namespace RhinoMcpBridge.Handlers
       long maxRays = (long)Args.Num(p, "max_rays", 5_000_000);
       if (rays > maxRays) throw RpcException.InvalidParams($"{rays} rays requested (> max_rays={maxRays}): use fewer points or directions.");
 
-      var mesh = TargetMesh(doc, p["obstacles"] as JObject, out _);
+      var obstacles = p["obstacles"];
+      var mesh = TargetMesh(doc, obstacles == null || obstacles.Type == JTokenType.Null ? null : obstacles, out _);
       double offset = Args.Num(p, "offset", 0.05);
       bool hasObstacles = mesh.Faces.Count > 0;
       var values = new JArray();

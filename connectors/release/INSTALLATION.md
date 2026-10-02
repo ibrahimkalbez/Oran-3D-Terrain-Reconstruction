@@ -2,8 +2,8 @@
 
 | Fichier | Où l'installer | Rôle |
 |---|---|---|
-| `RhinoMcpBridge.rhp` (v1.1.0) | Rhino 8 (Windows) | Plug-in : passerelle locale sécurisée vers Rhino et Grasshopper (nécessaire aux deux connecteurs) |
-| `FusionRhinoGrasshopperAnsys-1.0.0.mcpb` | Claude Desktop | **Connecteur 2** (58 outils) : tout le connecteur 1 + règles d'urbanisme, variantes, arbres, simulations / ANSYS |
+| `RhinoMcpBridge.rhp` (v1.2.0) | Rhino 8 (Windows) | Plug-in : passerelle locale sécurisée vers Rhino et Grasshopper (nécessaire aux deux connecteurs) |
+| `FusionRhinoGrasshopperAnsys-1.1.0.mcpb` | Claude Desktop | **Connecteur 2** (58 outils) : tout le connecteur 1 + variantes sous contraintes urbaines **et** simulations physiques (soleil, ANSYS), arbres |
 | `RhinoGrasshopperConnector-1.0.1.mcpb` | Claude Desktop | **Connecteur 1** seul (39 outils) : Rhino, Grasshopper, variantes |
 
 Installez le plug-in, puis **un seul** des deux connecteurs : le Fusion contient déjà tout le connecteur 1
@@ -12,9 +12,9 @@ Installez le plug-in, puis **un seul** des deux connecteurs : le Fusion contient
 Prérequis : Windows 10/11, **Rhino 8** (n'importe quelle version 8.x) et **Claude Desktop** à jour. Rien d'autre à installer : ni Python, ni Node.js.
 ANSYS (Workbench, Fluent, Mechanical…) n'est nécessaire que pour les simulations ANSYS du connecteur 2.
 
-> **Mise à jour depuis la version 1.0.0 du plug-in** : fermez Rhino, remplacez `RhinoMcpBridge.rhp` dans son
-> dossier permanent par la version 1.1.0, débloquez-le (étape 1.2) et rouvrez Rhino. `McpBridgeStatus` doit
-> afficher `1.1.0`.
+> **Mise à jour d'une version précédente du plug-in** : fermez Rhino, remplacez `RhinoMcpBridge.rhp` dans son
+> dossier permanent par la version 1.2.0, débloquez-le (étape 1.2) et rouvrez Rhino. `McpBridgeStatus` doit
+> afficher `1.2.0`. Pour le connecteur, double-cliquez sur le nouveau `.mcpb` : il remplace l'ancien.
 
 ---
 
@@ -29,7 +29,7 @@ ANSYS (Workbench, Fluent, Mechanical…) n'est nécessaire que pour les simulati
 4. Tapez `McpBridgeStatus` dans la ligne de commande. Vous devez lire :
 
    ```
-   Rhino MCP Bridge 1.1.0: running on http://127.0.0.1:8642
+   Rhino MCP Bridge 1.2.0: running on http://127.0.0.1:8642
    ```
 
 Le plug-in démarre ensuite **automatiquement à chaque lancement de Rhino**.
@@ -44,7 +44,7 @@ Commandes Rhino disponibles :
 
 ## 2. Installer le connecteur dans Claude Desktop (1 minute)
 
-1. **Double-cliquez** sur `FusionRhinoGrasshopperAnsys-1.0.0.mcpb` (ou `RhinoGrasshopperConnector-1.0.1.mcpb`).
+1. **Double-cliquez** sur `FusionRhinoGrasshopperAnsys-1.1.0.mcpb` (ou `RhinoGrasshopperConnector-1.0.1.mcpb`).
    (Ou : Claude Desktop → *Paramètres* → *Extensions* → *Installer une extension…* → choisir le fichier.)
 2. Cliquez sur **Installer**. Les réglages sont facultatifs :
    - **Dossier de travail** : où sont enregistrées les variantes (par défaut `Documents\RhinoMCP`) ;
@@ -74,7 +74,9 @@ Avec le connecteur 2 (Fusion), essayez ensuite :
 7. « **Détecte les calques du site et vérifie le règlement exemple.** » → tableau ✅/❌ et bâtiments fautifs en rouge.
 8. « **Plante des ficus tous les 8 m le long des rues, en évitant les bâtiments.** »
 9. « **Calcule l'ensoleillement au 21 décembre sur l'espace public.** » → carte colorée dans Rhino.
-10. « **Explore la hauteur de 12 à 30 m avec le règlement comme contrainte et garde la meilleure variante.** »
+10. « **Fais varier la hauteur de 12 à 30 m, respecte le règlement, calcule l'ensoleillement au 21 décembre de chaque
+    variante, garde celles qui ont au moins 2 h de soleil sur la moitié de l'espace public et maximise la surface.** »
+    → variantes générées, filtrées par le règlement **et** la simulation, classées, enregistrées avec leurs résultats.
 
 Guide complet du connecteur 2 : [`docs/FUSION.md`](../docs/FUSION.md) (règles, variantes, arbres, simulations, préparation d'un projet ANSYS Workbench).
 
@@ -99,7 +101,7 @@ Guide complet du connecteur 2 : [`docs/FUSION.md`](../docs/FUSION.md) (règles, 
 ## Empreintes SHA-256
 
 ```
-113e0f29f1cf3694465d88d4fe6b255ab8dfdfe00302fe8db483b7a0534b8189  FusionRhinoGrasshopperAnsys-1.0.0.mcpb
-98a7ab575fe098700f24dd1ed6acfa7c14ddd98a8a513320792f9b4b3418b9e2  RhinoGrasshopperConnector-1.0.1.mcpb
-c9a2db5d5f5f6b94cab0b9ba4e5cdb89fc91c4b72ce6b3c2324b996e4175bf13  RhinoMcpBridge.rhp
+33173d5fdf5c1b8f430f1feb75b7daed50547f4e5a917989cadedeb4f6ea0fa6  FusionRhinoGrasshopperAnsys-1.1.0.mcpb
+65911af040dea38823ab050dfbcc59394ac8f3c76989dcdb8245cc77d5bd182e  RhinoGrasshopperConnector-1.0.1.mcpb
+b0a0962b190958dccc3253d7a390d4d1aa1f40d278d0adb024fca110b4c8e01b  RhinoMcpBridge.rhp
 ```

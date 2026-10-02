@@ -17,7 +17,7 @@ Fusion MCP (58 outils)
   └── ANSYS (Workbench, scripts PyAnsys, journaux Fluent/MAPDL)
 ```
 
-Prérequis : plug-in **RhinoMcpBridge 1.1** (fourni dans `release/`) ; ANSYS seulement pour les simulations ANSYS.
+Prérequis : plug-in **RhinoMcpBridge 1.2** (fourni dans `release/`) ; ANSYS seulement pour les simulations ANSYS.
 
 ---
 
@@ -54,7 +54,59 @@ plus toutes les métriques Grasshopper (`OUT_GFA`, `Buildings.volume`…).
 > Donnez à Claude les valeurs du règlement applicable (« enregistre le POS de la zone UA : hauteur 21 m,
 > R+6, CES 0,7, COS 3,2… ») : il les enregistre avec `urban_rules_save`.
 
-## 2. Générateur de variantes
+## 2. Générateur de variantes — contraintes urbaines + simulations physiques
+
+Pour **chaque variante** générée, le connecteur enchaîne automatiquement :
+
+```
+paramètres Grasshopper → solution → métriques
+   → règles d'urbanisme (rules)               ✗ → variante non conforme, non simulée
+   → simulations physiques (simulations)       soleil · projet ANSYS Workbench · script PyAnsys / journal
+   → seuils sur les résultats (simulation_constraints)   ✗ → variante non conforme
+   → objectifs (Grasshopper, règles et simulations) → classement, front de Pareto
+   → meilleures variantes enregistrées avec image, géométrie et résultats de simulation
+```
+
+Exemple de demande :
+
+> « Fais varier Building_Height de 12 à 30 m et Floors de 4 à 10. Respecte le POS de la zone UA. Pour chaque
+> variante, calcule l'ensoleillement au 21 décembre avec la ville d'Oran autour, et le vent avec mon projet
+> ANSYS `C:\Etudes\vent.wbpj` (paramètre P1 = hauteur). Garde seulement les variantes avec au moins 2 h de
+> soleil sur la moitié de l'espace public et moins de 15 % de zone inconfortable au vent ; maximise la surface
+> de plancher. »
+
+Claude appelle alors `design_explore` avec :
+
+```json
+{
+  "space": { "Building_Height": { "min": 12, "max": 30, "steps": 4 }, "Floors": { "min": 4, "max": 10, "steps": 3 } },
+  "design_outputs": ["OUT_Buildings"],
+  "rules": { "rule_set": "POS_UA" },
+  "simulations": [
+    { "solver": "solar", "settings": { "dates": ["2026-12-21"], "context": { "layer": "Oran::Bâti" } } },
+    { "solver": "ansys_workbench", "name": "wind",
+      "settings": { "project": "C:\\Etudes\\vent.wbpj", "parameters": { "P1": "{Building_Height}" },
+                    "velocity_csv": "pedestrian.csv", "reference_speed": 6 } }
+  ],
+  "simulation_constraints": [
+    { "metric": "solar.area_pct_above_threshold", "min": 50 },
+    { "metric": "wind.wind_pct_uncomfortable", "max": 15 }
+  ],
+  "objectives": { "OUT_GFA": "max" },
+  "save": "pareto"
+}
+```
+
+- Les bâtiments de la variante (sorties Grasshopper `design_outputs`) sont transmis automatiquement aux
+  simulations : obstacles pour le soleil, géométrie exportée (STEP) pour ANSYS.
+- `context` ajoute la ville environnante comme obstacle au soleil.
+- Les variantes qui enfreignent déjà le règlement ne sont pas simulées (gain de temps ; `simulate_infeasible`
+  pour les simuler quand même).
+- Chaque simulation est un cas traçable dans `RhinoMCP\simulations\` ; les métriques sont préfixées par le
+  nom de la simulation (`solar.sun_hours_mean`, `wind.wind_pct_uncomfortable`, `wind.P5`…).
+- `design_optimize` accepte les mêmes options : l'algorithme génétique cherche l'optimum sous contraintes
+  urbaines **et** physiques.
+- Prompt prêt à l'emploi : `variantes_contraintes_simulations`.
 
 | Outil | Méthode |
 |---|---|

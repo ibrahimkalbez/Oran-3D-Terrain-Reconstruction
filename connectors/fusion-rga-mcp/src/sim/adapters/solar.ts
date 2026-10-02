@@ -15,6 +15,16 @@ function filterOf(src: Source | undefined): Record<string, unknown> | undefined 
   return undefined;
 }
 
+/** Obstacles for ray casting: studied buildings, plus the surrounding city when given. */
+function obstaclesParam(settings: Record<string, any>): Record<string, unknown> {
+  const studied = filterOf(settings.obstacles);
+  const context = filterOf(settings.context);
+  if (studied && context) return { obstacles: [studied, context] };
+  if (studied) return { obstacles: studied };
+  if (context) return { obstacles: [context] };
+  return {};
+}
+
 /** Blue → green → yellow ramp for 0..1. */
 export function ramp(t: number): [number, number, number] {
   const stops: Array<[number, [number, number, number]]> = [
@@ -53,7 +63,8 @@ export const solarAdapter: SolverAdapter = {
     height_offset: "Hauteur des points au-dessus du sol (m, défaut 0.1 ; 1.5 = piéton)",
     terrain: "Relief sur lequel poser la grille: {layer|ids|filter} (facultatif)",
     ground_z: "Altitude du sol sans relief (défaut: base des bâtiments)",
-    obstacles: "Objets qui font de l'ombre: {layer|ids|filter|grasshopper} (défaut: tous les solides et arbres visibles, sauf cartes d'analyse et domaines de vent)",
+    obstacles: "Bâtiments étudiés qui font de l'ombre: {layer|ids|filter|grasshopper} (défaut: tous les solides et arbres visibles, sauf cartes d'analyse et domaines de vent)",
+    context: "Ville environnante qui fait aussi de l'ombre (ex. {layer: \"Oran::Bâti\"}) — utile quand les bâtiments étudiés viennent de Grasshopper",
     dates: "Jours étudiés YYYY-MM-DD (défaut: solstice d'hiver)",
     step_minutes: "Pas de temps (défaut 30)",
     latitude: `Latitude (défaut Oran ${ORAN.latitude})`,
@@ -86,22 +97,26 @@ export const solarAdapter: SolverAdapter = {
     });
     if (sun.length === 0) throw new Error("The sun stays below the horizon for these dates.");
 
-    // Study area and building footprints (no sample point inside a building).
+    // Building footprints: the studied buildings (obstacles) and the surrounding city (context).
+    // No sample point inside a building; the default study area surrounds the studied buildings.
     const obstacleFilter = filterOf(s.obstacles);
-    let footprints: Polygon[] = [];
+    const contextFilter = filterOf(s.context);
     let groundZ = s.ground_z;
-    try {
-      // Default: buildings = visible solids, without trees and the connectors' analysis objects.
-      const fp = await ctx.bridge.call(
-        "analysis.footprints",
-        obstacleFilter ?? { types: ["brep", "extrusion", "mesh", "subd"], include_hidden: false, exclude_user_text: [{ "mcp.kind": "analysis" }, { "mcp.kind": "wind_domain" }, { "mcp.kind": "tree" }] },
-        long,
-      );
-      footprints = (fp.items ?? []).filter((it: any) => (it.height ?? 0) >= 0.5).flatMap((it: any) => (it.parts ?? []).map((p: any) => ({ outer: openRing(p.outer) })));
-      if (groundZ === undefined && fp.items?.length) groundZ = Math.min(...fp.items.map((it: any) => it.base_z ?? 0));
-    } catch {
-      footprints = [];
-    }
+    const footprintsOf = async (filter: Record<string, unknown>) => {
+      try {
+        const fp = await ctx.bridge.call("analysis.footprints", filter, long);
+        const items = (fp.items ?? []).filter((it: any) => (it.height ?? 0) >= 0.5);
+        if (groundZ === undefined && items.length) groundZ = Math.min(...items.map((it: any) => it.base_z ?? 0));
+        return items.flatMap((it: any) => (it.parts ?? []).map((p: any) => ({ outer: openRing(p.outer) }))) as Polygon[];
+      } catch {
+        return [] as Polygon[];
+      }
+    };
+    // Default: buildings = visible solids, without trees and the connectors' analysis objects.
+    const studied = await footprintsOf(
+      obstacleFilter ?? { types: ["brep", "extrusion", "mesh", "subd"], include_hidden: false, exclude_user_text: [{ "mcp.kind": "analysis" }, { "mcp.kind": "wind_domain" }, { "mcp.kind": "tree" }] },
+    );
+    const footprints: Polygon[] = [...studied, ...(contextFilter ? await footprintsOf(contextFilter) : [])];
     let areas: Polygon[];
     const areaFilter = filterOf(s.area);
     if (areaFilter) {
@@ -109,8 +124,9 @@ export const solarAdapter: SolverAdapter = {
       areas = (curves.items ?? []).filter((x: any) => x.closed).map((x: any) => ({ outer: openRing(x.points) }));
       if (areas.length === 0) throw new Error("The study area contains no closed curve.");
     } else {
-      if (footprints.length === 0) throw new Error("No buildings found: give 'area' or 'obstacles'.");
-      const b = bounds(footprints.flatMap((f) => f.outer));
+      const around = studied.length ? studied : footprints;
+      if (around.length === 0) throw new Error("No buildings found: give 'area' or 'obstacles'.");
+      const b = bounds(around.flatMap((f) => f.outer));
       const m = Number(s.margin ?? 20);
       areas = [{ outer: [[b.min[0] - m, b.min[1] - m], [b.max[0] + m, b.min[1] - m], [b.max[0] + m, b.max[1] + m], [b.min[0] - m, b.max[1] + m]] }];
     }
@@ -146,7 +162,7 @@ export const solarAdapter: SolverAdapter = {
         directions: sun.map((x: any) => x.vector),
         weights: sun.map((x: any) => x.weight_hours),
         normals: points.map(() => [0, 0, 1]),
-        ...(filterOf(c.settings.obstacles) ? { obstacles: filterOf(c.settings.obstacles) } : {}),
+        ...obstaclesParam(c.settings),
         max_rays: 50_000_000,
       },
       { timeoutMs: ctx.config.longTimeoutMs },

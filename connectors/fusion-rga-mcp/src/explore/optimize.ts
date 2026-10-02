@@ -7,6 +7,8 @@ export interface Evaluation {
   feasible: boolean;
   violations: number;
   error?: string;
+  /** Simulation cases run for this design. */
+  simulations?: string[];
 }
 
 export interface OptimizeOptions {

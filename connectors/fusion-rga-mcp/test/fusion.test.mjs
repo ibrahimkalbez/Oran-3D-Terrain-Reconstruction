@@ -54,9 +54,12 @@ function extend(bridge) {
   };
   methods["analysis.drape_points"] = (p) => ({ points: p.points.map((q) => [q[0], q[1], 10 + (p.offset ?? 0)]), hits: p.points.length, misses: 0 });
   methods["analysis.ray_visibility"] = (p) => {
-    // Points west of x = 50 are in the shade half of the time.
+    // Points west of x = 50 lose sun as the buildings rise; fully shaded from 25 m.
+    state.rayCalls = (state.rayCalls ?? 0) + 1;
+    state.lastObstacles = p.obstacles;
     const total = p.weights.reduce((a, b) => a + b, 0);
-    const values = p.points.map((q) => (q[0] < 50 ? total / 2 : total));
+    const shade = Math.min(1, height() / 25);
+    const values = p.points.map((q) => (q[0] < 50 ? total * (1 - shade) : total));
     return { values, visible_counts: values.map(() => 0), stats: { points: values.length, directions: p.directions.length } };
   };
   methods["rhino.export"] = (p) => {
@@ -186,6 +189,48 @@ describe("Fusion Rhino Grasshopper ANSYS", () => {
     assert.ok(fs.existsSync(r.file));
     assert.ok(fs.existsSync(r.file.replace(/\.json$/, ".csv")));
     assert.equal(bridge.state.definition.inputs.find((i) => i.name === "Building_Height").value, 15, "original value restored");
+  });
+
+  test("generates variants under urban rules AND physical simulations (sun + wind solver)", async () => {
+    // Wind solver stand-in (PyAnsys-style script): peak pedestrian wind grows with the height.
+    const script = path.join(workspace, "wind_solver.mjs");
+    fs.writeFileSync(script, `import fs from "node:fs"; const dir = process.argv[2]; const p = JSON.parse(fs.readFileSync(dir + "/parameters.json", "utf8"));
+fs.writeFileSync(dir + "/results.json", JSON.stringify({ max_velocity: p.parameters.Building_Height / 4 }));`);
+    const before = (await client.callTool({ name: "sim_list", arguments: { limit: 100 } })).content[0].text;
+    const res = await client.callTool({
+      name: "design_explore",
+      arguments: {
+        space: { Building_Height: { min: 12, max: 30, steps: 4 } },
+        design_outputs: ["OUT_Buildings"],
+        rules: { rules: [{ id: "H", type: "max_height", value: 28 }] },
+        simulations: [
+          { solver: "solar", settings: { spacing: 10, margin: 10, dates: ["2026-12-21"], step_minutes: 60, context: { layer: "Urbain::Bâti" } } },
+          { solver: "command", name: "wind", settings: { command: [process.execPath, script, "{case_dir}"] } },
+        ],
+        simulation_constraints: [{ metric: "wind.max_velocity", max: 5 }, { metric: "solar.area_pct_always_shaded", max: 0 }],
+        objectives: { Volume: "max" },
+        save: "best",
+      },
+    });
+    assert.ok(!res.isError, text(res));
+    const r = json(res);
+    assert.equal(r.evaluated, 4);
+    assert.equal(r.simulated, 3, "the 30 m design breaks the urban rule and is not simulated");
+    assert.equal(r.feasible, 2, "24 m: wind 6 m/s > 5 → infeasible");
+    assert.equal(r.best.Building_Height, 18);
+    assert.equal(r.best["wind.max_velocity"], 4.5);
+    assert.ok(r.best["solar.sun_hours_mean"] > 0);
+    assert.match(text(res), /\| design \| Building_Height \| Volume \| wind\.max_velocity \| solar\.area_pct_always_shaded \| feasible \|/);
+    // Obstacles = the Grasshopper design + the surrounding Rhino city.
+    assert.ok(Array.isArray(bridge.state.lastObstacles) && bridge.state.lastObstacles.length === 2);
+    assert.deepEqual(bridge.state.lastObstacles[0].grasshopper.outputs, ["OUT_Buildings"]);
+    // The saved variant carries its simulation results.
+    const variant = json(await client.callTool({ name: "variant_get", arguments: { variant: r.saved_variants[0].id, include_image: false } }));
+    assert.equal(variant.metrics["wind.max_velocity"], 4.5);
+    assert.ok(variant.metrics["solar.sun_hours_mean"] > 0);
+    assert.equal(variant.simulations.length, 2);
+    const after = (await client.callTool({ name: "sim_list", arguments: { limit: 100 } })).content[0].text;
+    assert.equal(JSON.parse(after.slice(after.indexOf("["))).length - JSON.parse(before.slice(before.indexOf("["))).length, 6, "3 designs × 2 simulations");
   });
 
   test("optimises with a genetic algorithm", async () => {

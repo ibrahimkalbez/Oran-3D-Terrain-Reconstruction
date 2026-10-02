@@ -138,7 +138,7 @@ suit la progression avec `job_status`. Aucun appel d'outil ne reste ouvert plusi
 | Compilation | Tout le plug-in compile sans avertissement contre RhinoCommon et Grasshopper 8.0 | `dotnet build -c Release` |
 | Transport (14 tests xUnit) | HTTP, gros corps, chunked, jeton, Origin, Host, erreurs, ports, fichier de découverte ; structure du `.rhp` (classe plug-in, GUID, commandes, DLL intégrée) ; **chaque méthode appelée par le serveur MCP existe dans le plug-in** | `rhino-bridge/tests` |
 | Serveur MCP (19 tests) | Client MCP réel sur stdio ↔ serveur ↔ faux bridge au protocole identique : outils, schémas, découverte, création, +10 %, erreurs, variantes, comparaison, tâches ; rejoués **sur le serveur extrait du `.mcpb`** | `rhino-grasshopper-mcp/test` |
-| Connecteur 2 (35 tests) | 24 unitaires (règles, géométrie, arbres, exploration, soleil, vent, Workbench, solveur externe) + 11 de bout en bout (site, règlement, arbres, exploration sous contraintes, optimisation, ensoleillement lié à une variante, script externe, domaine de vent), rejoués sur le `.mcpb` | `fusion-rga-mcp/test` |
+| Connecteur 2 (36 tests) | 24 unitaires (règles, géométrie, arbres, exploration, soleil, vent, Workbench, solveur externe) + 12 de bout en bout (site, règlement, arbres, exploration sous contraintes, variantes sous règlement + simulations soleil et vent, optimisation, ensoleillement lié à une variante, script externe, domaine de vent), rejoués sur le `.mcpb` | `fusion-rga-mcp/test` |
 | Rhino réel | Le premier lancement dans Rhino 8 sous Windows (non disponible dans l'environnement de construction) | voir `release/INSTALLATION.md`, §3 |
 
 ## Construire depuis les sources

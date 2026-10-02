@@ -6,8 +6,8 @@ Connecteurs MCP qui permettent à Claude de piloter **Rhino 8**, **Grasshopper**
 | Connecteur | État | Livrables |
 |---|---|---|
 | **1. Rhino Grasshopper Connector** | ✅ v1.0.1 | [`release/RhinoGrasshopperConnector-1.0.1.mcpb`](release/) (Claude Desktop) |
-| **2. Fusion Rhino Grasshopper ANSYS** | ✅ v1.0.0 | [`release/FusionRhinoGrasshopperAnsys-1.0.0.mcpb`](release/) (Claude Desktop) — inclut tout le connecteur 1 |
-| Plug-in Rhino commun | ✅ v1.1.0 | [`release/RhinoMcpBridge.rhp`](release/) (Rhino 8) |
+| **2. Fusion Rhino Grasshopper ANSYS** | ✅ v1.1.0 | [`release/FusionRhinoGrasshopperAnsys-1.1.0.mcpb`](release/) (Claude Desktop) — inclut tout le connecteur 1 ; variantes sous contraintes urbaines **et** simulations physiques |
+| Plug-in Rhino commun | ✅ v1.2.0 | [`release/RhinoMcpBridge.rhp`](release/) (Rhino 8) |
 
 ➡️ **Installation : [`release/INSTALLATION.md`](release/INSTALLATION.md)** (3 minutes, aucun prérequis hors Rhino 8 et Claude Desktop).
 
@@ -51,7 +51,8 @@ texte, Brep JSON.
 (hauteur, gabarit, CES, COS, espaces verts, reculs, prospects, règles sur métriques et expressions)
 
 **Générateur de variantes** — `design_explore` (grille, aléatoire, hypercube latin, front de Pareto) ·
-`design_optimize` (algorithme génétique sous contraintes)
+`design_optimize` (algorithme génétique) : chaque variante est vérifiée par le règlement d'urbanisme puis
+simulée (soleil, ANSYS Workbench, scripts PyAnsys), avec des seuils sur les résultats et des objectifs
 
 **Générateur d'arbres** — `trees_species` · `trees_generate` · `trees_stats` · `trees_remove`
 
@@ -87,7 +88,7 @@ connectors/
 - Connecteur 1 : 19 tests (15 de bout en bout avec un vrai client MCP, rejoués sur l'extension `.mcpb` empaquetée, et 4 unitaires).
 - Connecteur 2 : 24 tests unitaires (expressions, géométrie 2D, règles, maillages d'arbres fermés, plans
   d'expériences, Pareto, algorithme génétique, position du soleil, confort au vent, journal Workbench, exécution
-  d'un solveur externe) et 11 tests de bout en bout, rejoués sur l'extension empaquetée.
+  d'un solveur externe) et 12 tests de bout en bout (dont variantes sous règlement + soleil + vent), rejoués sur l'extension empaquetée.
 - **Non testé ici : l'exécution dans Rhino 8 sous Windows, et avec ANSYS** (indisponibles dans l'environnement
   de construction). Le premier essai du guide d'installation fait office de recette ; signalez toute erreur
   affichée par Claude ou par la ligne de commande Rhino.
