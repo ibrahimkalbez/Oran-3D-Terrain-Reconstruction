@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Rhino MCP Bridge — Rhino 8 plug-in (.rhp) that exposes Rhino and Grasshopper
+    to the local MCP server through an authenticated JSON-RPC endpoint on 127.0.0.1.
+
+    Target: .NET Framework 4.8. Rhino 8 loads net48 plug-ins under both of its
+    runtimes (.NET Core, the default, and .NET Framework). Built against the
+    Rhino 8.0 SDK so the plug-in loads in every Rhino 8 service release.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>RhinoMcpBridge</AssemblyName>
+    <RootNamespace>RhinoMcpBridge</RootNamespace>
+    <TargetExt>.rhp</TargetExt>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Company>KALBEZ Ibrahim El Khalil</Company>
+    <Product>Rhino Grasshopper Connector — Rhino bridge</Product>
+    <Description>Local JSON-RPC bridge between the Rhino Grasshopper MCP connector and Rhino 8 / Grasshopper.</Description>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);NU1701</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Provided by Rhino at runtime: never copied next to the .rhp. -->
+    <PackageReference Include="RhinoCommon" Version="8.0.23304.9001" ExcludeAssets="runtime" />
+    <PackageReference Include="Grasshopper" Version="8.0.23304.9001" ExcludeAssets="runtime" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" GeneratePathProperty="true" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+    Newtonsoft.Json is embedded in the .rhp and loaded on demand (Plugin/EmbeddedAssemblies.cs),
+    so the plug-in is a single file whatever Rhino ships.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="$(PkgNewtonsoft_Json)/lib/net45/Newtonsoft.Json.dll" LogicalName="RhinoMcpBridge.Embedded.Newtonsoft.Json.dll" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+</Project>

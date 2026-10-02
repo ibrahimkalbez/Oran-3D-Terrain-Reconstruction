@@ -1,0 +1,31 @@
+{
+  "name": "rhino-grasshopper-connector",
+  "version": "1.0.0",
+  "description": "MCP server that lets Claude drive Rhino 8 and Grasshopper through the Rhino MCP Bridge plug-in.",
+  "license": "MIT",
+  "author": "KALBEZ Ibrahim El Khalil",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "rhino-grasshopper-mcp": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "bundle": "node scripts/bundle.mjs",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "pack:mcpb": "npm run build && npm run bundle && node scripts/pack.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
+    "@types/node": "^26.6.4",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

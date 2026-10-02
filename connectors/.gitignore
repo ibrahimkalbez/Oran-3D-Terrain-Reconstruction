@@ -1,0 +1,6 @@
+# Build outputs (the deliverables live in release/)
+**/bin/
+**/obj/
+**/node_modules/
+**/dist/
+**/build/
