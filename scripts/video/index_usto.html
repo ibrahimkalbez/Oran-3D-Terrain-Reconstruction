@@ -3,12 +3,14 @@
 #lab{position:absolute;left:48px;bottom:42px;font:600 25px 'DejaVu Sans',sans-serif;color:#1a1a1a}
 #bar{position:absolute;left:30px;bottom:40px;width:7px;height:34px;background:#E30613}
 #sig{position:absolute;right:30px;top:24px;font:13px 'DejaVu Sans',sans-serif;color:#777}
+#hud{position:absolute;left:44px;bottom:84px;font:600 18px 'DejaVu Sans',sans-serif;color:#E30613;background:rgba(255,255,255,.85);padding:2px 8px}#hud:empty{display:none}
 #leg{position:absolute;left:30px;top:20px;font:14px 'DejaVu Sans',sans-serif;color:#444;line-height:22px}
 #leg i{display:inline-block;width:22px;height:4px;background:#E30613;vertical-align:middle;margin-right:8px}
 #leg b{display:inline-block;width:14px;height:12px;background:#f2c4c1;border:1px solid #E30613;vertical-align:middle;margin:0 12px 0 4px}</style>
 <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script></head>
 <body><div id="bar"></div><div id="lab"></div><div id="sig">ORAN 3D — fichier brahim ib9a — maquette blanche — relief Copernicus</div>
-<div id="leg"><b style="background:#E8463E"></b>Université USTO-MB (fichier) &nbsp;&nbsp;<b></b>Quartier USTO</div>
+<div id="hud"></div>
+<div id="leg"><b style="background:#E8463E"></b>Université USTO-MB (fichier) &nbsp;&nbsp;<b></b>Quartier USTO &nbsp;&nbsp;<i></i>Tram &nbsp;&nbsp;<i style="background:#7a7a75;height:2px"></i>Courbes 10 / 50 m</div>
 <script type="module">
 import * as THREE from 'three';
 import {LineSegments2} from 'three/addons/lines/LineSegments2.js';
@@ -33,12 +35,14 @@ const rd=mesh(await bin('road_pos.bin'),0xd3d3cf,false); rd.material.polygonOffs
 mesh(await bin('bld_pos.bin'),0xffffff);
 mesh(await bin('bldq_pos.bin'),0xf2c4c1);
 mesh(await bin('bldu_pos.bin'),0xE8463E);
-for(const [f,w] of [['lines_campus_pos.bin',4.0],['lines_quarter_pos.bin',3.5]]){
+const tr=mesh(await bin('tram_pos.bin'),0xE30613,false); tr.material.polygonOffsetFactor=-4;
+for(const [f,w,col] of [['cont10_pos.bin',1.6,0x7d7d78],['cont50_pos.bin',2.6,0x4f4f4a],['lines_campus_pos.bin',4.0,0xE30613],['lines_quarter_pos.bin',3.5,0xE30613]]){
  const lg=new LineSegmentsGeometry(); lg.setPositions(await bin(f));
- const lm=new LineMaterial({color:0xE30613,linewidth:w}); lm.resolution.set(W,H); scene.add(new LineSegments2(lg,lm));}
+ const lm=new LineMaterial({color:col,linewidth:w}); lm.resolution.set(W,H); scene.add(new LineSegments2(lg,lm));}
 const S=await (await fetch('scene.json')).json(); window.N=S.cam.length;
 window.renderFrame=(i)=>{cam.position.set(...S.cam[i]); cam.lookAt(...S.tgt[i]);
  let lab=''; for(const [a,b,n] of S.labels) if(i>=a&&i<b) lab=n; document.getElementById('lab').textContent=lab;
+ document.getElementById('hud').textContent=S.hud[i]||'';
  r.render(scene,cam); return true;};
 window.ready=true;
 </script></body></html>
