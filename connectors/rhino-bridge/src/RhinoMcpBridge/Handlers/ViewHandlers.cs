@@ -7,7 +7,7 @@ using Rhino.Display;
 using Rhino.Geometry;
 using RhinoMcpBridge.Core;
 using RhinoMcpBridge.Display;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 
 namespace RhinoMcpBridge.Handlers
 {

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 using Rhino;
 using Rhino.DocObjects;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 
 namespace RhinoMcpBridge.Core
 {

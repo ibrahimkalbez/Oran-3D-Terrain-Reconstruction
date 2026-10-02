@@ -1,7 +1,7 @@
 using System;
 using Newtonsoft.Json.Linq;
 
-namespace RhinoMcpBridge.Transport
+namespace McpBridge.Transport
 {
   /// <summary>JSON-RPC 2.0 error codes used by the bridge.</summary>
   public static class RpcErrorCodes

@@ -7,6 +7,7 @@ import { registerGrasshopperTools } from "./tools/grasshopper.js";
 import { registerRhinoTools } from "./tools/rhino.js";
 import { registerVariantTools } from "./tools/variants.js";
 import { JobManager } from "./util/jobs.js";
+import { grasshopperBackend, type DesignBackend } from "./variants/backend.js";
 import { VariantStore } from "./variants/store.js";
 
 export const SERVER_NAME = "rhino-grasshopper-connector";
@@ -29,13 +30,19 @@ export interface CreatedServer {
 }
 
 /** Shared services for a server (also used by the Fusion connector, which extends this one). */
-export function createContext(server: McpServer, config: Config): ToolContext {
+export function createContext(
+  server: McpServer,
+  config: Config,
+  makeBackend: (bridge: BridgeClient, config: Config) => DesignBackend = grasshopperBackend,
+): ToolContext {
+  const bridge = new BridgeClient(config);
   return {
     server,
-    bridge: new BridgeClient(config),
+    bridge,
     config,
     variants: new VariantStore(config.workspace),
     jobs: new JobManager(),
+    backend: makeBackend(bridge, config),
   };
 }
 

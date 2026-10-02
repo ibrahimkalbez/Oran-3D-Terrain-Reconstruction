@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Rhino.PlugIns;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 
 namespace RhinoMcpBridge.Handlers
 {

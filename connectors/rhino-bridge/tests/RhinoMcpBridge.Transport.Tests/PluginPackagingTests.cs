@@ -53,6 +53,7 @@ public class PluginPackagingTests
   public void EveryMethodUsedByTheMcpServerIsRegistered()
   {
     var sources = Directory.GetFiles(Path.Combine(Root, "src/RhinoMcpBridge"), "*.cs", SearchOption.AllDirectories)
+      .Concat(Directory.GetFiles(Path.Combine(Root, "../shared/McpBridge.Transport"), "*.cs"))
       .Select(File.ReadAllText).Aggregate((a, b) => a + b);
     var registered = new HashSet<string>(Regex.Matches(sources, "(?:Register\\(|\\[)\"([a-z]+\\.[a-z_]+)\"").Select(m => m.Groups[1].Value));
 

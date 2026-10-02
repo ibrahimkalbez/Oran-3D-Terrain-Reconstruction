@@ -1,5 +1,8 @@
 # Installation — connecteurs Claude pour Rhino / Grasshopper / ANSYS
 
+> **Revit / Dynamo** : voir [`INSTALLATION_REVIT.md`](INSTALLATION_REVIT.md) (add-in Revit 2022–2026,
+> *Revit Dynamo Connector* et *Fusion Revit Dynamo ANSYS*).
+
 | Fichier | Où l'installer | Rôle |
 |---|---|---|
 | `RhinoMcpBridge.rhp` (v1.2.0) | Rhino 8 (Windows) | Plug-in : passerelle locale sécurisée vers Rhino et Grasshopper (nécessaire aux deux connecteurs) |

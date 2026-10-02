@@ -1,0 +1,99 @@
+{
+  "manifest_version": "0.3",
+  "name": "fusion-revit-dynamo-ansys",
+  "display_name": "Fusion Revit Dynamo ANSYS",
+  "version": "{{VERSION}}",
+  "description": "Conception urbaine paramétrique avec Claude sur Revit : graphes Dynamo, règles d'urbanisme, variantes sous contraintes, arbres, simulations (ensoleillement, ANSYS).",
+  "long_description": "Inclut tous les outils du connecteur Revit Dynamo, plus :\n- moteur de règles d'urbanisme (hauteur, gabarit, CES, COS, espaces verts, reculs, prospects, règles sur les sorties Dynamo et les quantités Revit) ;\n- générateur de variantes sur les entrées d'un graphe Dynamo et les paramètres globaux (grille, aléatoire, hypercube latin, front de Pareto) et optimisation génétique sous contraintes urbaines ET physiques ;\n- générateur d'arbres (alignements, parcs, évitement des bâtiments, pose sur le terrain) créés comme éléments Plantes ;\n- gestionnaire de simulations : ensoleillement natif dans Revit (nord géographique du projet appliqué), projets ANSYS Workbench paramétrés (géométrie exportée en SAT), scripts PyAnsys / journaux Fluent-MAPDL, dimensionnement du domaine de calcul au vent.\n\nPrérequis : Revit 2022–2026 (Windows) avec l'add-in RevitMcpBridge ; Dynamo for Revit ; ANSYS facultatif (pour les simulations ANSYS).",
+  "author": {
+    "name": "KALBEZ Ibrahim El Khalil",
+    "url": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction"
+  },
+  "homepage": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction/tree/main/connectors",
+  "documentation": "https://github.com/ibrahimkalbez/Oran-3D-Terrain-Reconstruction/blob/main/connectors/docs/REVIT.md",
+  "keywords": [
+    "revit",
+    "dynamo",
+    "ansys",
+    "urbanisme",
+    "simulation",
+    "bim",
+    "parametric",
+    "arbres",
+    "ensoleillement"
+  ],
+  "icon": "icon.png",
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.cjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/index.cjs"
+      ],
+      "env": {
+        "REVIT_MCP_WORKSPACE": "${user_config.workspace}",
+        "REVIT_MCP_GRAPHS": "${user_config.dynamo_folder}",
+        "REVIT_MCP_INSTANCE": "${user_config.revit_instance}",
+        "REVIT_MCP_TIMEOUT_S": "${user_config.timeout_s}",
+        "REVIT_MCP_LONG_TIMEOUT_S": "${user_config.long_timeout_s}"
+      }
+    }
+  },
+  "tools": [],
+  "tools_generated": false,
+  "user_config": {
+    "workspace": {
+      "type": "directory",
+      "title": "Dossier de travail",
+      "description": "Variantes (paramètres, métriques, images, géométrie), explorations, règles, simulations et exports y sont enregistrés.",
+      "default": "${DOCUMENTS}/RevitMCP",
+      "required": false
+    },
+    "dynamo_folder": {
+      "type": "directory",
+      "title": "Dossier des graphes Dynamo (Dynamo Player)",
+      "description": "Dossier contenant vos graphes .dyn (celui de Dynamo Player par exemple). Claude y cherche les graphes par leur nom ; <dossier de travail>/graphs est toujours ajouté.",
+      "default": "${DOCUMENTS}",
+      "required": false
+    },
+    "revit_instance": {
+      "type": "string",
+      "title": "Session Revit préférée (facultatif)",
+      "description": "Si plusieurs Revit sont ouverts : numéro de processus (PID) ou partie du nom du projet. Vide = le Revit démarré en dernier.",
+      "default": "",
+      "required": false
+    },
+    "timeout_s": {
+      "type": "number",
+      "title": "Délai d'une requête (secondes)",
+      "description": "Temps maximal d'attente d'une réponse simple de Revit.",
+      "default": 120,
+      "min": 10,
+      "max": 3600,
+      "required": false
+    },
+    "long_timeout_s": {
+      "type": "number",
+      "title": "Délai des calculs longs (secondes)",
+      "description": "Temps maximal pour un graphe Dynamo, une capture, un export ou une simulation.",
+      "default": 1800,
+      "min": 60,
+      "max": 14400,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=0.10.0",
+    "platforms": [
+      "win32"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

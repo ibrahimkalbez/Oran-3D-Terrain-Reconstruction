@@ -5,7 +5,7 @@ using Newtonsoft.Json.Linq;
 using Rhino;
 using RhinoMcpBridge.Core;
 using RhinoMcpBridge.Handlers;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 
 namespace RhinoMcpBridge.Plugin
 {
@@ -44,10 +44,10 @@ namespace RhinoMcpBridge.Plugin
       _token = Environment.GetEnvironmentVariable("RHINO_MCP_TOKEN");
       if (string.IsNullOrWhiteSpace(_token)) _token = HttpRpcServer.NewToken();
 
-      _server = new HttpRpcServer(_dispatcher, _token, Version) { Log = Log };
+      _server = new HttpRpcServer(_dispatcher, _token, Version, "rhino-mcp-bridge") { Log = Log };
       int port = _server.Start(preferredPort, 10);
 
-      _registry = new InstanceRegistry();
+      _registry = new InstanceRegistry(InstanceRegistry.DefaultDirectory("RhinoMcpBridge", "RHINO_MCP_BRIDGE_DIR"));
       _registry.PruneStale();
       _registry.Publish(port, _token, RhinoApp.Version.ToString(), Version, DocumentLabel());
 

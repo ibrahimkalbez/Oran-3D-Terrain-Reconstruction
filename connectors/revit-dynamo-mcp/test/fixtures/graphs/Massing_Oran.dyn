@@ -1,0 +1,286 @@
+{
+  "Uuid": "c0ffee00-1234-4abc-9def-0123456789ab",
+  "IsCustomNode": false,
+  "Description": "Massing d'un îlot à Oran : hauteur, nombre de niveaux, toiture végétale.",
+  "Name": "Massing_Oran",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [
+    {
+      "Id": "3f2a9c1e5b7d4e8fa1c2d3e4f5a6b7c8",
+      "Name": "Hauteur",
+      "Type": "number",
+      "Type2": "number",
+      "Value": "15",
+      "MaximumValue": 45.0,
+      "MinimumValue": 9.0,
+      "StepValue": 0.5,
+      "NumberType": "Double",
+      "Description": "A slider that produces numeric values.",
+      "SelectedIndex": 0
+    },
+    {
+      "Id": "4b9b4b6b2f0f4f6d9f1a3c2b1a0e9d8c",
+      "Name": "Niveaux",
+      "Type": "number",
+      "Type2": "number",
+      "Value": "5",
+      "MaximumValue": 15.0,
+      "MinimumValue": 1.0,
+      "StepValue": 1.0,
+      "NumberType": "Integer",
+      "Description": "A slider that produces integer values.",
+      "SelectedIndex": 0
+    },
+    {
+      "Id": "5c1d2e3f4a5b4c6d8e9f0a1b2c3d4e5f",
+      "Name": "Toiture végétale",
+      "Type": "boolean",
+      "Type2": "boolean",
+      "Value": "false",
+      "Description": "Selection between a true and false.",
+      "SelectedIndex": 0
+    },
+    {
+      "Id": "6d7e8f9a0b1c4d2e9f3a4b5c6d7e8f90",
+      "Name": "Nom",
+      "Type": "string",
+      "Type2": "string",
+      "Value": "Ilot A",
+      "Description": "Creates a string.",
+      "SelectedIndex": 0
+    }
+  ],
+  "Outputs": [
+    {
+      "Id": "7e8f9a0b1c2d4e3f8a4b5c6d7e8f9a01",
+      "Name": "Surface plancher",
+      "Type": "unknown",
+      "InitialValue": "",
+      "Description": "Visualize the output"
+    },
+    {
+      "Id": "8f9a0b1c2d3e4f4a9b5c6d7e8f9a0b12",
+      "Name": "Masses",
+      "Type": "unknown",
+      "InitialValue": "",
+      "Description": "Masses"
+    },
+    {
+      "Id": "9a0b1c2d3e4f4a5b8c6d7e8f9a0b1c23",
+      "Name": "Volumes",
+      "Type": "unknown",
+      "InitialValue": "",
+      "Description": "Volumes"
+    }
+  ],
+  "Nodes": [
+    {
+      "ConcreteType": "CoreNodeModels.Input.DoubleSlider, CoreNodeModels",
+      "NumberType": "Double",
+      "MaximumValue": 45.0,
+      "MinimumValue": 9.0,
+      "StepValue": 0.5,
+      "InputValue": 15.0,
+      "Id": "3f2a9c1e5b7d4e8fa1c2d3e4f5a6b7c8",
+      "NodeType": "NumberInputNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "aa01",
+          "Name": "",
+          "Description": "Double",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "A slider that produces numeric values."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.IntegerSlider64Bit, CoreNodeModels",
+      "NumberType": "Integer",
+      "MaximumValue": 15,
+      "MinimumValue": 1,
+      "StepValue": 1,
+      "InputValue": 5,
+      "Id": "4b9b4b6b2f0f4f6d9f1a3c2b1a0e9d8c",
+      "NodeType": "NumberInputNode",
+      "Inputs": [],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "A slider that produces integer values."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.BoolSelector, CoreNodeModels",
+      "InputValue": false,
+      "Id": "5c1d2e3f4a5b4c6d8e9f0a1b2c3d4e5f",
+      "NodeType": "BooleanInputNode",
+      "Inputs": [],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Selection between a true and false."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.StringInput, CoreNodeModels",
+      "InputValue": "Ilot A",
+      "Id": "6d7e8f9a0b1c4d2e9f3a4b5c6d7e8f90",
+      "NodeType": "StringInputNode",
+      "Inputs": [],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Creates a string."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "Code": "600*n;",
+      "Id": "0b1c2d3e4f5a4b6c9d7e8f9a0b1c2d34",
+      "NodeType": "CodeBlockNode",
+      "Inputs": [],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Code block"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Watch, CoreNodeModels",
+      "Id": "7e8f9a0b1c2d4e3f8a4b5c6d7e8f9a01",
+      "NodeType": "ExtensionNode",
+      "Inputs": [],
+      "Outputs": [],
+      "Replication": "Disabled",
+      "Description": "Visualize the output"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "FunctionSignature": "Revit.Elements.Form.ByLoftCrossSections@var[]",
+      "Id": "8f9a0b1c2d3e4f4a9b5c6d7e8f9a0b12",
+      "NodeType": "FunctionNode",
+      "Inputs": [],
+      "Outputs": [],
+      "Replication": "Auto",
+      "Description": "Masses"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "FunctionSignature": "Autodesk.DesignScript.Geometry.Solid.Volume",
+      "Id": "9a0b1c2d3e4f4a5b8c6d7e8f9a0b1c23",
+      "NodeType": "FunctionNode",
+      "Inputs": [],
+      "Outputs": [],
+      "Replication": "Auto",
+      "Description": "Volumes"
+    }
+  ],
+  "Connectors": [],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [
+    {
+      "Name": "Clockwork for Dynamo 2.x",
+      "Version": "2.4.0",
+      "ReferenceType": "Package",
+      "Nodes": [
+        "0b1c2d3e4f5a4b6c9d7e8f9a0b1c2d34"
+      ]
+    }
+  ],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.19.3.10292",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "NodeViews": [
+      {
+        "Name": "Hauteur",
+        "Id": "3f2a9c1e5b7d4e8fa1c2d3e4f5a6b7c8",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 0,
+        "Y": 0
+      },
+      {
+        "Name": "Niveaux",
+        "Id": "4b9b4b6b2f0f4f6d9f1a3c2b1a0e9d8c",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 0,
+        "Y": 120
+      },
+      {
+        "Name": "Toiture végétale",
+        "Id": "5c1d2e3f4a5b4c6d8e9f0a1b2c3d4e5f",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 0,
+        "Y": 240
+      },
+      {
+        "Name": "Nom",
+        "Id": "6d7e8f9a0b1c4d2e9f3a4b5c6d7e8f90",
+        "IsSetAsInput": true,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 0,
+        "Y": 360
+      },
+      {
+        "Name": "Code Block",
+        "Id": "0b1c2d3e4f5a4b6c9d7e8f9a0b1c2d34",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 300,
+        "Y": 0
+      },
+      {
+        "Name": "Surface plancher",
+        "Id": "7e8f9a0b1c2d4e3f8a4b5c6d7e8f9a01",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": true,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 600,
+        "Y": 0
+      },
+      {
+        "Name": "Masses",
+        "Id": "8f9a0b1c2d3e4f4a9b5c6d7e8f9a0b12",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": true,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 600,
+        "Y": 120
+      },
+      {
+        "Name": "Volumes",
+        "Id": "9a0b1c2d3e4f4a5b8c6d7e8f9a0b1c23",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": true,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 600,
+        "Y": 240
+      }
+    ],
+    "Annotations": [],
+    "X": 0.0,
+    "Y": 0.0,
+    "Zoom": 1.0
+  }
+}

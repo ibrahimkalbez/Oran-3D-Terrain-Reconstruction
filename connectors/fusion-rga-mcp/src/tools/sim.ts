@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import { isFinished, jobView } from "../../../rhino-grasshopper-mcp/src/util/jobs.js";
+import { hostMethod } from "../../../rhino-grasshopper-mcp/src/host.js";
 import { guarded, ok, toText } from "../../../rhino-grasshopper-mcp/src/util/result.js";
 import { READ, SourceSchema, WRITE, type FusionContext } from "../context.js";
 import { openRing } from "../geometry/polygon.js";
@@ -264,10 +265,10 @@ export function registerSimTools(ctx: FusionContext): void {
       title: "Wind simulation domain",
       description:
         "Size the computational domain of an urban wind (CFD) study from the buildings and the wind direction, following best-practice " +
-        "guidelines (5 H upstream and on the sides, 15 H downstream, 6 H high, blockage < 3 %). Optionally draws the domain in Rhino " +
+        "guidelines (5 H upstream and on the sides, 15 H downstream, 6 H high, blockage < 3 %). Optionally draws the domain in the model " +
         "(layer 'Analysis::Wind domain') to build the ANSYS project geometry.",
       inputSchema: {
-        buildings: SourceSchema.describe("Buildings (layer, ids, filter or Grasshopper outputs)"),
+        buildings: SourceSchema.describe("Buildings (layer, ids, filter — or Grasshopper outputs in Rhino)"),
         direction_deg: z.number().describe("Direction the wind comes FROM, degrees clockwise from north (0 = north wind)"),
         north: z.array(z.number()).length(2).optional(),
         upstream: z.number().optional(),
@@ -287,8 +288,8 @@ export function registerSimTools(ctx: FusionContext): void {
       const domain = windDomain(pts, hMax, groundZ, args.direction_deg, args.north as [number, number] | undefined, args);
       let drawn: unknown = null;
       if (args.draw) {
-        await bridge.call("rhino.delete_objects", { user_text: { "mcp.kind": "wind_domain" }, max_count: 100 }).catch(() => undefined);
-        drawn = await bridge.call("rhino.create_geometry", {
+        await bridge.call(hostMethod(config.profile, "delete_objects"), { user_text: { "mcp.kind": "wind_domain" }, max_count: 100 }).catch(() => undefined);
+        drawn = await bridge.call(hostMethod(config.profile, "create_geometry"), {
           geometries: [
             { type: "extrusion", profile: domain.corners.map((c) => [c[0], c[1], c[2]]), height: domain.height, cap: true, name: `Wind domain ${args.direction_deg}°`, layer: "Analysis::Wind domain", user_text: { "mcp.kind": "wind_domain" } },
             { type: "line", from: domain.inlet_edge[0], to: domain.inlet_edge[1], name: "Inlet", layer: "Analysis::Wind domain", color: "#E30613", user_text: { "mcp.kind": "wind_domain" } },

@@ -3,44 +3,42 @@ using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json.Linq;
 
-namespace RhinoMcpBridge.Transport
+namespace McpBridge.Transport
 {
   /// <summary>
-  /// Publishes how to reach this Rhino instance so the MCP server can find it without
-  /// any manual configuration:
+  /// Publishes how to reach this host application (Rhino, Revit…) so the MCP server can find
+  /// it without any manual configuration:
   ///
-  ///   %LOCALAPPDATA%\RhinoMcpBridge\instances\&lt;pid&gt;.json
-  ///   { "pid", "port", "token", "rhino_version", "bridge_version", "started_at", "document" }
+  ///   %LOCALAPPDATA%\&lt;AppFolder&gt;\instances\&lt;pid&gt;.json      (AppFolder = RhinoMcpBridge, RevitMcpBridge)
+  ///   { "pid", "port", "token", "host_version", "bridge_version", "started_at", "document" }
   ///
   /// The folder lives in the user profile, so only the current Windows user (and
-  /// administrators) can read the token. Several Rhino instances can run at once:
+  /// administrators) can read the token. Several instances can run at once:
   /// each one gets its own port and its own file.
   /// </summary>
   public sealed class InstanceRegistry
   {
-    public static string DefaultDirectory
+    /// <summary>%LOCALAPPDATA%\&lt;appFolder&gt;\instances, or $&lt;envVariable&gt;\instances when that variable is set.</summary>
+    public static string DefaultDirectory(string appFolder, string envVariable)
     {
-      get
-      {
-        string overrideDir = Environment.GetEnvironmentVariable("RHINO_MCP_BRIDGE_DIR");
-        if (!string.IsNullOrWhiteSpace(overrideDir)) return Path.Combine(overrideDir, "instances");
-        string root = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-        return Path.Combine(root, "RhinoMcpBridge", "instances");
-      }
+      string overrideDir = Environment.GetEnvironmentVariable(envVariable);
+      if (!string.IsNullOrWhiteSpace(overrideDir)) return Path.Combine(overrideDir, "instances");
+      string root = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+      return Path.Combine(root, appFolder, "instances");
     }
 
     private readonly string _directory;
     private readonly int _pid;
 
-    public InstanceRegistry(string directory = null)
+    public InstanceRegistry(string directory)
     {
-      _directory = directory ?? DefaultDirectory;
+      _directory = directory ?? throw new ArgumentNullException(nameof(directory));
       _pid = Process.GetCurrentProcess().Id;
     }
 
     public string FilePath => Path.Combine(_directory, _pid + ".json");
 
-    public void Publish(int port, string token, string rhinoVersion, string bridgeVersion, string document)
+    public void Publish(int port, string token, string hostVersion, string bridgeVersion, string document)
     {
       Directory.CreateDirectory(_directory);
       var info = new JObject
@@ -49,7 +47,8 @@ namespace RhinoMcpBridge.Transport
         ["port"] = port,
         ["host"] = "127.0.0.1",
         ["token"] = token,
-        ["rhino_version"] = rhinoVersion,
+        ["host_version"] = hostVersion,
+        ["rhino_version"] = hostVersion, // kept for connector 1.0 clients
         ["bridge_version"] = bridgeVersion,
         ["started_at"] = DateTime.UtcNow.ToString("o"),
         ["document"] = document,

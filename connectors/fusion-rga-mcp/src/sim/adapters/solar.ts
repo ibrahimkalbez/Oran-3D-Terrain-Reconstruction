@@ -3,6 +3,7 @@ import path from "node:path";
 import { bounds, openRing, pointInPolygon, type Polygon, type Vec2 } from "../../geometry/polygon.js";
 import { squareGrid } from "../../geometry/sampling.js";
 import type { Source } from "../../site.js";
+import { hostMethod } from "../../../../rhino-grasshopper-mcp/src/host.js";
 import type { AdapterContext, SimCase, SolverAdapter } from "../store.js";
 import { ORAN, sunPath } from "../sun.js";
 
@@ -52,7 +53,7 @@ export function ramp(t: number): [number, number, number] {
  */
 export const solarAdapter: SolverAdapter = {
   id: "solar",
-  title: "Ensoleillement / ombres portées (natif Rhino)",
+  title: "Ensoleillement / ombres portées (natif Rhino / Revit)",
   description:
     "Heures d'ensoleillement sur une grille de points (sol ou hauteur piéton) pour un ou plusieurs jours, " +
     "par lancer de rayons contre les bâtiments et le relief. Ne nécessite pas ANSYS.",
@@ -63,21 +64,23 @@ export const solarAdapter: SolverAdapter = {
     height_offset: "Hauteur des points au-dessus du sol (m, défaut 0.1 ; 1.5 = piéton)",
     terrain: "Relief sur lequel poser la grille: {layer|ids|filter} (facultatif)",
     ground_z: "Altitude du sol sans relief (défaut: base des bâtiments)",
-    obstacles: "Bâtiments étudiés qui font de l'ombre: {layer|ids|filter|grasshopper} (défaut: tous les solides et arbres visibles, sauf cartes d'analyse et domaines de vent)",
-    context: "Ville environnante qui fait aussi de l'ombre (ex. {layer: \"Oran::Bâti\"}) — utile quand les bâtiments étudiés viennent de Grasshopper",
+    obstacles: "Bâtiments étudiés qui font de l'ombre: {layer|ids|filter|grasshopper} (défaut: tous les solides et arbres visibles — en Revit toute la maquette —, sauf cartes d'analyse et domaines de vent)",
+    context: "Ville environnante qui fait aussi de l'ombre (ex. {layer: \"Oran::Bâti\"}) — utile quand les bâtiments étudiés viennent de Grasshopper (en Revit la maquette entière compte déjà)",
     dates: "Jours étudiés YYYY-MM-DD (défaut: solstice d'hiver)",
     step_minutes: "Pas de temps (défaut 30)",
     latitude: `Latitude (défaut Oran ${ORAN.latitude})`,
     longitude: `Longitude (défaut Oran ${ORAN.longitude})`,
     utc_offset: "Décalage horaire (défaut +1)",
-    north: "Direction du nord dans le plan [x, y] (défaut [0, 1])",
+    north: "Direction du nord dans le plan [x, y] (défaut [0, 1] ; en Revit le nord géographique du projet est appliqué automatiquement)",
     threshold_hours: "Seuil d'ensoleillement pour le % de surface (défaut 2 h)",
-    visualize: "Créer la carte colorée dans Rhino (défaut true)",
+    visualize: "Créer la carte colorée dans le modèle (défaut true)",
     max_points: "Nombre maximal de points (défaut 20000)",
   },
 
-  async check() {
-    return { available: true, detail: "Calcul natif dans Rhino (plug-in RhinoMcpBridge ≥ 1.1)." };
+  async check(ctx) {
+    return ctx.config.profile?.id === "revit"
+      ? { available: true, detail: "Calcul natif dans Revit (add-in RevitMcpBridge), nord géographique du projet appliqué." }
+      : { available: true, detail: "Calcul natif dans Rhino (plug-in RhinoMcpBridge ≥ 1.1)." };
   },
 
   async prepare(ctx: AdapterContext, c: SimCase) {
@@ -113,8 +116,12 @@ export const solarAdapter: SolverAdapter = {
       }
     };
     // Default: buildings = visible solids, without trees and the connectors' analysis objects.
+    const helpers = [{ "mcp.kind": "analysis" }, { "mcp.kind": "wind_domain" }, { "mcp.kind": "tree" }];
     const studied = await footprintsOf(
-      obstacleFilter ?? { types: ["brep", "extrusion", "mesh", "subd"], include_hidden: false, exclude_user_text: [{ "mcp.kind": "analysis" }, { "mcp.kind": "wind_domain" }, { "mcp.kind": "tree" }] },
+      obstacleFilter ??
+        (ctx.config.profile?.id === "revit"
+          ? { categories: ["Mass", "Generic Models", "Walls", "Roofs"], exclude_user_text: helpers }
+          : { types: ["brep", "extrusion", "mesh", "subd"], include_hidden: false, exclude_user_text: helpers }),
     );
     const footprints: Polygon[] = [...studied, ...(contextFilter ? await footprintsOf(contextFilter) : [])];
     let areas: Polygon[];
@@ -163,6 +170,8 @@ export const solarAdapter: SolverAdapter = {
         weights: sun.map((x: any) => x.weight_hours),
         normals: points.map(() => [0, 0, 1]),
         ...obstaclesParam(c.settings),
+        // Revit: sun vectors are geographic and the bridge turns them to project north, unless 'north' is given.
+        ...(ctx.config.profile?.id === "revit" ? { true_north: c.settings.north === undefined } : {}),
         max_rays: 50_000_000,
       },
       { timeoutMs: ctx.config.longTimeoutMs },
@@ -197,7 +206,7 @@ export const solarAdapter: SolverAdapter = {
 
     if (c.settings.visualize !== false) {
       const layer = `Analysis::Sun hours::${c.name || c.id}`.replace(/[^\w:. -]/g, "_");
-      await ctx.bridge.call("rhino.delete_objects", { user_text: { "mcp.sim": c.id }, max_count: 100000 }).catch(() => undefined);
+      await ctx.bridge.call(hostMethod(ctx.config.profile, "delete_objects"), { user_text: { "mcp.sim": c.id }, max_count: 100000 }).catch(() => undefined);
       const half = spacing / 2;
       const vertices: number[][] = [];
       const faces: number[][] = [];
@@ -210,14 +219,14 @@ export const solarAdapter: SolverAdapter = {
         colors.push(col, col, col, col);
       });
       await ctx.bridge.call(
-        "rhino.create_geometry",
+        hostMethod(ctx.config.profile, "create_geometry"),
         { geometries: [{ type: "mesh", vertices, faces, vertex_colors: colors, layer, name: `Sun hours ${c.id}`, user_text: { "mcp.sim": c.id, "mcp.kind": "analysis" } }] },
         { timeoutMs: ctx.config.longTimeoutMs },
       );
       try {
         const file = path.join(c.dir, "sun_hours.png");
         await ctx.bridge.call(
-          "rhino.capture_viewport",
+          hostMethod(ctx.config.profile, "capture_viewport"),
           { direction: "top", display_mode: "Shaded", width: 1400, height: 1000, zoom: { user_text: { "mcp.sim": c.id } }, save_path: file, return_image: false, preview: "none" },
           { timeoutMs: ctx.config.longTimeoutMs },
         );

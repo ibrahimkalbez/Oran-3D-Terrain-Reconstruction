@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace RhinoMcpBridge.Transport
+namespace McpBridge.Transport
 {
   /// <summary>
   /// Maps JSON-RPC method names to handlers and turns a request body into a response body.

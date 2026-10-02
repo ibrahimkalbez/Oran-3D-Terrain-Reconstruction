@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Tests of the Revit bridge that run without Revit: the Revit-independent cores (ray casting,
+    plan polygons), the compiled add-ins inspected through metadata, and the JSON-RPC contract
+    between the add-in and the MCP servers.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../src/RevitMcpBridge/Core/RayMesh.cs" Link="Core/RayMesh.cs" />
+    <Compile Include="../../src/RevitMcpBridge/Core/Polygon2D.cs" Link="Core/Polygon2D.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" Version="8.0.1" />
+  </ItemGroup>
+</Project>

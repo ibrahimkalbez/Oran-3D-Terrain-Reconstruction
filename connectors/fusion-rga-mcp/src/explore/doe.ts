@@ -24,7 +24,7 @@ export interface Dimension {
 export interface InputInfo {
   name: string;
   id?: string;
-  kind: string;
+  kind?: string;
   value?: unknown;
   min?: number;
   max?: number;

@@ -36,11 +36,11 @@ export function withImage(payload: ImagePayload, summary?: string, extra?: unkno
 }
 
 const HINTS: Record<number, string> = {
-  [RpcCodes.NoActiveDocument]: "Open or create a model in Rhino.",
-  [RpcCodes.GrasshopperUnavailable]: "Start Grasshopper in Rhino (command: Grasshopper) and retry.",
+  [RpcCodes.NoActiveDocument]: "Open or create a model (Rhino) or a project (Revit) and retry.",
+  [RpcCodes.GrasshopperUnavailable]: "Rhino: start Grasshopper (command: Grasshopper). Revit: check that Dynamo for Revit is installed.",
   [RpcCodes.NotFound]: "Check the names/ids listed in 'data' and retry with one of them.",
   [RpcCodes.Ambiguous]: "Several objects match: retry with the id of the intended one.",
-  [RpcCodes.Timeout]: "Rhino is busy (open dialog or running command). Ask the user to finish it.",
+  [RpcCodes.Timeout]: "The application is busy (open dialog, edit mode or running command). Ask the user to finish it.",
 };
 
 export function fail(err: unknown): CallToolResult {

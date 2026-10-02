@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 using Xunit;
 
 public class TransportTests : IDisposable
@@ -178,6 +178,7 @@ public class TransportTests : IDisposable
     registry.Publish(_port, Token, "8.0", "1.0.0", "C:/model.3dm");
     var info = JObject.Parse(File.ReadAllText(registry.FilePath));
     Assert.Equal(_port, (int)info["port"]);
+    Assert.Equal("8.0", (string)info["host_version"]);
     Assert.Equal(Token, (string)info["token"]);
     registry.UpdateDocument("C:/other.3dm");
     Assert.Equal("C:/other.3dm", (string)JObject.Parse(File.ReadAllText(registry.FilePath))["document"]);

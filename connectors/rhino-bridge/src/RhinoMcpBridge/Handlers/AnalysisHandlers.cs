@@ -7,7 +7,7 @@ using Rhino.DocObjects;
 using Rhino.Geometry;
 using Rhino.Geometry.Intersect;
 using RhinoMcpBridge.Core;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 
 namespace RhinoMcpBridge.Handlers
 {

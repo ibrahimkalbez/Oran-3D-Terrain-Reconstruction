@@ -1,5 +1,6 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
+import { hostMethod } from "../../../rhino-grasshopper-mcp/src/host.js";
 import { guarded, ok, toText } from "../../../rhino-grasshopper-mcp/src/util/result.js";
 import { READ, SiteSourcesSchema, WRITE, type FusionContext } from "../context.js";
 import { evaluateRules, RULE_TYPES, type RuleReport, type RuleSet } from "../rules/engine.js";
@@ -14,7 +15,7 @@ export const RuleSchema = z.object({
   min: z.number().optional(),
   max: z.number().optional(),
   ratio: z.number().optional().describe("× building height (setbacks, spacing)"),
-  metric: z.string().optional().describe("metric_* rules: metric name (Grasshopper output or site variable)"),
+  metric: z.string().optional().describe("metric_* rules: metric name (design output — Grasshopper or Dynamo/Revit — or site variable)"),
   expression: z.string().optional().describe("expression rule, e.g. 'gfa / site_area <= 2.5 and height_max <= 30'"),
   allow_contiguous: z.boolean().optional(),
   scope: z.object({ layer: z.string().optional(), zone: z.string().optional(), use: z.string().optional() }).optional(),
@@ -35,7 +36,7 @@ export async function resolveSources(ctx: FusionContext, given: SiteSources | un
   const detected: string[] = [];
   const missing = (["buildings", "plots", "roads", "green"] as const).filter((k) => !sources[k]);
   if (missing.length > 0) {
-    const auto = await detectSources(ctx.bridge);
+    const auto = await detectSources(ctx.bridge, ctx.config.profile);
     for (const k of missing) {
       if (auto.sources[k]) {
         sources[k] = auto.sources[k];
@@ -69,13 +70,13 @@ export function registerUrbanTools(ctx: FusionContext): void {
     {
       title: "Detect the site layers",
       description:
-        "Find which Rhino layers hold buildings, plots (parcelles), roads (voirie) and green areas (espaces verts) from their names, " +
+        "Find which layers (Rhino layers; in Revit: categories such as Mass / Property Lines and line styles) hold buildings, plots (parcelles), roads (voirie) and green areas (espaces verts) from their names, " +
         "and optionally load them to report counts, areas and heights. Confirm the result with the user before checking rules.",
       inputSchema: { load: z.boolean().optional().describe("Load the geometry and summarise it (default true)"), sources: SiteSourcesSchema.optional() },
       annotations: READ,
     },
     guarded(async (args) => {
-      const auto = await detectSources(bridge);
+      const auto = await detectSources(bridge, config.profile);
       const sources: SiteSources = { ...auto.sources, ...(args.sources ?? {}) };
       const result: Record<string, unknown> = { sources, candidates: auto.candidates };
       if (args.load !== false) result.summary = siteSummary(await loadSite(bridge, sources, long));
@@ -120,14 +121,16 @@ export function registerUrbanTools(ctx: FusionContext): void {
       title: "Check urban rules",
       description:
         "Check buildings against a rule set: heights, floors, CES, COS, green ratio, setbacks to plot limits and streets, spacing " +
-        "between buildings, and rules on Grasshopper metrics. Buildings come from a Rhino layer or from Grasshopper outputs. " +
+        "between buildings, and rules on design metrics. Buildings come from a layer or category (Rhino layer, Revit masses…), from " +
+        "Grasshopper outputs, or from the elements a Dynamo graph created. " +
         "Returns a table of rules (✅/❌), the violating buildings, and an image with them in red. Pass 'variant' to store the result on a saved variant.",
       inputSchema: {
         rule_set: z.string().optional().describe("Saved/built-in rule set name"),
         rules: z.array(RuleSchema).optional().describe("Inline rules instead of a rule set"),
         floor_height: z.number().positive().optional(),
         sources: SiteSourcesSchema.optional(),
-        grasshopper_metrics: z.boolean().optional().describe("Add the Grasshopper result metrics to the variables (default: true when a definition is open)"),
+        design_metrics: z.boolean().optional().describe("Add the design metrics to the variables: Grasshopper results, or Dynamo outputs + Revit quantities (default true)"),
+        grasshopper_metrics: z.boolean().optional().describe("Same as design_metrics (kept for compatibility)"),
         highlight: z.boolean().optional().describe("Capture with violating buildings in red (default true)"),
         variant: z.string().optional(),
       },
@@ -141,9 +144,9 @@ export function registerUrbanTools(ctx: FusionContext): void {
       const { sources, detected } = await resolveSources(ctx, args.sources as SiteSources);
       const site = await loadSite(bridge, sources, long);
       let metrics: Record<string, unknown> = {};
-      if (args.grasshopper_metrics !== false) {
+      if ((args.design_metrics ?? args.grasshopper_metrics) !== false) {
         try {
-          metrics = (await bridge.call("grasshopper.get_results", { max_items: 0 }, { timeoutMs: long })).metrics ?? {};
+          metrics = (await ctx.backend.results(undefined, undefined, 0)).metrics ?? {};
         } catch {
           metrics = {};
         }
@@ -153,7 +156,7 @@ export function registerUrbanTools(ctx: FusionContext): void {
       if (args.highlight !== false && report.violating_ids.length > 0 && site.buildings.every((b) => !b.id.includes("#"))) {
         try {
           const cap = await bridge.call(
-            "rhino.capture_viewport",
+            hostMethod(config.profile, "capture_viewport"),
             { direction: "aerial", display_mode: "Shaded", width: 1280, height: 800, zoom: "extents", highlight: { ids: report.violating_ids, color: "#E30613" } },
             { timeoutMs: long },
           );

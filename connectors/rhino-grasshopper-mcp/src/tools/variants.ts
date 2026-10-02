@@ -11,7 +11,6 @@ import { ParameterChange } from "./grasshopper.js";
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 const WRITE = { readOnlyHint: false, destructiveHint: false, openWorldHint: false } as const;
 
-const Definition = z.string().optional().describe("Definition (file name, path or id). Default: the active one");
 
 const ImageOptions = z
   .object({
@@ -40,7 +39,12 @@ const SweepValue = z.union([
 ]);
 
 export function registerVariantTools(ctx: ToolContext): void {
-  const { server, bridge, config, variants: store, jobs } = ctx;
+  const { server, config, variants: store, jobs, backend } = ctx;
+  const T = backend.terms;
+  const Definition = z
+    .string()
+    .optional()
+    .describe(backend.kind === "revit" ? "Dynamo graph (.dyn path or name) and/or 'globals' (global parameters). Default: the last graph used" : "Definition (file name, path or id). Default: the active one");
 
   const variantResult = (record: VariantRecord, image: { data: string; mimeType: string } | undefined, summary: string): CallToolResult => {
     const content: CallToolResult["content"] = [];
@@ -54,10 +58,10 @@ export function registerVariantTools(ctx: ToolContext): void {
     {
       title: "Create and save a variant",
       description:
-        "Apply parameter changes (optional), solve, then save the variant: all input values, metrics (every numeric " +
-        "output plus geometry area/volume/length/count), a viewport image, the output geometry (.3dm) and optionally a " +
-        "copy of the definition, or a bake into Rhino on 'Variants::<definition>::<id>'. Variants are numbered V01, V02… " +
-        "per definition and stored in the workspace folder. Returns the image so you can show it.",
+        `Apply parameter changes (optional), recompute with ${T.engine}, then save the variant: all input values, metrics ` +
+        `(numeric outputs plus model quantities: areas, volumes, counts), an image, the geometry (${T.geometryFile}) and ` +
+        `optionally a copy of the ${T.definition}${backend.bake ? ", or a bake into the model on 'Variants::<definition>::<id>'" : ""}. ` +
+        "Variants are numbered V01, V02… per definition and stored in the workspace folder. Returns the image so you can show it.",
       inputSchema: {
         definition: Definition,
         name: z.string().optional().describe("Short name (default: built from the changes)"),
@@ -66,16 +70,16 @@ export function registerVariantTools(ctx: ToolContext): void {
         outputs: z.array(z.string()).optional().describe("Outputs to measure/export (default: the definition outputs)"),
         capture: z.boolean().optional().describe("Viewport image (default true)"),
         image: ImageOptions,
-        save_geometry: z.boolean().optional().describe("Write geometry.3dm (default true)"),
-        save_definition: z.boolean().optional().describe("Save a copy of the .gh (default false)"),
-        bake: z.boolean().optional().describe("Also bake into the Rhino document (default false)"),
+        save_geometry: z.boolean().optional().describe(`Write ${T.geometryFile} (default true)`),
+        save_definition: z.boolean().optional().describe(`Save a copy of the ${T.definition} with these values (default false)`),
+        bake: z.boolean().optional().describe("Also keep the geometry in the model (Rhino only, default false)"),
       },
       annotations: WRITE,
     },
     guarded(async (args) => {
-      const { record, image } = await createVariant(bridge, store, config, args as CreateVariantOptions);
+      const { record, image } = await createVariant(backend, store, config, args as CreateVariantOptions);
       const errors = record.solution?.errors?.length ?? 0;
-      return variantResult(record, image, `Saved ${record.definition.key}/${record.id} "${record.name}"${errors ? ` — ${errors} Grasshopper error(s)` : ""}. Folder: ${record.dir}`);
+      return variantResult(record, image, `Saved ${record.definition.key}/${record.id} "${record.name}"${errors ? ` — ${errors} ${T.engine} error(s)` : ""}. Folder: ${record.dir}`);
     }),
   );
 
@@ -126,7 +130,7 @@ export function registerVariantTools(ctx: ToolContext): void {
       const job = jobs.start("variants", `${plan.length} variants`, plan.length, async (h) => {
         let original: Record<string, unknown> = {};
         if (args.restore !== false) {
-          const params = await bridge.call("grasshopper.get_parameters", { definition: args.definition, include_outputs: false });
+          const params = await backend.getInputs(args.definition);
           for (const input of params.inputs ?? []) if (touched.has(norm(input.name)) || touched.has(norm(input.id))) original[input.id] = input.value;
         }
         const created: VariantRecord[] = [];
@@ -137,7 +141,7 @@ export function registerVariantTools(ctx: ToolContext): void {
             const item = plan[i];
             h.update(i, `variant ${i + 1}/${plan.length}`);
             const name = item.name ?? (args.name_prefix ? `${args.name_prefix} ${i + 1}` : undefined);
-            const { record, image } = await createVariant(bridge, store, config, {
+            const { record, image } = await createVariant(backend, store, config, {
               definition: args.definition,
               name,
               parameters: item.parameters,
@@ -156,11 +160,7 @@ export function registerVariantTools(ctx: ToolContext): void {
         } finally {
           if (Object.keys(original).length > 0) {
             try {
-              await bridge.call("grasshopper.set_parameter", {
-                definition: args.definition,
-                parameters: Object.entries(original).map(([parameter, value]) => ({ parameter, value })),
-                solve: true,
-              }, { timeoutMs: config.longTimeoutMs });
+              await backend.apply(args.definition, Object.entries(original).map(([parameter, value]) => ({ parameter, value })));
               h.log("original parameters restored");
             } catch (err) {
               h.log(`could not restore parameters: ${(err as Error).message}`);
@@ -293,21 +293,22 @@ export function registerVariantTools(ctx: ToolContext): void {
   server.registerTool(
     "variant_apply",
     {
-      title: "Restore a variant in Grasshopper",
-      description: "Put the parameter values of a saved variant back into the definition and solve, to continue working from it.",
+      title: `Restore a variant (${T.engine})`,
+      description: `Put the parameter values of a saved variant back into the ${T.definition} and recompute, to continue working from it.`,
       inputSchema: { variant: z.string(), definition: z.string().optional(), solve: z.boolean().optional() },
       annotations: WRITE,
     },
     guarded(async (args) => {
       const record = await store.find(args.variant, args.definition);
-      const current = await bridge.call("grasshopper.get_parameters", { definition: args.definition, include_outputs: false });
+      const definition = args.definition ?? (backend.kind === "revit" ? record.definition.path ?? undefined : undefined);
+      const current = await backend.getInputs(definition);
       const names = new Set((current.inputs ?? []).map((i: any) => i.name));
       const changes = Object.entries(record.parameters)
         .filter(([name]) => names.has(name))
         .map(([parameter, value]) => ({ parameter, value }));
       const skipped = Object.keys(record.parameters).filter((n) => !names.has(n));
-      const res = await bridge.call("grasshopper.set_parameter", { definition: args.definition, parameters: changes, solve: args.solve !== false }, { timeoutMs: config.longTimeoutMs });
-      return ok({ ...res, skipped }, `Applied ${record.id} "${record.name}" (${changes.length} parameter(s)${skipped.length ? `, ${skipped.length} not found` : ""}).`);
+      const res = await backend.apply(definition, changes);
+      return ok({ ...(res.raw as object), solution: res.solution, skipped }, `Applied ${record.id} "${record.name}" (${changes.length} parameter(s)${skipped.length ? `, ${skipped.length} not found` : ""}).`);
     }),
   );
 

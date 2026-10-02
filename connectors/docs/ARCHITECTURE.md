@@ -139,7 +139,10 @@ suit la progression avec `job_status`. Aucun appel d'outil ne reste ouvert plusi
 | Transport (14 tests xUnit) | HTTP, gros corps, chunked, jeton, Origin, Host, erreurs, ports, fichier de découverte ; structure du `.rhp` (classe plug-in, GUID, commandes, DLL intégrée) ; **chaque méthode appelée par le serveur MCP existe dans le plug-in** | `rhino-bridge/tests` |
 | Serveur MCP (19 tests) | Client MCP réel sur stdio ↔ serveur ↔ faux bridge au protocole identique : outils, schémas, découverte, création, +10 %, erreurs, variantes, comparaison, tâches ; rejoués **sur le serveur extrait du `.mcpb`** | `rhino-grasshopper-mcp/test` |
 | Connecteur 2 (36 tests) | 24 unitaires (règles, géométrie, arbres, exploration, soleil, vent, Workbench, solveur externe) + 12 de bout en bout (site, règlement, arbres, exploration sous contraintes, variantes sous règlement + simulations soleil et vent, optimisation, ensoleillement lié à une variante, script externe, domaine de vent), rejoués sur le `.mcpb` | `fusion-rga-mcp/test` |
-| Rhino réel | Le premier lancement dans Rhino 8 sous Windows (non disponible dans l'environnement de construction) | voir `release/INSTALLATION.md`, §3 |
+| Add-in Revit (11 tests) | Lancer de rayons (BVH), polygones et chaînage de courbes sans Revit ; métadonnées des deux builds (application, commandes, ressource Newtonsoft, aucune dépendance Dynamo) ; **contrat** : toute méthode appelée par les serveurs Revit est enregistrée dans l'add-in | `revit-bridge/tests` |
+| Revit Dynamo Connector (15 tests) | Lecture/écriture des graphes `.dyn`, valeurs relatives et bornes, métriques ; bout en bout contre un faux Revit (Dynamo Player, variantes sur entrée Dynamo + paramètre global, restauration, preset), rejoués sur le `.mcpb` | `revit-dynamo-mcp/test` |
+| Fusion Revit Dynamo ANSYS (7 tests) | Bout en bout : détection du site Revit, règlement sur les volumes, exploration d'un graphe Dynamo sous règles + ensoleillement (nord du projet), arbres, cas Workbench avec géométrie SAT, domaine de vent ; rejoués sur le `.mcpb` | `fusion-rda-mcp/test` |
+| Rhino / Revit réels | Le premier lancement dans Rhino 8 / Revit sous Windows (non disponibles dans l'environnement de construction) | `release/INSTALLATION.md`, `release/INSTALLATION_REVIT.md` |
 
 ## Construire depuis les sources
 
@@ -148,9 +151,14 @@ suit la progression avec `job_status`. Aucun appel d'outil ne reste ouvert plusi
 cd connectors/rhino-bridge/src/RhinoMcpBridge && dotnet build -c Release
 cd ../../tests/RhinoMcpBridge.Transport.Tests && dotnet test
 
+# Add-in Revit (deux builds : net48 pour Revit 2022–2024, net8.0-windows pour 2025–2026) + zip d'installation
+cd connectors/revit-bridge/tests/RevitMcpBridge.Tests && dotnet test
+python3 connectors/revit-bridge/scripts/package_addin.py   # → connectors/release/RevitMcpBridge-<version>.zip
+
 # Serveurs MCP + extensions Claude Desktop (espace de travail npm : un seul node_modules)
 cd connectors && npm ci && npm test && npm run pack
-#   → connectors/release/RhinoGrasshopperConnector-<version>.mcpb et FusionRhinoGrasshopperAnsys-<version>.mcpb
+#   → connectors/release/RhinoGrasshopperConnector-<version>.mcpb, FusionRhinoGrasshopperAnsys-<version>.mcpb,
+#     RevitDynamoConnector-<version>.mcpb et FusionRevitDynamoAnsys-<version>.mcpb
 ```
 
 Utilisation avec Claude Code (sans `.mcpb`) :
@@ -177,6 +185,24 @@ fusion-rga-mcp/src/
 Les calculs lourds de géométrie 3D (contours, lancer de rayons) se font dans Rhino (méthodes `analysis.*`
 du plug-in 1.1) ; les règles, l'échantillonnage, l'optimisation et le post-traitement sont en TypeScript,
 testés sans Rhino. Les solveurs ANSYS tournent dans des processus séparés, suivis comme tâches de fond.
+
+## Connecteurs Revit
+
+Même architecture pour Revit (détails : [REVIT.md](REVIT.md)) :
+
+```
+shared/McpBridge.Transport/   serveur HTTP/JSON-RPC, jeton, découverte — partagé par les plug-ins Rhino et Revit
+revit-bridge/src/RevitMcpBridge/
+  App/       IExternalApplication, file ExternalEvent (thread de Revit), ruban, démarrage de la passerelle
+  Core/      unités SI ↔ pieds, filtres d'éléments (catégories, pseudo-calques), transactions, stockage
+             extensible, géométrie (DirectShape, maillages), lancer de rayons, polygones
+  Handlers/  revit.* (document, éléments, paramètres, paramètres globaux, création, vues, exports, quantités),
+             dynamo.* (exécution type Dynamo Player par réflexion), analysis.* (même contrat que Rhino)
+rhino-grasshopper-mcp/src/host.ts          profils d'hôte (Rhino / Revit) : variables, découverte, préfixe des méthodes
+rhino-grasshopper-mcp/src/variants/backend.ts  backend de conception : Grasshopper ou Revit/Dynamo
+revit-dynamo-mcp/    serveur « revit-dynamo-connector » : outils revit_*, dynamo_*, variantes ; lecture des .dyn
+fusion-rda-mcp/      serveur « fusion-revit-dynamo-ansys » : le précédent + modules Fusion (communs avec Rhino)
+```
 
 ## Évolutions prévues
 

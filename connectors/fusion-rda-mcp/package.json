@@ -1,0 +1,24 @@
+{
+  "name": "fusion-revit-dynamo-ansys",
+  "version": "1.0.0",
+  "description": "MCP server combining Revit, Dynamo (Player-style runs), urban rules, variant exploration, tree generation and ANSYS simulations.",
+  "author": "KALBEZ Ibrahim El Khalil",
+  "type": "module",
+  "main": "dist/fusion-rda-mcp/src/index.js",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "pack:mcpb": "npm run build && node scripts/pack.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
+    "@types/node": "^26.6.4",
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2"
+  }
+}

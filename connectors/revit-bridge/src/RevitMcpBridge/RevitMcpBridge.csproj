@@ -1,0 +1,56 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Revit MCP Bridge — Revit add-in exposing Revit and Dynamo to the local MCP server through an
+    authenticated JSON-RPC endpoint on 127.0.0.1.
+
+    Two builds:
+      net48           → Revit 2022, 2023, 2024 (compiled against the Revit 2022 API)
+      net8.0-windows  → Revit 2025, 2026      (compiled against the Revit 2025 API)
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>net48;net8.0-windows</TargetFrameworks>
+    <LangVersion>10.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>RevitMcpBridge</AssemblyName>
+    <RootNamespace>RevitMcpBridge</RootNamespace>
+    <Version>1.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Company>KALBEZ Ibrahim El Khalil</Company>
+    <Product>Revit Dynamo Connector — Revit bridge</Product>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <UseWPF Condition="'$(TargetFramework)' == 'net8.0-windows'">false</UseWPF>
+    <PlatformTarget>x64</PlatformTarget>
+    <NoWarn>$(NoWarn);NU1701;CA1416</NoWarn>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="2022.1.21" ExcludeAssets="runtime" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="2022.1.21" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPI" Version="2025.0.2" ExcludeAssets="runtime" />
+    <PackageReference Include="Nice3point.Revit.Api.RevitAPIUI" Version="2025.0.2" ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <!-- Newtonsoft.Json embedded and loaded on demand (App/EmbeddedAssemblies.cs). -->
+  <ItemGroup>
+    <EmbeddedResource Condition="'$(TargetFramework)' == 'net48'" Include="$(PkgNewtonsoft_Json)/lib/net45/Newtonsoft.Json.dll" LogicalName="RevitMcpBridge.Embedded.Newtonsoft.Json.dll" Visible="false" />
+    <EmbeddedResource Condition="'$(TargetFramework)' != 'net48'" Include="$(PkgNewtonsoft_Json)/lib/netstandard2.0/Newtonsoft.Json.dll" LogicalName="RevitMcpBridge.Embedded.Newtonsoft.Json.dll" Visible="false" />
+  </ItemGroup>
+
+  <!-- HTTP / JSON-RPC transport shared with the Rhino bridge. -->
+  <ItemGroup>
+    <Compile Include="../../../shared/McpBridge.Transport/*.cs" Link="Transport/%(Filename)%(Extension)" />
+  </ItemGroup>
+
+</Project>

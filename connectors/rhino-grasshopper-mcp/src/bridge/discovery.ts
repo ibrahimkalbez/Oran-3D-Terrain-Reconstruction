@@ -1,13 +1,14 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-/** Content of %LOCALAPPDATA%\RhinoMcpBridge\instances\<pid>.json written by the Rhino plug-in. */
+/** Content of %LOCALAPPDATA%\<RhinoMcpBridge|RevitMcpBridge>\instances\<pid>.json written by the bridge. */
 export interface BridgeInstance {
   pid: number;
   port: number;
   host: string;
   token: string;
   rhino_version?: string;
+  host_version?: string;
   bridge_version?: string;
   started_at?: string;
   document?: string | null;
@@ -54,31 +55,32 @@ export function isProcessAlive(pid: number): boolean {
   }
 }
 
-export async function probe(host: string, port: number, timeoutMs = 1500): Promise<boolean> {
+export async function probe(host: string, port: number, timeoutMs = 1500, service = "rhino-mcp-bridge"): Promise<boolean> {
   try {
     const res = await fetch(`http://${host}:${port}/health`, { signal: AbortSignal.timeout(timeoutMs) });
     if (!res.ok) return false;
     const body = (await res.json()) as { service?: string };
-    return body.service === "rhino-mcp-bridge";
+    return body.service === service;
   } catch {
     return false;
   }
 }
 
 /**
- * Lists the Rhino instances that published a discovery file, checks which ones answer,
+ * Lists the Rhino/Revit instances that published a discovery file, checks which ones answer,
  * and picks one: the instance matching `preference` (pid or part of the document path),
  * otherwise the most recently started reachable one.
  */
 export async function discover(
   dirs: string[],
   preference?: string,
+  service = "rhino-mcp-bridge",
 ): Promise<{ selected?: DiscoveredInstance; instances: DiscoveredInstance[] }> {
   const raw = await readInstances(dirs);
   const instances: DiscoveredInstance[] = await Promise.all(
     raw.map(async (inst) => {
       const alive = isProcessAlive(inst.pid);
-      const reachable = alive ? await probe(inst.host, inst.port) : false;
+      const reachable = alive ? await probe(inst.host, inst.port, 1500, service) : false;
       return { ...inst, process_alive: alive, reachable };
     }),
   );

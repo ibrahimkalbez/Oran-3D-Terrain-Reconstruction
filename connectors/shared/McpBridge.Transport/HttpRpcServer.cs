@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace RhinoMcpBridge.Transport
+namespace McpBridge.Transport
 {
   /// <summary>
   /// Minimal HTTP/1.1 server bound to the loopback interface only.
@@ -33,6 +33,7 @@ namespace RhinoMcpBridge.Transport
     private readonly RpcDispatcher _dispatcher;
     private readonly byte[] _token;
     private readonly string _serviceVersion;
+    private readonly string _serviceName;
     private TcpListener _listener;
     private Thread _acceptThread;
     private volatile bool _running;
@@ -45,8 +46,9 @@ namespace RhinoMcpBridge.Transport
     /// <summary>Called with a short line for every request and error (for the Rhino command line / log).</summary>
     public Action<string> Log { get; set; } = _ => { };
 
-    public HttpRpcServer(RpcDispatcher dispatcher, string token, string serviceVersion)
+    public HttpRpcServer(RpcDispatcher dispatcher, string token, string serviceVersion, string serviceName = "rhino-mcp-bridge")
     {
+      _serviceName = serviceName;
       _dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
       if (string.IsNullOrEmpty(token)) throw new ArgumentException("A token is required.", nameof(token));
       _token = Encoding.UTF8.GetBytes(token);
@@ -69,7 +71,7 @@ namespace RhinoMcpBridge.Transport
           _listener = listener;
           Port = ((IPEndPoint)listener.LocalEndpoint).Port;
           _running = true;
-          _acceptThread = new Thread(AcceptLoop) { IsBackground = true, Name = "RhinoMcpBridge.Accept" };
+          _acceptThread = new Thread(AcceptLoop) { IsBackground = true, Name = "McpBridge.Accept" };
           _acceptThread.Start();
           return Port;
         }
@@ -165,7 +167,7 @@ namespace RhinoMcpBridge.Transport
         var health = new JObject
         {
           ["ok"] = true,
-          ["service"] = "rhino-mcp-bridge",
+          ["service"] = _serviceName,
           ["version"] = _serviceVersion,
           ["auth"] = "bearer",
         };

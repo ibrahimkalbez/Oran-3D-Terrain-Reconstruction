@@ -1,4 +1,5 @@
 import type { BridgeClient } from "../../rhino-grasshopper-mcp/src/bridge/client.js";
+import { hostMethod, type HostProfile } from "../../rhino-grasshopper-mcp/src/host.js";
 import { centroid, openRing, polygonArea, type Polygon } from "./geometry/polygon.js";
 import type { Area, Building, Line, Plot, SiteModel } from "./rules/engine.js";
 
@@ -22,15 +23,15 @@ export interface SiteSources {
 }
 
 const KEYWORDS: Record<keyof Omit<SiteSources, "site_area">, RegExp> = {
-  buildings: /(b[aâ]ti|building|b[aâ]timent|construction|immeuble|logement|massing|volume)/i,
-  plots: /(parcel|plot|lot\b|lots|[iî]lot|cadast|terrain_a_batir|unit[eé] fonci)/i,
+  buildings: /(b[aâ]ti|building|b[aâ]timent|construction|immeuble|logement|massing|volume|^Category::(Mass|Masse)$)/i,
+  plots: /(parcel|plot|lot\b|lots|[iî]lot|cadast|terrain_a_batir|unit[eé] fonci|property line|ligne de propri)/i,
   roads: /(road|route|rue|voirie|street|chauss|axe|voie)/i,
   green: /(espace.?vert|vert|green|jardin|parc|park|landscape|paysag|pelouse|lawn)/i,
 };
 
 /** Guesses the layer of each category from the layer names of the document. */
-export async function detectSources(bridge: BridgeClient): Promise<{ sources: SiteSources; candidates: Record<string, string[]> }> {
-  const doc = await bridge.call("rhino.get_document", { max_layers: 2000 });
+export async function detectSources(bridge: BridgeClient, profile?: HostProfile): Promise<{ sources: SiteSources; candidates: Record<string, string[]> }> {
+  const doc = await bridge.call(hostMethod(profile, "get_document"), { max_layers: 2000 });
   const layers: Array<{ path: string; object_count: number }> = doc.layers ?? [];
   const sources: SiteSources = {};
   const candidates: Record<string, string[]> = {};

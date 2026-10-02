@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { z } from "zod";
+import { hostMethod } from "../../../rhino-grasshopper-mcp/src/host.js";
 import { guarded, ok } from "../../../rhino-grasshopper-mcp/src/util/result.js";
 import { READ, SourceSchema, WRITE, type FusionContext } from "../context.js";
 import { discUnionArea, openRing, type Polygon, type Vec2 } from "../geometry/polygon.js";
@@ -50,7 +51,8 @@ export function registerTreeTools(ctx: FusionContext): void {
     {
       title: "Generate trees",
       description:
-        "Plant trees in Rhino: along streets (mode 'along': every N m, offset to one or both sides), in areas (mode 'area': hex/grid/random " +
+        `Plant trees in ${config.profile?.label ?? "Rhino"}${config.profile?.id === "revit" ? " (Planting DirectShapes)" : ""}: ` +
+        "along streets (mode 'along': every N m, offset to one or both sides), in areas (mode 'area': hex/grid/random " +
         "pattern in parks, squares, plots) or at given points. Keeps clear of buildings and roadways, can sit on the terrain, mixes species " +
         "with weights and natural size variation. Each tree is one mesh (trunk + crown) with user text (species, height, crown, LAD) on " +
         "'Vegetation::Trees::<species>'; set_name groups a planting so it can be regenerated (replace=true) or removed. dry_run only counts.",
@@ -130,7 +132,7 @@ export function registerTreeTools(ctx: FusionContext): void {
       const setName = args.set_name ?? "trees";
       let existing: Vec2[] = [];
       if (args.avoid_existing !== false) {
-        const found = await bridge.call("rhino.get_objects", { user_text: { "mcp.kind": TREE_KIND }, detail: "full", limit: 5000 });
+        const found = await bridge.call(hostMethod(config.profile, "get_objects"), { user_text: { "mcp.kind": TREE_KIND }, detail: "full", limit: 5000 });
         existing = (found.objects ?? [])
           .filter((o: any) => !(args.replace !== false && o.user_text?.["mcp.tree_set"] === setName))
           .map((o: any) => [o.bbox.center[0], o.bbox.center[1]] as Vec2);
@@ -195,7 +197,7 @@ export function registerTreeTools(ctx: FusionContext): void {
       if (args.dry_run) return ok(summary, `Dry run: ${trees.length} trees would be planted.`);
 
       if (args.replace !== false) {
-        await bridge.call("rhino.delete_objects", { user_text: { "mcp.kind": TREE_KIND, "mcp.tree_set": setName }, max_count: 100000 }, long);
+        await bridge.call(hostMethod(config.profile, "delete_objects"), { user_text: { "mcp.kind": TREE_KIND, "mcp.tree_set": setName }, max_count: 100000 }, long);
       }
       const lod = (args.lod ?? "low") as Lod | "point";
       const ids: string[] = [];
@@ -218,7 +220,7 @@ export function registerTreeTools(ctx: FusionContext): void {
           const m = treeMesh(t.x, t.y, t.z, t.height, t.crown, t.trunk, t.species.shape, lod);
           return { type: "mesh", vertices: m.vertices, faces: m.faces, layer, name: t.species.name, user_text };
         });
-        const res = await bridge.call("rhino.create_geometry", { geometries }, long);
+        const res = await bridge.call(hostMethod(config.profile, "create_geometry"), { geometries }, long);
         for (const c of res.created ?? []) ids.push(c.id);
       }
       return ok({ ...summary, created: ids.length, ids: ids.slice(0, 200) }, `${ids.length} trees planted (set '${setName}'), canopy ≈ ${summary.canopy_cover_m2} m².`);
@@ -236,7 +238,7 @@ export function registerTreeTools(ctx: FusionContext): void {
     guarded(async (args) =>
       ok(
         await bridge.call(
-          "rhino.delete_objects",
+          hostMethod(config.profile, "delete_objects"),
           { user_text: { "mcp.kind": TREE_KIND, ...(args.set_name ? { "mcp.tree_set": args.set_name } : {}) }, max_count: 100000, dry_run: args.dry_run },
           long,
         ),
@@ -253,7 +255,7 @@ export function registerTreeTools(ctx: FusionContext): void {
       annotations: READ,
     },
     guarded(async (args) => {
-      const found = await bridge.call("rhino.get_objects", { user_text: { "mcp.kind": TREE_KIND, ...(args.set_name ? { "mcp.tree_set": args.set_name } : {}) }, detail: "full", limit: 5000 });
+      const found = await bridge.call(hostMethod(config.profile, "get_objects"), { user_text: { "mcp.kind": TREE_KIND, ...(args.set_name ? { "mcp.tree_set": args.set_name } : {}) }, detail: "full", limit: 5000 });
       const trees = (found.objects ?? []).map((o: any) => ({
         c: [o.bbox.center[0], o.bbox.center[1]] as Vec2,
         r: Number(o.user_text?.crown_diameter ?? 0) / 2,

@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json.Linq;
 using Rhino;
 using Rhino.Geometry;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 
 namespace RhinoMcpBridge.Core
 {

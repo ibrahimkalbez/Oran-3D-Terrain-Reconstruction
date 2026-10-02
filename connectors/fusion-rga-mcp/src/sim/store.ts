@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import path from "node:path";
+import { hostMethod } from "../../../rhino-grasshopper-mcp/src/host.js";
 import type { BridgeClient } from "../../../rhino-grasshopper-mcp/src/bridge/client.js";
 import type { Config } from "../../../rhino-grasshopper-mcp/src/config.js";
 import type { JobHandle } from "../../../rhino-grasshopper-mcp/src/util/jobs.js";
@@ -162,17 +163,18 @@ export async function exportGeometry(
 ): Promise<string> {
   const long = { timeoutMs: ctx.config.longTimeoutMs };
   if (source.grasshopper) {
+    if (ctx.config.profile?.id === "revit") throw new Error("Revit has no Grasshopper: give the geometry as Revit elements ({filter} or {ids}).");
     const tag = `sim-export-${randomUUID().slice(0, 8)}`;
     await ctx.bridge.call("grasshopper.export_geometry", { ...source.grasshopper, layer: "MCP::SimulationExport", layer_per_output: false, bake_tag: tag, replace: true }, long);
     try {
-      await ctx.bridge.call("rhino.export", { path: file, user_text: { "mcp.bake_tag": tag } }, long);
+      await ctx.bridge.call(hostMethod(ctx.config.profile, "export"), { path: file, user_text: { "mcp.bake_tag": tag } }, long);
     } finally {
-      await ctx.bridge.call("rhino.delete_objects", { user_text: { "mcp.bake_tag": tag }, max_count: 1_000_000 }, long).catch(() => undefined);
+      await ctx.bridge.call(hostMethod(ctx.config.profile, "delete_objects"), { user_text: { "mcp.bake_tag": tag }, max_count: 1_000_000 }, long).catch(() => undefined);
     }
     return file;
   }
   const filter = source.filter ?? (source.ids ? { ids: source.ids } : source.layer ? { layer: source.layer, include_sublayers: true } : undefined);
   if (!filter) throw new Error("Geometry source needs 'layer', 'ids', 'filter' or 'grasshopper'.");
-  await ctx.bridge.call("rhino.export", { path: file, ...filter }, long);
+  await ctx.bridge.call(hostMethod(ctx.config.profile, "export"), { path: file, ...filter }, long);
   return file;
 }

@@ -15,13 +15,13 @@ export function extendContext(base: ToolContext): FusionContext {
 /** Where a category of objects comes from. */
 export const SourceSchema = z
   .object({
-    layer: z.string().optional().describe("Rhino layer (sub-layers included)"),
+    layer: z.string().optional().describe("Layer: a Rhino layer path (sub-layers included), or in Revit a pseudo-layer ('Category::Mass', 'LineStyle::Voirie')"),
     ids: z.array(z.string()).optional(),
-    filter: z.record(z.string(), z.any()).optional().describe("Full object filter (layer, types, name, user_text…)"),
+    filter: z.record(z.string(), z.any()).optional().describe("Full filter — Rhino: layer, types, name, user_text…; Revit: categories, level, family, type_name, user_text…"),
     grasshopper: z
       .object({ definition: z.string().optional(), outputs: z.array(z.string()).optional() })
       .optional()
-      .describe("Take the geometry from Grasshopper outputs instead of Rhino objects"),
+      .describe("Rhino only: take the geometry from Grasshopper outputs instead of Rhino objects"),
   })
   .describe("Source: {layer} | {ids} | {filter} | {grasshopper: {outputs}}");
 

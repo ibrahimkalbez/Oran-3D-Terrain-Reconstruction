@@ -10,7 +10,7 @@ import { gridDesign, lhsDesign, paretoFront, randomDesign, resolveDimensions, un
 import { optimize, scoreAll, type Evaluation } from "../explore/optimize.js";
 import { evaluateRules, type Rule, type RuleSet, type SiteModel } from "../rules/engine.js";
 import { adapter } from "../sim/registry.js";
-import { loadBuildings, loadSite, type SiteSources } from "../site.js";
+import { loadBuildings, loadSite, type SiteSources, type Source } from "../site.js";
 import { resolveSources, RuleSchema } from "./urban.js";
 
 const DimensionSchema = z.object({
@@ -26,8 +26,8 @@ const RulesOption = z
   .object({
     rule_set: z.string().optional(),
     rules: z.array(RuleSchema).optional(),
-    sources: SiteSourcesSchema.optional().describe("Default: buildings = Grasshopper outputs, other layers detected"),
-    building_outputs: z.array(z.string()).optional().describe("Grasshopper outputs holding the buildings"),
+    sources: SiteSourcesSchema.optional().describe("Default: buildings = the designed geometry (Grasshopper outputs, or the elements produced by the Dynamo graph), other layers detected"),
+    building_outputs: z.array(z.string()).optional().describe("Outputs holding the buildings (Grasshopper outputs or Dynamo output nodes)"),
   })
   .optional()
   .describe("Urban rules each design must satisfy (feasibility)");
@@ -49,7 +49,7 @@ const SimulationConstraint = z.object({
 
 /** Options shared by design_explore and design_optimize: physical simulations on every design. */
 const SimulationOptions = {
-  design_outputs: z.array(z.string()).optional().describe("Grasshopper outputs holding the designed buildings (used by the rules and the simulations)"),
+  design_outputs: z.array(z.string()).optional().describe("Outputs holding the designed buildings — Grasshopper outputs or Dynamo output nodes (used by the rules and the simulations)"),
   simulations: z
     .array(SimulationSpec)
     .optional()
@@ -80,36 +80,40 @@ export function constraintRules(constraints: EvaluatorOptions["simulation_constr
 }
 
 /**
- * Evaluates designs: set parameters → solve → Grasshopper metrics → urban rules → physical
- * simulations (only for designs that pass the rules) → simulation constraints.
+ * Evaluates designs: set parameters → recompute (Grasshopper or Revit/Dynamo) → metrics → urban
+ * rules → physical simulations (only for designs that pass the rules) → simulation constraints.
  */
 async function makeEvaluator(ctx: FusionContext, o: EvaluatorOptions, h: JobHandle) {
-  const long = { timeoutMs: ctx.config.longTimeoutMs };
   const definition = o.definition;
   const outputs = o.design_outputs ?? o.rules?.building_outputs;
-  const designSource = { grasshopper: { definition, outputs } };
+  const backend = ctx.backend;
+  // Where the designed geometry is: Grasshopper outputs (not in the Rhino document), or the
+  // Revit elements produced by the graph (already in the model, so they also cast shadows).
+  const designSource = async (): Promise<Source> =>
+    (backend.designSource ? await backend.designSource(definition, outputs) : undefined) ?? { grasshopper: { definition, outputs } };
   let ruleSet: RuleSet | undefined;
   let staticSite: SiteModel | undefined;
-  let buildingSource: SiteSources["buildings"];
+  let givenBuildings: SiteSources["buildings"];
   if (o.rules) {
     ruleSet = o.rules.rules?.length ? { name: "inline", rules: o.rules.rules as RuleSet["rules"] } : await ctx.rules.get(o.rules.rule_set ?? "exemple_zone_urbaine");
     const given = (o.rules.sources ?? {}) as SiteSources;
-    buildingSource = given.buildings ?? designSource;
-    const { sources } = await resolveSources(ctx, { ...given, buildings: buildingSource });
+    givenBuildings = given.buildings;
+    const { sources } = await resolveSources(ctx, { ...given, buildings: givenBuildings ?? (await designSource()) });
     staticSite = await loadSite(ctx.bridge, { ...sources, buildings: undefined }, ctx.config.longTimeoutMs);
   }
   const constraints = constraintRules(o.simulation_constraints);
   const sims = (o.simulations ?? []).map((spec) => ({ spec, solver: adapter(spec.solver) }));
   let designNumber = 0;
 
-  const simulate = async (spec: z.infer<typeof SimulationSpec>, solver: ReturnType<typeof adapter>, params: Record<string, unknown>) => {
+  const simulate = async (spec: z.infer<typeof SimulationSpec>, solver: ReturnType<typeof adapter>, params: Record<string, unknown>, design: Source) => {
     const settings: Record<string, any> = { ...(spec.settings ?? {}) };
-    // The designed buildings come from Grasshopper: give them to the solver unless told otherwise.
+    // Grasshopper designs are not in the Rhino document: give them to the solver as obstacles.
+    // Revit designs are model elements: the default obstacles (whole model) already include them.
     if (solver.id === "solar") {
-      settings.obstacles ??= designSource;
+      if (!backend.designInModel) settings.obstacles ??= design;
       settings.visualize ??= false;
     }
-    if (solver.id === "ansys_workbench" && settings.geometry === undefined) settings.geometry = designSource;
+    if (solver.id === "ansys_workbench" && settings.geometry === undefined) settings.geometry = design;
     if (settings.geometry === false) delete settings.geometry;
     settings._variant_parameters = params;
     const prefix = spec.name ?? solver.id;
@@ -136,15 +140,16 @@ async function makeEvaluator(ctx: FusionContext, o: EvaluatorOptions, h: JobHand
   return async (params: Record<string, unknown>): Promise<Evaluation> => {
     designNumber++;
     const changes = Object.entries(params).map(([parameter, value]) => ({ parameter, value }));
-    const set = await ctx.bridge.call("grasshopper.set_parameter", { definition, parameters: changes, solve: true }, long);
-    const res = await ctx.bridge.call("grasshopper.get_results", { definition, max_items: 0 }, long);
+    const set = await backend.apply(definition, changes);
+    const res = await backend.results(definition, undefined, 0);
     const metrics: Record<string, number> = {};
     for (const [k, v] of Object.entries(res.metrics ?? {})) if (typeof v === "number") metrics[k] = v;
     let feasible = (set.solution?.errors?.length ?? 0) === 0;
     let violations = feasible ? 0 : 100;
     const errors: string[] = [];
+    const design = await designSource();
     if (ruleSet && staticSite) {
-      const buildings = await loadBuildings(ctx.bridge, buildingSource!, ctx.config.longTimeoutMs);
+      const buildings = await loadBuildings(ctx.bridge, givenBuildings ?? design, ctx.config.longTimeoutMs);
       const report = evaluateRules({ ...staticSite, buildings }, metrics, ruleSet);
       for (const [k, v] of Object.entries(report.variables)) if (!(k in metrics)) metrics[k] = v;
       metrics["rules.score"] = report.score;
@@ -155,7 +160,7 @@ async function makeEvaluator(ctx: FusionContext, o: EvaluatorOptions, h: JobHand
     if (sims.length > 0 && (feasible || o.simulate_infeasible)) {
       for (const { spec, solver } of sims) {
         h.log(`design ${designNumber}: ${spec.name ?? solver.id}`);
-        const r = await simulate(spec, solver, params);
+        const r = await simulate(spec, solver, params, design);
         caseIds.push(r.id);
         Object.assign(metrics, r.metrics);
         if (r.error) {
@@ -197,7 +202,10 @@ function table(rows: Array<Record<string, unknown>>, columns: string[], max = 30
 }
 
 export function registerExploreTools(ctx: FusionContext): void {
-  const { server, bridge, jobs } = ctx;
+  const { server, jobs, backend } = ctx;
+  const engine = backend.terms.engine;
+  const restore = (definition: string | undefined, original: Record<string, unknown>) =>
+    backend.apply(definition, Object.entries(original).map(([parameter, value]) => ({ parameter, value }))).catch(() => undefined);
 
   const finish = async (job: Job, waitSeconds: number, render: (job: Job) => CallToolResult): Promise<CallToolResult> => {
     const done = await jobs.waitFor(job.id, waitSeconds * 1000);
@@ -206,7 +214,7 @@ export function registerExploreTools(ctx: FusionContext): void {
   };
 
   const snapshot = async (definition: string | undefined, names: string[]) => {
-    const p = await bridge.call("grasshopper.get_parameters", { definition, include_outputs: false });
+    const p = await backend.getInputs(definition);
     return { inputs: p.inputs ?? [], original: Object.fromEntries((p.inputs ?? []).filter((i: any) => names.includes(i.name)).map((i: any) => [i.name, i.value])) };
   };
 
@@ -215,13 +223,13 @@ export function registerExploreTools(ctx: FusionContext): void {
     {
       title: "Explore the design space",
       description:
-        "Generate variants under urban constraints and physical simulations. Samples Grasshopper parameters (full grid, random or Latin " +
-        "hypercube over the slider ranges); each design is solved and measured, checked against the urban rules ('rules'), then — if it " +
+        `Generate variants under urban constraints and physical simulations. Samples ${engine} parameters (full grid, random or Latin ` +
+        "hypercube over the input ranges); each design is recomputed and measured, checked against the urban rules ('rules'), then — if it " +
         "passes — simulated ('simulations': sun hours, ANSYS Workbench project, PyAnsys/journal script) and checked against " +
-        "'simulation_constraints'. Results: table, Pareto front on the objectives (Grasshopper, rule and simulation metrics), best design, " +
+        `'simulation_constraints'. Results: table, Pareto front on the objectives (${engine}, rule and simulation metrics), best design, ` +
         "CSV/JSON in 'explorations'; save='best'|'pareto'|'all' stores them as variants with image and simulation results. Background job.",
       inputSchema: {
-        definition: z.string().optional(),
+        definition: z.string().optional().describe(backend.terms.definition),
         space: z.record(z.string(), DimensionSchema).describe("Parameters to vary: {\"Building_Height\": {min: 12, max: 30, steps: 4}, \"Floors\": {}}"),
         method: z.enum(["grid", "random", "lhs"]).optional().describe("Default grid (3 levels) for ≤ 3 parameters, otherwise lhs"),
         samples: z.number().int().positive().optional().describe("random/lhs: number of designs (default 20)"),
@@ -260,11 +268,7 @@ export function registerExploreTools(ctx: FusionContext): void {
             }
           }
         } finally {
-          if (args.restore !== false && Object.keys(original).length) {
-            await bridge
-              .call("grasshopper.set_parameter", { definition: args.definition, parameters: Object.entries(original).map(([parameter, value]) => ({ parameter, value })), solve: true }, { timeoutMs: ctx.config.longTimeoutMs })
-              .catch(() => undefined);
-          }
+          if (args.restore !== false && Object.keys(original).length) await restore(args.definition, original);
         }
         const objectives = (args.objectives ?? {}) as Record<string, "max" | "min">;
         const scores = Object.keys(objectives).length ? scoreAll(evals, objectives, args.weights) : evals.map(() => 0);
@@ -279,7 +283,7 @@ export function registerExploreTools(ctx: FusionContext): void {
         const saved = [];
         for (const i of toSave) {
           h.checkCancelled();
-          const { record } = await createVariant(bridge, ctx.variants, ctx.config, {
+          const { record } = await createVariant(backend, ctx.variants, ctx.config, {
             definition: args.definition,
             name: `explore ${i + 1}${i === best ? " best" : ""}`,
             parameters: evals[i].params,
@@ -290,11 +294,7 @@ export function registerExploreTools(ctx: FusionContext): void {
           await ctx.variants.save(record);
           saved.push(summarize(record));
         }
-        if (toSave.length && args.restore !== false && Object.keys(original).length) {
-          await bridge
-            .call("grasshopper.set_parameter", { definition: args.definition, parameters: Object.entries(original).map(([parameter, value]) => ({ parameter, value })), solve: true }, { timeoutMs: ctx.config.longTimeoutMs })
-            .catch(() => undefined);
-        }
+        if (toSave.length && args.restore !== false && Object.keys(original).length) await restore(args.definition, original);
         const file = await saveExploration(ctx, "explore", { method, dims, objectives, simulations: args.simulations ?? [], simulation_constraints: args.simulation_constraints ?? [], rows, pareto: pareto.map((i) => i + 1), best: best !== undefined ? best + 1 : null }, rows);
         const constrained = (args.simulation_constraints ?? []).map((c) => c.metric).filter((m) => !(m in objectives));
         const constrainedOrRules = args.rules || args.simulations?.length || constrained.length;
@@ -324,12 +324,12 @@ export function registerExploreTools(ctx: FusionContext): void {
     {
       title: "Optimise the design",
       description:
-        "Genetic optimisation (Galapagos-like) of Grasshopper parameters towards objectives, with urban rules and physical simulations " +
+        `Genetic optimisation (Galapagos-like) of ${engine} parameters towards objectives, with urban rules and physical simulations ` +
         "as constraints (infeasible designs are ranked last); objectives may use simulation metrics (e.g. maximise solar.sun_hours_mean). " +
-        "Each generation solves (and simulates) the definition 'population' times. The best design is applied and saved as a variant " +
+        "Each generation recomputes (and simulates) the design 'population' times. The best design is applied and saved as a variant " +
         "with its image and simulation results. Background job: follow with job_status.",
       inputSchema: {
-        definition: z.string().optional(),
+        definition: z.string().optional().describe(backend.terms.definition),
         space: z.record(z.string(), DimensionSchema),
         objectives: Objectives,
         weights: z.record(z.string(), z.number()).optional(),
@@ -339,7 +339,7 @@ export function registerExploreTools(ctx: FusionContext): void {
         generations: z.number().int().min(1).max(50).optional().describe("Default 5"),
         mutation: z.number().min(0).max(1).optional(),
         seed: z.number().int().optional(),
-        apply_best: z.boolean().optional().describe("Leave the best design in Grasshopper (default true)"),
+        apply_best: z.boolean().optional().describe(`Leave the best design applied in ${engine} (default true)`),
         wait_seconds: z.number().int().min(0).max(240).optional(),
       },
       annotations: WRITE,
@@ -358,7 +358,7 @@ export function registerExploreTools(ctx: FusionContext): void {
         });
         let variant = null;
         if (result.best) {
-          const { record } = await createVariant(bridge, ctx.variants, ctx.config, {
+          const { record } = await createVariant(backend, ctx.variants, ctx.config, {
             definition: args.definition,
             name: "optimum",
             parameters: result.best.params,
@@ -368,9 +368,7 @@ export function registerExploreTools(ctx: FusionContext): void {
           await ctx.variants.save(record);
           variant = summarize(record);
         }
-        if (args.apply_best === false && Object.keys(original).length) {
-          await bridge.call("grasshopper.set_parameter", { definition: args.definition, parameters: Object.entries(original).map(([parameter, value]) => ({ parameter, value })), solve: true }, { timeoutMs: ctx.config.longTimeoutMs }).catch(() => undefined);
-        }
+        if (args.apply_best === false && Object.keys(original).length) await restore(args.definition, original);
         const rows = result.evaluations.map((e, i) => ({ evaluation: i + 1, generation: e.generation + 1, ...e.params, ...e.metrics, feasible: e.feasible, score: e.score }));
         const file = await saveExploration(ctx, "optimize", { dims, objectives: args.objectives, history: result.history, best: result.best }, rows);
         const top = [...rows].sort((a, b) => Number(b.feasible) - Number(a.feasible) || b.score - a.score).slice(0, 8);

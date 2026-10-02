@@ -16,7 +16,7 @@ export class BridgeError extends Error {
   }
 }
 
-/** JSON-RPC error codes defined by the Rhino bridge (see rhino-bridge/src/.../RpcError.cs). */
+/** JSON-RPC error codes defined by the bridges (see shared/McpBridge.Transport/RpcError.cs). */
 export const RpcCodes = {
   NoActiveDocument: -32001,
   GrasshopperUnavailable: -32002,
@@ -40,13 +40,9 @@ export interface CallOptions {
   timeoutMs?: number;
 }
 
-const NOT_RUNNING_HELP =
-  "Rhino is not reachable. Check that Rhino 8 is open and that the RhinoMcpBridge plug-in is installed " +
-  "(type McpBridgeStatus in the Rhino command line; McpBridgeStart starts it).";
-
 /**
- * Client of the Rhino bridge. Finds the running Rhino automatically, retries once when Rhino was
- * restarted (new port or token), and turns JSON-RPC errors into BridgeError.
+ * Client of the Rhino or Revit bridge. Finds the running application automatically, retries once
+ * when it was restarted (new port or token), and turns JSON-RPC errors into BridgeError.
  */
 export class BridgeClient {
   private endpoint?: Endpoint;
@@ -54,22 +50,34 @@ export class BridgeClient {
 
   constructor(private readonly config: Config) {}
 
+  private get label(): string {
+    return this.config.profile?.label ?? "Rhino";
+  }
+
+  private get service(): string {
+    return this.config.profile?.service ?? "rhino-mcp-bridge";
+  }
+
+  private get notRunningHelp(): string {
+    return this.config.profile?.notRunningHelp ?? "The bridge is not reachable.";
+  }
+
   get current(): Endpoint | undefined {
     return this.endpoint;
   }
 
-  /** Forces the next call to use this Rhino instance (pid). */
+  /** Forces the next call to use this instance (pid). */
   async select(pid: number): Promise<DiscoveredInstance> {
-    const { instances } = await discover(this.config.bridgeDirs);
+    const { instances } = await discover(this.config.bridgeDirs, undefined, this.service);
     const inst = instances.find((i) => i.pid === pid);
-    if (!inst) throw new BridgeError(`No Rhino instance with pid ${pid}.`, "connection");
-    if (!inst.reachable) throw new BridgeError(`Rhino ${pid} does not answer.`, "connection");
+    if (!inst) throw new BridgeError(`No ${this.label} instance with pid ${pid}.`, "connection");
+    if (!inst.reachable) throw new BridgeError(`${this.label} ${pid} does not answer.`, "connection");
     this.endpoint = { host: inst.host, port: inst.port, token: inst.token, pid: inst.pid, document: inst.document, source: "discovery" };
     return inst;
   }
 
   async instances(): Promise<DiscoveredInstance[]> {
-    return (await discover(this.config.bridgeDirs, this.config.instance)).instances;
+    return (await discover(this.config.bridgeDirs, this.config.instance, this.service)).instances;
   }
 
   private async resolve(): Promise<Endpoint> {
@@ -78,10 +86,10 @@ export class BridgeClient {
       this.endpoint = { host: this.config.host, port: this.config.port, token: this.config.token, source: "config" };
       return this.endpoint;
     }
-    const { selected, instances } = await discover(this.config.bridgeDirs, this.config.instance);
+    const { selected, instances } = await discover(this.config.bridgeDirs, this.config.instance, this.service);
     if (!selected) {
       const stale = instances.length > 0 ? ` (${instances.length} stale discovery file(s) found, none answering)` : "";
-      throw new BridgeError(NOT_RUNNING_HELP + stale, "connection", undefined, {
+      throw new BridgeError(this.notRunningHelp + stale, "connection", undefined, {
         searched: this.config.bridgeDirs,
       });
     }
@@ -100,7 +108,7 @@ export class BridgeClient {
     try {
       return await this.callOnce<T>(method, params, options);
     } catch (err) {
-      // Rhino restarted (new port/token) or was not started yet: rediscover and retry once.
+      // The application restarted (new port/token) or was not started yet: rediscover and retry once.
       // Only for errors that guarantee the request was not executed.
       if (err instanceof BridgeError && (err.kind === "connection" || err.kind === "auth") && this.endpoint?.source !== "config") {
         this.endpoint = undefined;
@@ -126,19 +134,19 @@ export class BridgeClient {
       const e = err as Error & { cause?: { code?: string } };
       if (e.name === "TimeoutError" || e.name === "AbortError") {
         throw new BridgeError(
-          `Rhino did not answer '${method}' within ${Math.round(timeoutMs / 1000)} s. It may still be computing; ` +
-            "check Rhino, then retry or raise the timeout.",
+          `${this.label} did not answer '${method}' within ${Math.round(timeoutMs / 1000)} s. It may still be computing; ` +
+            `check ${this.label}, then retry or raise the timeout.`,
           "timeout",
         );
       }
       const code = e.cause?.code;
       if (code === "ECONNREFUSED" || code === "ECONNRESET" || code === "EHOSTUNREACH" || e.message.includes("fetch failed")) {
-        throw new BridgeError(NOT_RUNNING_HELP, "connection");
+        throw new BridgeError(this.notRunningHelp, "connection");
       }
       throw new BridgeError(`Bridge request failed: ${e.message}`, "connection");
     }
 
-    if (res.status === 401) throw new BridgeError("The bridge refused the token (Rhino was probably restarted).", "auth");
+    if (res.status === 401) throw new BridgeError(`The bridge refused the token (${this.label} was probably restarted).`, "auth");
     let body: any;
     try {
       body = await res.json();

@@ -6,7 +6,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../src/RhinoMcpBridge/Transport/*.cs" Link="Transport/%(Filename)%(Extension)" />
+    <Compile Include="../../../shared/McpBridge.Transport/*.cs" Link="Transport/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

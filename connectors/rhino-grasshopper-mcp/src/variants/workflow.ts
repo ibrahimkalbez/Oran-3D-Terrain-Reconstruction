@@ -1,25 +1,10 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import type { BridgeClient } from "../bridge/client.js";
-import { BridgeError, RpcCodes } from "../bridge/client.js";
 import type { Config } from "../config.js";
+import { ghDefinitionKey, type DesignBackend, type ImageOptions, type ParameterChangeInput } from "./backend.js";
 import type { VariantRecord, VariantStore } from "./store.js";
 
-export interface ParameterChangeInput {
-  parameter: string;
-  value?: unknown;
-  mode?: string;
-  on_out_of_range?: string;
-}
-
-export interface ImageOptions {
-  width?: number;
-  height?: number;
-  direction?: string;
-  display_mode?: string;
-  format?: "png" | "jpg";
-  view?: string;
-}
+export type { ImageOptions, ParameterChangeInput } from "./backend.js";
 
 export interface CreateVariantOptions {
   definition?: string;
@@ -55,11 +40,8 @@ export function normalizeChanges(parameters: CreateVariantOptions["parameters"])
   });
 }
 
-/** Name of the folder grouping the variants of a definition. */
-export function definitionKey(def: { name?: string; path?: string | null }): string {
-  if (def.path) return path.basename(def.path).replace(/\.(gh|ghx)$/i, "");
-  return (def.name ?? "definition").replace(/\*$/, "").replace(/\.(gh|ghx)$/i, "");
-}
+/** Name of the folder grouping the variants of a Grasshopper definition. */
+export const definitionKey = ghDefinitionKey;
 
 function trimOutputs(outputs: any[]): unknown[] {
   return (outputs ?? []).map((o) => {
@@ -73,23 +55,16 @@ function trimOutputs(outputs: any[]): unknown[] {
  * Each step that fails is reported on the record instead of losing the variant.
  */
 export async function createVariant(
-  bridge: BridgeClient,
+  backend: DesignBackend,
   store: VariantStore,
   config: Config,
   o: CreateVariantOptions,
 ): Promise<CreatedVariant> {
-  const long = { timeoutMs: config.longTimeoutMs };
   const changes = normalizeChanges(o.parameters);
-  let solution: any;
-  if (changes.length > 0) {
-    const res = await bridge.call("grasshopper.set_parameter", { definition: o.definition, parameters: changes, solve: true }, long);
-    solution = res.solution;
-  } else {
-    solution = await bridge.call("grasshopper.solve", { definition: o.definition }, long);
-  }
+  const solution = changes.length > 0 ? (await backend.apply(o.definition, changes)).solution : await backend.solve(o.definition);
 
-  const results = await bridge.call("grasshopper.get_results", { definition: o.definition, outputs: o.outputs, max_items: 20 }, long);
-  const key = definitionKey(results.definition);
+  const results = await backend.results(o.definition, o.outputs, 20);
+  const key = backend.definitionKey(results.definition);
   const name = o.name?.trim() || describeChanges(changes) || "variant";
   const { id, number, dir } = await store.allocate(key, name);
 
@@ -123,74 +98,58 @@ export async function createVariant(
     try {
       const img = o.image ?? {};
       const file = path.join(dir, `preview.${img.format === "jpg" ? "jpg" : "png"}`);
-      const cap = await bridge.call(
-        "rhino.capture_viewport",
-        {
-          view: img.view,
-          width: img.width ?? 1280,
-          height: img.height ?? 800,
-          direction: img.direction,
-          display_mode: img.display_mode,
-          format: img.format,
-          preview: "auto",
-          outputs: o.outputs,
-          save_path: file,
-          return_image: true,
-        },
-        long,
-      );
+      image = await backend.capture({ definition: o.definition, outputs: o.outputs, image: img, file });
       record.files.preview = path.basename(file);
-      if (cap.image_base64) image = { data: cap.image_base64, mimeType: cap.mime_type ?? "image/png" };
     } catch (err) {
       warnings.push(`capture failed: ${(err as Error).message}`);
     }
   }
 
   if (o.save_geometry !== false) {
+    const fileName = backend.terms.geometryFile;
     try {
-      const file = path.join(dir, "geometry.3dm");
-      await bridge.call(
-        "grasshopper.export_geometry",
-        { definition: o.definition, outputs: o.outputs, file_path: file, user_text: { variant: `${key}/${id}`, variant_name: name } },
-        long,
-      );
-      record.files.geometry = "geometry.3dm";
+      const written = await backend.exportGeometry({
+        definition: o.definition,
+        outputs: o.outputs,
+        file: path.join(dir, fileName),
+        tags: { variant: `${key}/${id}`, variant_name: name },
+      });
+      record.files.geometry = written ? fileName : null;
     } catch (err) {
-      if (!(err instanceof BridgeError && err.code === RpcCodes.NotFound)) warnings.push(`geometry export failed: ${(err as Error).message}`);
+      warnings.push(`geometry export failed: ${(err as Error).message}`);
       record.files.geometry = null;
     }
   }
 
   if (o.save_definition) {
-    try {
-      const file = path.join(dir, "definition.gh");
-      await bridge.call("grasshopper.save_definition", { definition: o.definition, path: file, copy: true }, long);
-      record.files.definition = "definition.gh";
-    } catch (err) {
-      warnings.push(`definition copy failed: ${(err as Error).message}`);
+    if (!backend.saveDefinition) warnings.push(`saving a copy of the ${backend.terms.definition} is not supported`);
+    else {
+      try {
+        const fileName = backend.terms.definitionFile;
+        await backend.saveDefinition(o.definition, path.join(dir, fileName));
+        record.files.definition = fileName;
+      } catch (err) {
+        warnings.push(`definition copy failed: ${(err as Error).message}`);
+      }
     }
   }
 
   if (o.bake) {
-    const layer = o.bake_layer ?? `Variants::${key}::${id} ${name}`.replace(/[^\w:. -]/g, "_");
-    const tag = `variant:${key}:${id}`;
-    try {
-      const baked = await bridge.call(
-        "grasshopper.export_geometry",
-        {
+    if (!backend.bake) warnings.push(`bake is not needed with ${backend.terms.engine}: the design is already in the model`);
+    else {
+      const layer = o.bake_layer ?? `Variants::${key}::${id} ${name}`.replace(/[^\w:. -]/g, "_");
+      const tag = `variant:${key}:${id}`;
+      try {
+        record.baked = await backend.bake({
           definition: o.definition,
           outputs: o.outputs,
           layer,
-          layer_per_output: false,
-          bake_tag: tag,
-          replace: true,
-          user_text: { variant: `${key}/${id}`, variant_name: name, ...flatParams(parameters) },
-        },
-        long,
-      );
-      record.baked = { layer, tag, count: baked.baked_count };
-    } catch (err) {
-      warnings.push(`bake failed: ${(err as Error).message}`);
+          tag,
+          userText: { variant: `${key}/${id}`, variant_name: name, ...flatParams(parameters) },
+        });
+      } catch (err) {
+        warnings.push(`bake failed: ${(err as Error).message}`);
+      }
     }
   }
 

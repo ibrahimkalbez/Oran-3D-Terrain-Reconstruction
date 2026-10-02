@@ -42,6 +42,11 @@
     <EmbeddedResource Include="$(PkgNewtonsoft_Json)/lib/net45/Newtonsoft.Json.dll" LogicalName="RhinoMcpBridge.Embedded.Newtonsoft.Json.dll" Visible="false" />
   </ItemGroup>
 
+  <!-- HTTP / JSON-RPC transport shared with the Revit bridge. -->
+  <ItemGroup>
+    <Compile Include="../../../shared/McpBridge.Transport/*.cs" Link="Transport/%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />

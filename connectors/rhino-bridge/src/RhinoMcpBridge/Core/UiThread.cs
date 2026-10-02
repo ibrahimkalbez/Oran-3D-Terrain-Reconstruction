@@ -3,7 +3,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using Newtonsoft.Json.Linq;
 using Rhino;
-using RhinoMcpBridge.Transport;
+using McpBridge.Transport;
 
 namespace RhinoMcpBridge.Core
 {
