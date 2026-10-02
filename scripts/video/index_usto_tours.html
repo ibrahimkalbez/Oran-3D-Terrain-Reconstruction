@@ -7,10 +7,10 @@
 #leg{position:absolute;left:30px;top:20px;font:14px 'DejaVu Sans',sans-serif;color:#444;line-height:22px}
 #leg i{display:inline-block;width:22px;height:4px;background:#E30613;vertical-align:middle;margin-right:8px}
 #leg b{display:inline-block;width:14px;height:12px;background:#f2c4c1;border:1px solid #E30613;vertical-align:middle;margin:0 12px 0 4px}</style>
-<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script></head>
+<script type="importmap">{"imports":{"three":"../node_modules/three/build/three.module.js","three/addons/":"../node_modules/three/examples/jsm/"}}</script></head>
 <body><div id="bar"></div><div id="lab"></div><div id="sig">ORAN 3D — fichier brahim ib9a — maquette blanche — relief Copernicus</div>
 <div id="hud"></div>
-<div id="leg"><b style="background:#E8463E"></b>Université USTO-MB (fichier) &nbsp;&nbsp;<b></b>Quartier USTO &nbsp;&nbsp;<i></i>Tram &nbsp;&nbsp;<i style="background:#7a7a75;height:2px"></i>Courbes 10 / 50 m</div>
+<div id="leg"><b style="background:#E30613"></b>Grandes tours &nbsp;&nbsp;<b></b>Université USTO-MB &nbsp;&nbsp;<i></i>Parcours / tram &nbsp;&nbsp;<i style="background:#7a7a75;height:2px"></i>Courbes 10 / 50 m</div>
 <script type="module">
 import * as THREE from 'three';
 import {LineSegments2} from 'three/addons/lines/LineSegments2.js';
@@ -33,10 +33,10 @@ function mesh(pos,color,shadow=true){const g=new THREE.BufferGeometry(); g.setAt
 mesh(await bin('terrain_pos.bin'),0xe8e8e5);
 const rd=mesh(await bin('road_pos.bin'),0xd3d3cf,false); rd.material.polygonOffsetFactor=-2;
 mesh(await bin('bld_pos.bin'),0xffffff);
-mesh(await bin('bldq_pos.bin'),0xf2c4c1);
-mesh(await bin('bldu_pos.bin'),0xE8463E);
+mesh(await bin('bldt_pos.bin'),0xE8463E);
+mesh(await bin('bldu_pos.bin'),0xf2c4c1);
 const tr=mesh(await bin('tram_pos.bin'),0xE30613,false); tr.material.polygonOffsetFactor=-4;
-for(const [f,w,col] of [['cont10_pos.bin',1.6,0x7d7d78],['cont50_pos.bin',2.6,0x4f4f4a],['lines_campus_pos.bin',4.0,0xE30613],['lines_quarter_pos.bin',3.5,0xE30613]]){
+for(const [f,w,col] of [['cont10_pos.bin',1.6,0x7d7d78],['cont50_pos.bin',2.6,0x4f4f4a],['lines_campus_pos.bin',4.0,0xE30613],['lines_tours_pos.bin',3.5,0xE30613],['lines_route_pos.bin',5.0,0xE30613]]){
  const lg=new LineSegmentsGeometry(); lg.setPositions(await bin(f));
  const lm=new LineMaterial({color:col,linewidth:w}); lm.resolution.set(W,H); scene.add(new LineSegments2(lg,lm));}
 const S=await (await fetch(new URLSearchParams(location.search).get('scene')||'scene.json')).json(); window.N=S.cam.length;
