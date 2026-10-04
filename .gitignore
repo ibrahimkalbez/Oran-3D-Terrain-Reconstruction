@@ -11,3 +11,6 @@ results/*.3dm
 data/rhino/*.3dm
 export_3d_print/*.stl
 export_3d_print/*.obj
+data/overture/*.parquet
+scripts/preview/node_modules
+results/cache/

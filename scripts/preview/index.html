@@ -1,0 +1,40 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;background:#f4f4f2;overflow:hidden}</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script></head>
+<body><script type="module">
+import * as THREE from 'three';
+const W=1600,H=1100;
+const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+r.setSize(W,H); r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFSoftShadowMap;
+r.toneMapping=THREE.ACESFilmicToneMapping; r.toneMappingExposure=1.0;
+r.outputColorSpace=THREE.SRGBColorSpace; r.localClippingEnabled=true;
+document.body.appendChild(r.domElement);
+async function bin(u){return new Float32Array(await (await fetch(u)).arrayBuffer());}
+const scenes={};
+async function load(zone,half,hx,hy){
+  const clip=[new THREE.Plane(new THREE.Vector3(1,0,0),hx),new THREE.Plane(new THREE.Vector3(-1,0,0),hx),new THREE.Plane(new THREE.Vector3(0,0,1),hy),new THREE.Plane(new THREE.Vector3(0,0,-1),hy)];
+  const scene=new THREE.Scene(); scene.background=new THREE.Color(0xf4f4f2);
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(await bin(zone+'/pos.bin'),3));
+  const c=await bin(zone+'/col.bin'); for(let i=0;i<c.length;i++) c[i]=Math.pow(c[i],2.2);
+  g.setAttribute('color',new THREE.BufferAttribute(c,3)); g.computeVertexNormals();
+  const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,metalness:0,side:THREE.DoubleSide,flatShading:true,clippingPlanes:clip,clipShadows:true,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1}));
+  m.castShadow=true; m.receiveShadow=true; scene.add(m);
+  scene.add(new THREE.HemisphereLight(0xffffff,0xcfcfca,1.35));
+  const sun=new THREE.DirectionalLight(0xffffff,1.8); sun.position.set(-0.55*half*3,1.1*half*3,0.35*half*3);
+  sun.castShadow=true; sun.shadow.mapSize.set(4096,4096);
+  const sc=sun.shadow.camera; sc.left=-half*1.6;sc.right=half*1.6;sc.top=half*1.6;sc.bottom=-half*1.6;sc.near=1;sc.far=half*10;
+  sun.shadow.bias=-0.0003; sun.shadow.normalBias=0.05; scene.add(sun); scene.add(sun.target);
+  scenes[zone]=scene;
+}
+window.renderJob=async(j)=>{
+  if(!scenes[j.zone]) await load(j.zone,j.half,j.hx,j.hy);
+  const a=j.az*Math.PI/180, e=j.el*Math.PI/180;
+  const p=[j.dist*Math.cos(e)*Math.sin(a), j.dist*Math.sin(e), j.dist*Math.cos(e)*Math.cos(a)];
+  let cam;
+  if(j.ortho){const h=j.half*1.02; cam=new THREE.OrthographicCamera(-h*W/H,h*W/H,h,-h,1,j.half*20); cam.position.set(0,j.half*8,0.001); cam.up.set(0,0,-1);}
+  else {cam=new THREE.PerspectiveCamera(35,W/H,0.5,j.half*30); cam.position.set(...p);}
+  cam.lookAt(0,j.ortho?0:j.half*0.02,0);
+  r.render(scenes[j.zone],cam); return true;};
+window.ready=true;
+</script></body></html>

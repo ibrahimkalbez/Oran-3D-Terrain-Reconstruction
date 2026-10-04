@@ -166,9 +166,11 @@ def main():
     p.add_argument("--tol-mm", type=float, default=0.02, help="OPT simplification tolerance")
     p.add_argument("--nozzle-mm", type=float, default=0.4)
     p.add_argument("--limit", type=int, default=0, help="test run: only the first N parts")
+    p.add_argument("--cache", default=str(CACHE), help="terrain + solids npz (05 or 17)")
+    p.add_argument("--name", default="Oran_maquette", help="output file prefix in export_3d_print/")
     a = p.parse_args()
     t0 = time.time()
-    d = np.load(CACHE)
+    d = np.load(a.cache)
     tx, ty, tz = d["tx"], d["ty"], d["tz"]
     x0, y0 = tx[0], ty[0]
     k = a.size_mm / max(tx[-1] - tx[0], ty[-1] - ty[0])       # mm per metre
@@ -258,14 +260,15 @@ def main():
             T = np.asarray(mm.tri_verts).astype(np.int64)
             del mm
             V, T, report["OPT_simplify_detached"] = keep_main_body(V, T)
-        write_stl(EXP / f"Oran_maquette_{tag}.stl", V, T)
-        write_obj(EXP / f"Oran_maquette_{tag}.obj", V, T)
+        write_stl(EXP / f"{a.name}_{tag}.stl", V, T)
+        write_obj(EXP / f"{a.name}_{tag}.obj", V, T)
         report[tag] = check_mesh(V, T)
-        report[tag]["stl_MB"] = round((EXP / f"Oran_maquette_{tag}.stl").stat().st_size / 1e6, 1)
-        report[tag]["obj_MB"] = round((EXP / f"Oran_maquette_{tag}.obj").stat().st_size / 1e6, 1)
-        report[tag]["stl_reread_ok"] = verify_stl(EXP / f"Oran_maquette_{tag}.stl", V, T)
+        report[tag]["stl_MB"] = round((EXP / f"{a.name}_{tag}.stl").stat().st_size / 1e6, 1)
+        report[tag]["obj_MB"] = round((EXP / f"{a.name}_{tag}.obj").stat().st_size / 1e6, 1)
+        report[tag]["stl_reread_ok"] = verify_stl(EXP / f"{a.name}_{tag}.stl", V, T)
         print(tag, report[tag], f"({time.time() - t0:.0f}s)", flush=True)
-    (EXP / "print_report.json").write_text(json.dumps(report, indent=1))
+    rname = "print_report.json" if a.name == "Oran_maquette" else f"print_report_{a.name}.json"
+    (EXP / rname).write_text(json.dumps(report, indent=1))
     preview(tx, ty, tz, d, names, k, a)
 
 
@@ -290,7 +293,8 @@ def preview(tx, ty, tz, d, names, k, a):
     ax.set(xlabel="mm", ylabel="mm",
            title=f"Maquette Oran - relief Copernicus + bâtiments (échelle 1:{round(1000 / k):,}, "
                  f"Z x{a.zexag})")
-    fig.savefig(ROOT / "results/print_preview_top.png", dpi=110, bbox_inches="tight")
+    out = "print_preview_top.png" if a.name == "Oran_maquette" else f"print_preview_{a.name}.png"
+    fig.savefig(ROOT / "results" / out, dpi=110, bbox_inches="tight")
 
 
 if __name__ == "__main__":

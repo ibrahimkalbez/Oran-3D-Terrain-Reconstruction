@@ -3,7 +3,8 @@
 Re-assemble on Windows: put all parts in one folder, right-click the .001 file
 -> 7-Zip -> Extract here.
 
-Usage: python scripts/07_package.py <file> [<file> ...] --out livraison/<name>
+Usage: python scripts/07_package.py <file|dir> [<file|dir> ...] --out livraison/<name>
+       (a directory is stored with its own name, e.g. textures/...)
 """
 import argparse
 import hashlib
@@ -24,7 +25,10 @@ def main():
     arc = out.with_suffix(".7z")
     with py7zr.SevenZipFile(arc, "w", filters=[{"id": py7zr.FILTER_LZMA2, "preset": 7}]) as z:
         for f in a.files:
-            z.write(f, Path(f).name)
+            if Path(f).is_dir():
+                z.writeall(f, Path(f).name)
+            else:
+                z.write(f, Path(f).name)
     data = arc.read_bytes()
     sha = hashlib.sha256(data).hexdigest()
     n = 0
