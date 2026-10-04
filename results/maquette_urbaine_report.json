@@ -1,0 +1,62 @@
+{
+ "redrape": {
+  "layers": 226,
+  "vertices_outside_terrain_grid": 0
+ },
+ "road_area_km2": {
+  "ROAD_PRIMARY": 3.204,
+  "ROAD_SECONDARY": 4.533,
+  "ROAD_LOCAL": 6.963,
+  "ROAD_MINOR": 3.156,
+  "PEDESTRIAN_ZONE": 0.28
+ },
+ "sidewalks": {
+  "ROAD_PRIMARY": {
+   "area_m2": 536035,
+   "pieces": 2250
+  },
+  "ROAD_SECONDARY": {
+   "area_m2": 1191900,
+   "pieces": 8254
+  },
+  "ROAD_LOCAL": {
+   "area_m2": 4255151,
+   "pieces": 38074
+  }
+ },
+ "curbs_length_km": 3107.7,
+ "islands": {
+  "TERRE_PLEIN_CENTRAL": 705,
+  "ILOT": 626,
+  "ROND_POINT": 275
+ },
+ "georef_validation_road_axes_on_carriageway": {
+  "without_correction": 0.147,
+  "with_correction": 0.543,
+  "axes_km": 3739.9
+ },
+ "crossings": {
+  "carrefours": 10365,
+  "osm": 45,
+  "stripes": 94164
+ },
+ "preview_junction_xy": [
+  -920.9,
+  -564.0
+ ],
+ "axis_dashes": 40970,
+ "sidewalk_drape_max_dev_m": 0.765,
+ "contour_polylines": 2205,
+ "furniture": {
+  "lampadaires": 26677,
+  "arbres_alignement": 42320,
+  "arbres_parcs": 0,
+  "bancs": 0,
+  "potelets": 32720,
+  "panneaux": 8205,
+  "abribus": 0
+ },
+ "file_MB": 644.2,
+ "layers": 336,
+ "runtime_s": 795
+}
