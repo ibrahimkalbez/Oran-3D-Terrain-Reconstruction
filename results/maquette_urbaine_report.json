@@ -1,62 +1,63 @@
 {
  "redrape": {
   "layers": 226,
-  "vertices_outside_terrain_grid": 0
+  "vertices_outside_terrain_grid": 0,
+  "faces_reoriented_normals": 2317713
  },
  "road_area_km2": {
-  "ROAD_PRIMARY": 3.204,
-  "ROAD_SECONDARY": 4.533,
-  "ROAD_LOCAL": 6.963,
-  "ROAD_MINOR": 3.156,
-  "PEDESTRIAN_ZONE": 0.28
+  "ROAD_PRIMARY": 3.154,
+  "ROAD_SECONDARY": 4.343,
+  "ROAD_LOCAL": 6.954,
+  "ROAD_MINOR": 3.073,
+  "PEDESTRIAN_ZONE": 0.276
  },
  "sidewalks": {
   "ROAD_PRIMARY": {
-   "area_m2": 536035,
-   "pieces": 2250
+   "area_m2": 537850,
+   "pieces": 2265
   },
   "ROAD_SECONDARY": {
-   "area_m2": 1191900,
-   "pieces": 8254
+   "area_m2": 1142760,
+   "pieces": 7978
   },
   "ROAD_LOCAL": {
-   "area_m2": 4255151,
-   "pieces": 38074
+   "area_m2": 4262842,
+   "pieces": 38064
   }
  },
- "curbs_length_km": 3107.7,
+ "curbs_length_km": 3092.6,
  "islands": {
-  "TERRE_PLEIN_CENTRAL": 705,
-  "ILOT": 626,
-  "ROND_POINT": 275
+  "TERRE_PLEIN_CENTRAL": 683,
+  "ILOT": 613,
+  "ROND_POINT": 273
  },
  "georef_validation_road_axes_on_carriageway": {
   "without_correction": 0.147,
-  "with_correction": 0.543,
+  "with_correction": 0.539,
   "axes_km": 3739.9
  },
  "crossings": {
-  "carrefours": 10365,
+  "carrefours": 10226,
   "osm": 45,
-  "stripes": 94164
+  "stripes": 92438
  },
  "preview_junction_xy": [
   -920.9,
   -564.0
  ],
- "axis_dashes": 40970,
- "sidewalk_drape_max_dev_m": 0.765,
+ "axis_dashes": 39708,
+ "sidewalk_drape_max_dev_m": 0.101,
  "contour_polylines": 2205,
  "furniture": {
-  "lampadaires": 26677,
-  "arbres_alignement": 42320,
-  "arbres_parcs": 0,
+  "lampadaires": 25941,
+  "arbres_alignement": 40943,
+  "arbres_parcs": 160,
   "bancs": 0,
-  "potelets": 32720,
-  "panneaux": 8205,
-  "abribus": 0
+  "potelets": 32261,
+  "panneaux": 8089,
+  "abribus": 8
  },
- "file_MB": 644.2,
- "layers": 336,
- "runtime_s": 795
+ "file_MB": 812.5,
+ "layers": 334,
+ "runtime_s": 1130
 }

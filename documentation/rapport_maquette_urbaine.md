@@ -50,7 +50,7 @@ Validations indépendantes :
 
 | Contrôle | Sans correction | Avec correction |
 |---|---|---|
-| Axes routiers réels (3 740 km) situés sur une chaussée de la maquette | 14,7 % | 54,3 % (79 % dans le centre) |
+| Axes routiers réels (3 740 km) situés sur une chaussée de la maquette | 14,7 % | 53,9 % (79 % dans le centre) |
 | Signal bâti visible dans le DSM Copernicus (m de DSM par unité de couverture) | 0,83 | 2,48 |
 
 Conséquence : chaque nœud de la grille de terrain de 25 m relit Copernicus GLO-30 à sa
@@ -148,14 +148,14 @@ suppression.
   (primaire), 3,0 m (secondaire), 2,0 m (locale), limitée par les façades, les autres
   chaussées et les voies piétonnes. Les bandes de moins de 1,2 m sont supprimées (ouverture
   morphologique). Pas de trottoir sur les autoroutes, les bretelles, les voies de service ni en
-  rase campagne. Surface obtenue : 0,54 km² (primaire), 1,19 km² (secondaire), 4,26 km²
+  rase campagne. Surface obtenue : 0,54 km² (primaire), 1,14 km² (secondaire), 4,26 km²
   (locale).
 - **Hauteurs** (référence = dessus de chaussée) : trottoir +0,15 m, bordure +0,17 m, bordure
   de 0,20 m de large côté chaussée. Ce sont des dalles fermées drapées sur le terrain
   (contrôle d'écart au cm).
-- **Îlots** (trous du réseau de chaussées sans bâtiment, de 15 à 6 000 m²) : 275 centres de
-  ronds-points (circularité > 0,7), 705 terre-pleins centraux (largeur moyenne < 6 m),
-  626 îlots directionnels. Ils sont surélevés, ceinturés d'une bordure, et végétalisés
+- **Îlots** (trous du réseau de chaussées sans bâtiment, de 15 à 6 000 m²) : 273 centres de
+  ronds-points (circularité > 0,7), 683 terre-pleins centraux (largeur moyenne < 6 m),
+  613 îlots directionnels. Ils sont surélevés, ceinturés d'une bordure, et végétalisés
   lorsqu'ils font plus de 2 m de large.
 
 ## 8. Intersections, passages piétons, marquages
@@ -218,3 +218,39 @@ la lecture par couleurs de calque. Le dossier `textures/` doit rester à côté 
   maquette TurboCG et OSM subsistent.
 - Copernicus GLO-30 a une résolution de 30 m et une précision verticale d'environ 2 à 4 m.
   Le relief urbain fin (talus, escaliers) n'est pas représenté.
+
+## 12. Impression 3D (même chaîne que la livraison précédente)
+
+`scripts/17_source_impression_urbaine.py` puis `scripts/06_print_export.py --cache results/cache/urbaine_print_parts.npz --name Oran_maquette_urbaine`.
+Le solide d'impression comprend le terrain recalé, le socle et les 235 760 bâtiments reconstruits, fusionnés par
+manifold3d en **un seul solide**. Les voiries, trottoirs et mobilier sont trop fins à cette échelle
+(< 0,01 mm) : ils restent dans le fichier Rhino et ne sont pas dans le solide d'impression, comme pour la livraison précédente.
+
+| | HD | OPT |
+|---|---|---|
+| Triangles | 8 645 600 | 4 692 154 |
+| Dimensions (mm) | 200 × 150,1 × 12,4 | 200 × 150,1 × 12,4 |
+| Échelle / exagération Z | 1:145 375 / ×2 | idem |
+| Étanche, arêtes ouvertes, non-manifold | oui, 0, 0 | oui, 0, 0 |
+| Orientation cohérente, corps | oui, 1 | oui, 1 |
+| Volume | 175,65 cm³ | 175,65 cm³ |
+| STL relu depuis le disque | OK | OK |
+
+Archives : `livraison/Oran_maquette_urbaine_impression3D_HD.7z.001–006` et `..._OPT.7z.001–004` (STL + OBJ).
+
+## 13. Contrôle qualité du fichier Rhino (`scripts/18_controle_qualite_rhino.py`, relu depuis le disque)
+
+- **0 maillage invalide** (validité Rhino), aucun calque vide, unités en mètres, point d'ancrage
+  terrestre lon −0,6349604 / lat 35,6987054, 5 vues nommées, 24 matériaux, 9 textures présentes.
+- **Bâtiments** (235 760) et variante d'emprises réelles (132 121), terrain et socle, passages piétons
+  (92 438 bandes) et marquages (39 708 tirets) : 100 % de solides fermés, 0 arête ouverte,
+  0 arête non-manifold, normales vers l'extérieur.
+- **Trottoirs, bordures et îlots** (≈ 100 000 dalles) : fermés, sauf moins de 0,1 % de pièces avec des
+  micro-défauts (≈ 230 arêtes ouvertes en tout) dus à la soudure au millimètre. Le stockage des sommets
+  en simple précision dans Rhino ne distingue plus deux points à moins d'1 mm à 10–15 km de l'origine.
+- **Couches d'origine** conservées telles quelles (routes TurboCG, nappes d'occupation du sol, relations
+  OSM) : valides pour Rhino, normales réorientées (2,3 M faces retournées vers le haut ou l'extérieur).
+  Certaines nappes planes sont ouvertes par nature, et des rubans de routes se superposent dans le modèle
+  d'origine. Rien de cela n'entre dans le solide d'impression.
+- 107 402 blocs de mobilier (7 définitions) : 25 941 lampadaires, 40 943 arbres d'alignement, 160 arbres
+  de parc, 32 261 potelets, 8 089 panneaux, 8 abribus.

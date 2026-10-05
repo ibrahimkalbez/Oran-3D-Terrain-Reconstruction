@@ -658,6 +658,10 @@ def make_blocks(model, mats, lay_furn):
 
 
 def place(model, ids, name, pts, z, ang, layer):
+    if not len(pts):
+        return 0
+    if isinstance(layer, tuple):
+        layer = layer[0].add(*layer[1:])
     a = r3.ObjectAttributes()
     a.LayerIndex = layer
     n = 0
@@ -748,12 +752,13 @@ PLANE_MAP = r3.TextureMapping.CreatePlaneMapping(r3.Plane.WorldXY(), r3.Interval
 def add_mesh(model, V, F, layer, name="", textured=False):
     if not len(F):
         return None
+    if isinstance(layer, tuple):            # (Layers, path, colour, material): created on first use
+        layer = layer[0].add(*layer[1:])
     if F.shape[1] == 3:
         F = np.c_[F, F[:, 2]]
-    used = np.unique(F)
-    rm = -np.ones(len(V), np.int64)
-    rm[used] = np.arange(len(used))
-    V, F = V[used], rm[F]
+    V, F = cull_degenerate(V, F)
+    if not len(F):
+        return None
     TT = u.tris(F)
     cen = V[TT].mean(1)
     for k, (x0, y0, x1, y1) in PREVIEW.items():
@@ -779,6 +784,34 @@ def add_mesh(model, V, F, layer, name="", textured=False):
     at.LayerIndex = layer
     at.Name = name
     return model.Objects.AddMesh(m, at)
+
+
+def cull_degenerate(V, F):
+    """Rhino 'Weld' + 'CullDegenerateMeshFaces' inside each connected piece:
+    vertices at the same position in the same piece are merged (edge collapse,
+    stays closed), faces with a repeated corner, zero area or duplicated are
+    removed, unused vertices dropped. Separate pieces are never merged."""
+    T = u.tris(F)
+    n, lab = u.mesh_parts(V, T)
+    # Rhino also stores single-precision vertices (~1 mm resolution at 10-15 km
+    # from the origin): vertices identical in float32 are welded too
+    key = np.c_[V.astype(np.float32).view(np.int32).reshape(-1, 3), lab]
+    _, first, inv = np.unique(key, axis=0, return_index=True, return_inverse=True)
+    V = V[first]
+    T = inv.ravel()[T]
+    ok = (T[:, 0] != T[:, 1]) & (T[:, 1] != T[:, 2]) & (T[:, 2] != T[:, 0])
+    T = T[ok]
+    a, b, c = V[T[:, 0]], V[T[:, 1]], V[T[:, 2]]
+    T = T[np.linalg.norm(np.cross(b - a, c - a), axis=1) > 1e-12]
+    _, u_ = np.unique(np.sort(T, 1), axis=0, return_index=True)
+    T = T[np.sort(u_)]
+    Tq = np.c_[T, T[:, 2]]
+    Tq, _ = orient_layer(V, Tq)                  # closed pieces outward, sheets facing up
+    T = Tq[:, :3]
+    used = np.unique(T)
+    rm = -np.ones(len(V), np.int64)
+    rm[used] = np.arange(len(used))
+    return V[used], np.c_[rm[T], rm[T][:, 2]]
 
 
 class Layers:
@@ -1017,8 +1050,11 @@ def main():
     out.Settings.ModelUnitSystem = r3.UnitSystem.Meters
     out.Settings.ModelAbsoluteTolerance = 0.001
     lon0, lat0 = geo.lonlat(np.array([0.0]), np.array([0.0]))
-    out.Settings.EarthAnchorPoint.EarthBasepointLatitude = float(lat0[0])
-    out.Settings.EarthAnchorPoint.EarthBasepointLongitude = float(lon0[0])
+    ea = out.Settings.EarthAnchorPoint
+    ea.EarthBasepointLatitude = float(lat0[0])
+    ea.EarthBasepointLongitude = float(lon0[0])
+    ea.EarthBasepointElevation = 0.0
+    out.Settings.EarthAnchorPoint = ea
     mats = {
         "ROAD_PRIMARY": material(out, "Asphalte anthracite", COL["ROAD_PRIMARY"], "asphalte_anthracite.png"),
         "ROAD_SECONDARY": material(out, "Asphalte gris fonce", COL["ROAD_SECONDARY"], "asphalte_gris_fonce.png"),
@@ -1083,13 +1119,13 @@ def main():
         paved = [p for p in ps if p not in green]
         ring = [polys_only(shapely.difference(p, shapely.buffer(p, -CURB_W, join_style="mitre"))) for p in ps]
         inner = [polys_only(shapely.buffer(p, -CURB_W, join_style="mitre")) for p in green]
-        li = LY.add(f"ROAD_ISLAND::{kind}", COL["ROAD_ISLAND"], mats["ROAD_ISLAND"])
+        li = (LY, f"ROAD_ISLAND::{kind}", COL["ROAD_ISLAND"], mats["ROAD_ISLAND"])
         V, F = slab([q for g in inner for q in shapely.get_parts(g)], T_new, SLAB_BOT, SIDEWALK_TOP - 0.02)
-        lg = LY.add(f"GREEN_SPACE::ILOTS_VEGETALISES", COL["GREEN_SPACE"], mats["GREEN_SPACE"])
+        lg = (LY, "GREEN_SPACE::ILOTS_VEGETALISES", COL["GREEN_SPACE"], mats["GREEN_SPACE"])
         add_mesh(out, V, F, lg, f"{kind} vegetalise", textured=TX)
         V, F = slab(paved, T_new, SLAB_BOT, SIDEWALK_TOP)
         add_mesh(out, V, F, li, f"{kind} mineral", textured=TX)
-        lc = LY.add("CURB::CURB_ILOTS", COL["CURB"], mats["CURB"])
+        lc = (LY, "CURB::CURB_ILOTS", COL["CURB"], mats["CURB"])
         V, F = slab([q for g in ring for q in shapely.get_parts(g)], T_new, SLAB_BOT, CURB_TOP, 24.0, 16.0)
         add_mesh(out, V, F, lc, f"Bordure {kind}", textured=TX)
     # crossings & markings
@@ -1145,7 +1181,7 @@ def main():
     # ---------------------------------------------------------------- 6. furniture
     furn = LY.add("URBAN_FURNITURE", COL["URBAN_FURNITURE"], mats["URBAN_FURNITURE"])
     ids = make_blocks(out, mats, furn)
-    lf = {k: LY.add(f"URBAN_FURNITURE::{k}", COL["TREE_CROWN"] if "ARBRE" in k else COL["URBAN_FURNITURE"],
+    lf = {k: (LY, f"URBAN_FURNITURE::{k}", COL["TREE_CROWN"] if "ARBRE" in k else COL["URBAN_FURNITURE"],
                     mats["FEUILLAGE"] if "ARBRE" in k else mats["METAL"])
           for k in ("LAMPADAIRES", "ARBRES_ALIGNEMENT", "ARBRES_PARCS", "BANCS", "POTELETS", "PANNEAUX", "ABRIBUS")}
     fr = {}
