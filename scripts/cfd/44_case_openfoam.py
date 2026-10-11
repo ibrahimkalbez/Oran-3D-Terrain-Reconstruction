@@ -106,8 +106,8 @@ castellatedMeshControls
     locationInMesh (2500.1 -1000.1 700.1);
     allowFreeStandingZoneFaces true;
 }}
-snapControls {{ nSmoothPatch 3; tolerance 2.0; nSolveIter 50; nRelaxIter 5; nFeatureSnapIter 0;
-               implicitFeatureSnap false; explicitFeatureSnap false; }}
+snapControls {{ nSmoothPatch 3; tolerance 2.0; nSolveIter 100; nRelaxIter 8; nFeatureSnapIter 10;
+               implicitFeatureSnap true; explicitFeatureSnap false; multiRegionFeatureSnap false; }}
 addLayersControls {{ relativeSizes true; layers {{}}; expansionRatio 1.2; finalLayerThickness 0.5; minThickness 0.1;
     nGrow 0; featureAngle 60; nRelaxIter 3; nSmoothSurfaceNormals 1; nSmoothNormals 3; nSmoothThickness 10;
     maxFaceThicknessRatio 0.5; maxThicknessToMedialRatio 0.3; minMedialAxisAngle 90; nBufferCellsNoExtrude 0;
@@ -145,13 +145,21 @@ cat > system/topoSetDict <<EOT
 FoamFile {{ version 2.0; format ascii; class dictionary; object topoSetDict; }}
 actions
 (
-  {{ name badF; type faceSet; action new; source faceToFace; sets (wrongOrientedFaces nonOrthoFaces); }}
+  {{ name badF; type faceSet; action new; source faceToFace; sets (meshQualityFaces); }}
   {{ name keep; type cellSet; action new; source faceToCell; set badF; option any; }}
-  {{ name keep; type cellSet; action add; source cellToCell; sets (zeroVolumeCells); }}
   {{ name keep; type cellSet; action invert; }}
 );
 EOT
-for s in wrongOrientedFaces nonOrthoFaces zeroVolumeCells; do [ -f constant/polyMesh/sets/$s ] || echo "skip $s"; done
+# strict-error criteria only (non-orthogonality > 88 deg, negative volume/inverted faces)
+cat > system/meshQualityDict <<EOT
+FoamFile {{ version 2.0; format ascii; class dictionary; object meshQualityDict; }}
+maxNonOrtho 88; maxBoundarySkewness -1; maxInternalSkewness -1; maxConcave 180; minVol 1e-13;
+minTetQuality -1e30; minArea -1; minTwist -1; minDeterminant -1; minFaceWeight -1; minVolRatio -1;
+minTriangleTwist -1; nSmoothScale 4; errorReduction 0.75;
+EOT
+rm -rf constant/polyMesh/sets
+checkMesh -meshQuality -constant > log.checkMesh.quality 2>&1
+ls constant/polyMesh/sets > log.sets 2>&1
 topoSet > log.topoSet 2>&1 && subsetMesh keep -patch ground -overwrite > log.subsetMesh 2>&1
 rm -rf constant/polyMesh/sets
 checkMesh -allGeometry -allTopology > log.checkMesh.final 2>&1
@@ -172,33 +180,46 @@ def read_boundary(case):
 
 
 def face_centres(case, pats):
-    """Face centres from the ascii/binary polyMesh using OpenFOAM's postProcess writeCellCentres
-    would need a time dir; compute them directly from points/faces (ascii written by foamFormatConvert)."""
+    """Boundary face centres and z-component of the unit normal, from the polyMesh converted to
+    ascii (foamFormatConvert run in the OpenFOAM environment with writeFormat ascii)."""
     import subprocess
     pm = Path(case) / "constant/polyMesh"
-    if b"binary" in (pm / "points").read_bytes()[:600]:
-        subprocess.run(["foamFormatConvert", "-constant", "-case", str(case)], check=True, capture_output=True)
+    if b"binary" in (pm / "points").read_bytes()[:1200]:
+        cd = Path(case) / "system/controlDict"
+        orig = cd.read_text()
+        cd.write_text(re.sub(r"writeFormat\s+\w+;", "writeFormat ascii;", orig))
+        subprocess.run(["bash", "-c", ". /usr/share/openfoam/etc/bashrc 2>/dev/null; foamFormatConvert -constant > log.foamFormatConvert 2>&1"],
+                       cwd=case, check=True)
+        cd.write_text(orig)
     def body(name):
-        t = (pm / name).read_text()
-        i = t.index("(", t.index("}") if "FoamFile" in t else 0)
-        n = int(t[:i].split()[-1])
-        return n, t[i + 1:t.rindex(")")]
-    n, b = body("points")
-    P = np.array(re.findall(r"\(([^()]+)\)", b), dtype=object)
-    P = np.array([list(map(float, s.split())) for s in P])
-    n, b = body("faces")
-    F = re.findall(r"\d+\(([^()]+)\)", b)
+        t = (pm / name).read_text(errors="ignore")
+        h = t.index("}") if "FoamFile" in t else 0
+        i = t.index("(", h)
+        return t[i + 1:t.rindex(")")]
+    P = np.fromstring(body("points").replace("(", " ").replace(")", " "), sep=" ").reshape(-1, 3)
+    ints = np.fromstring(body("faces").replace("(", " ").replace(")", " "), sep=" ", dtype=np.int64)
+    # ints = n0 a b c ... n1 ...  -> starts of each face
+    starts = []; pos = 0; nf = 0
+    lens = []
+    while pos < len(ints):
+        n = int(ints[pos]); starts.append(pos + 1); lens.append(n); pos += n + 1
+    starts = np.array(starts); lens = np.array(lens)
     out = {}
     for name, p in pats.items():
         if p["n"] == 0:
             continue
-        fc, nz = [], []
-        for i in range(p["start"], p["start"] + p["n"]):
-            Q = P[list(map(int, F[i].split()))]
-            fc.append(Q.mean(0))
-            a = np.cross(Q[1] - Q[0], Q[2] - Q[0]); nz.append(a[2] / (np.linalg.norm(a) + 1e-30))
-        out[name] = np.array(fc)
-        out[name + "__nz"] = np.array(nz)
+        sl = slice(p["start"], p["start"] + p["n"])
+        st, ln = starts[sl], lens[sl]
+        fc = np.zeros((len(st), 3)); nz = np.zeros(len(st))
+        for m in np.unique(ln):
+            k = ln == m
+            idx = ints[st[k][:, None] + np.arange(m)[None, :]]
+            Q = P[idx]
+            fc[k] = Q.mean(1)
+            a = np.cross(Q[:, 1] - Q[:, 0], Q[:, 2] - Q[:, 0])
+            nz[k] = a[:, 2] / (np.linalg.norm(a, axis=1) + 1e-30)
+        out[name] = fc
+        out[name + "__nz"] = nz
     return out
 
 
