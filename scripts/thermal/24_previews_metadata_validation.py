@@ -98,6 +98,39 @@ def main():
         ax.set_title("Maquette Rhino d'Oran - couche " + LAYER + (" - toitures (centre)" if with_roofs else ""))
         ax.set_xlabel("X modèle (m)"); ax.set_ylabel("Y modèle (m)")
         fig.tight_layout(); fig.savefig(WORK / fname); plt.close(fig)
+    # zones + 1 km grid map, and source panel vs reconstruction
+    import geopandas as gpd
+    gpkg = WORK / "Oran_Thermal_2024.gpkg"
+    zones = gpd.read_file(gpkg, layer="zones_chaudes_fraiches")
+    grid = gpd.read_file(gpkg, layer="grille_1km")
+    fig, ax = plt.subplots(figsize=(14, 11), dpi=160)
+    ax.imshow(hs, cmap="gray", extent=(xs[0], xs[-1], ys[0], ys[-1]), origin="lower", vmin=0, vmax=1.3)
+    im = ax.imshow(T, cmap=cmap, vmin=lut["v"][0], vmax=lut["v"][-1], alpha=0.8,
+                   extent=(b[0], b[2], b[1], b[3]), interpolation="nearest")
+    for _, c in grid.iterrows():
+        x, y = c.geometry.exterior.xy
+        ax.plot(x, y, color="0.35", lw=0.3)
+        ax.text(c["x0"] + 500, c["y0"] + 500, f"{c['mean']:.1f}", ha="center", va="center", fontsize=4.2)
+    for _, z in zones.iterrows():
+        col = "#7f0000" if z["kind"] == "chaude" else "#08306b"
+        for poly in getattr(z.geometry, "geoms", [z.geometry]):
+            x, y = poly.exterior.xy
+            ax.plot(x, y, color=col, lw=1.2)
+        ax.annotate(f"{'C' if z['kind'] == 'chaude' else 'F'}{z['rank']} {z['mean']:.1f}", (z["x"], z["y"]),
+                    xytext=(6, 6), textcoords="offset points", fontsize=7, color=col, weight="bold")
+    ax.set_xlim(b[0], b[2]); ax.set_ylim(b[1], b[3]); ax.set_aspect("equal")
+    plt.colorbar(im, ax=ax, shrink=0.7, label=f"{cfg.get('quantity', '')} ({cfg.get('unit', '')})")
+    ax.set_title("10/07/2024 — zones chaudes (C, > P90) et fraîches (F, < P10), moyenne par carré de 1 km")
+    fig.tight_layout(); fig.savefig(WORK / "apercu_zones_grille_2024.png"); plt.close(fig)
+    from PIL import Image
+    val_px = np.load(WORK / "values_px.npy")
+    fig, ax = plt.subplots(1, 2, figsize=(16, 6.5), dpi=130)
+    ax[0].imshow(Image.open(WORK / "panel_2024.png")); ax[0].set_title("Document source — panneau 10/07/2024")
+    ax[1].imshow(val_px, cmap=cmap, vmin=lut["v"][0], vmax=lut["v"][-1], interpolation="nearest")
+    ax[1].set_title("Valeurs reconstruites (couleur -> °C par la légende)")
+    for a_ in ax:
+        a_.set_xticks([]); a_.set_yticks([])
+    fig.tight_layout(); fig.savefig(WORK / "comparaison_panneau_2024.png"); plt.close(fig)
     # ---------------- validation
     checks = {
         "fichier_3dm_thermique_s_ouvre": m is not None and len(m.Objects) > 0,
@@ -110,8 +143,12 @@ def main():
         "ancrage_terrestre": [m.Settings.EarthAnchorPoint.EarthBasepointLatitude,
                               m.Settings.EarthAnchorPoint.EarthBasepointLongitude] == [ORIGIN_LAT, ORIGIN_LON],
         "raster_sur_terrain_de_la_maquette_pct": round(100 * rrep["raster_fraction_on_model"], 2),
-        "georef_rmse_m": round(grep["rmse_m"], 1),
-        "georef_leave_one_out_max_m": grep["leave_one_out_max_m"],
+        "calage_ecart_median_cote_m": round(grep["median_residual_m"], 1),
+        "calage_ecart_P90_cote_m": round(grep["p90_residual_m"], 1),
+        "calage_ecart_centre_lac_m": round(json.loads((WORK / "registration_2024.json").read_text())
+                                           ["chosen_fit"]["lake_centroid_error_m"], 1),
+        "controle_independant_pistes_aeroport_mediane_m": round(json.loads((WORK / "registration_2024.json").read_text())
+                                                                ["check_runways_to_warm_pixels_m"]["median_m"], 1),
     }
     val = {"date_controle": date.today().isoformat(), "checks": checks,
            "rhino": rrep, "georeferencement": grep, "extraction": erep}
@@ -135,14 +172,16 @@ def main():
                    "legende_min_max": [cfg["legend_min"], cfg["legend_max"]]},
         "nature_des_valeurs": "Reconstruites à partir des couleurs de l'image (légende du document) ; "
                               "approximatives, quantifiées par la légende ; ce ne sont pas les valeurs du raster original.",
-        "temperature": "Température de SURFACE (si le document le confirme) — ne pas confondre avec la température de l'air.",
+        "temperature": "Température de SURFACE terrestre (LST, Landsat) — ne pas confondre avec la température de l'air.",
         "crs_modele": LOCAL_CRS, "crs_copie_SIG": "EPSG:32630",
         "ancrage_rhino": {"lat": ORIGIN_LAT, "lon": ORIGIN_LON},
         "resolution_sortie_m": grep["output_pixel_m"],
         "taille_pixel_image_au_sol_m": round(grep["panel_pixel_ground_size_m"], 1),
-        "georeferencement": {"modele": grep["model"], "n_points_controle": grep["n_gcp"],
-                             "rmse_m": round(grep["rmse_m"], 1),
-                             "leave_one_out_max_m": grep["leave_one_out_max_m"]},
+        "georeferencement": {"methode": "calage automatique trait de cote + centre du lac sur la maquette (script 21a)",
+                             "modele": grep["model"], "n_points_controle": grep["n_gcp"],
+                             "ecart_median_m": round(grep["median_residual_m"], 1),
+                             "ecart_P90_m": round(grep["p90_residual_m"], 1),
+                             "registration": json.loads((WORK / "registration_2024.json").read_text())},
         "nodata": -9999, "classes": grep["class_edges"],
         "maquette": {"source": rrep["source_model"], "sha256": rrep["source_sha256"],
                      "calque_thermique": LAYER, "sous_calques": rrep["thermal_layers"]},

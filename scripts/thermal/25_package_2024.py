@@ -21,12 +21,14 @@ DIRS = {
     "02_THERMAL_RASTER": ["Oran_Thermal_2024.tif", "Oran_Thermal_2024_UTM30N.tif", "panel_2024.png",
                           "values_px.npy", "legend_lut.npz"],
     "03_GIS_DATA": ["Oran_Thermal_2024.gpkg"],
-    "04_STATISTICS": ["Oran_Thermal_2024_Statistics.csv"],
-    "06_METADATA_DOCUMENTATION": ["Oran_Thermal_2024_Metadata.json", "README_FR.md"],
+    "04_STATISTICS": ["Oran_Thermal_2024_Statistics.csv", "Oran_Thermal_2024_Grille_1km.csv"],
+    "06_METADATA_DOCUMENTATION": ["Oran_Thermal_2024_Metadata.json", "README_FR.md",
+                                  "RAPPORT_THERMIQUE_2024_FR.md", "RAPPORT_THERMIQUE_2024_FR.pdf"],
     "07_PREVIEWS": ["Oran_Thermal_2024_carte_2D.png", "histogramme_2024.png", "apercu_3d_thermique.png",
-                    "apercu_3d_thermique_centre.png"],
+                    "apercu_3d_thermique_centre.png", "apercu_zones_grille_2024.png", "comparaison_panneau_2024.png"],
     "08_VALIDATION_REPORT": ["validation_report.json", "VALIDATION_REPORT_FR.md", "extract_report.json",
-                             "georef_report.json", "rhino_thermal_report.json"],
+                             "georef_report.json", "rhino_thermal_report.json",
+                             "registration_2024.json", "controle_calage_2024.png", "thermal_config.json"],
 }
 
 
@@ -84,6 +86,21 @@ def main():
                                      "thermal_layer": LAYER in names}
         shutil.rmtree(tmp, ignore_errors=True)
     chk["zip_sha256"] = sha(z)
+    # split copy for git hosting (each part < 100 MB); join: 7-Zip opens .001 directly,
+    # or `copy /b ORAN...zip.001+ORAN...zip.002+... ORAN_THERMAL_2024_COMPLETE.zip` / `cat ... > ...zip`
+    part = int(float(sys.argv[3]) * 1024 * 1024) if len(sys.argv) > 3 else 0
+    if part:
+        parts = []
+        with open(z, "rb") as fsrc:
+            k = 1
+            while True:
+                b = fsrc.read(part)
+                if not b:
+                    break
+                pp = out_root / f"{z.name}.{k:03d}"
+                pp.write_bytes(b); parts.append(pp.name); k += 1
+        (out_root / f"{z.name}.sha256.txt").write_text(f"{chk['zip_sha256']}  {z.name}\n")
+        chk["split_parts"] = parts
     (out_root / "zip_check.json").write_text(json.dumps(chk, indent=1))
     print(json.dumps(chk, indent=1))
 

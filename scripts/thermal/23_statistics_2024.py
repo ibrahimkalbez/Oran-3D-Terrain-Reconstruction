@@ -19,7 +19,7 @@ from matplotlib.colors import ListedColormap  # noqa: E402
 from pyproj import Transformer  # noqa: E402
 from scipy import ndimage  # noqa: E402
 
-from thermal_common import LOCAL_CRS, WORK, load_config  # noqa: E402
+from thermal_common import LOCAL_CRS, WORK, grid_cells, hot_cool_zones, load_config, weighted_median  # noqa: E402
 
 TO_LL = Transformer.from_crs(LOCAL_CRS, "EPSG:4326", always_xy=True)
 
@@ -47,21 +47,13 @@ def main():
     for lo, hi in zip(edges[:-1], edges[1:]):
         k = (v >= lo) & ((v < hi) | (hi == edges[-1]) & (v <= hi))
         add("classes", f"{lo:g}-{hi:g}", k.sum() * px_area / 1e6, "km2", f"{100 * k.mean():.1f} % de la zone")
-    # hot / cool zones: connected areas above P90 / below P10, >= 4 pixels
-    for label, mask in (("zone_chaude", a >= np.percentile(v, 90)), ("zone_fraiche", a <= np.percentile(v, 10))):
-        lab, n = ndimage.label(np.nan_to_num(mask, nan=0).astype(bool))
-        sizes = ndimage.sum(np.ones_like(lab), lab, range(1, n + 1))
-        order = np.argsort(sizes)[::-1][:8]
-        for rank, i in enumerate(order, 1):
-            if sizes[i] < 4:
-                break
-            r, c = ndimage.center_of_mass(lab == i + 1)
-            x, y = tr * (c + 0.5, r + 0.5)
-            lon, lat = TO_LL.transform(x, y)
-            vals = a[lab == i + 1]
-            add(label, f"{label}_{rank}", np.nanmean(vals), unit,
-                f"surface {sizes[i] * px_area / 1e6:.2f} km2; centre x={x:.0f} y={y:.0f} m (modele), "
-                f"lon={lon:.4f} lat={lat:.4f}")
+    # hot / cool zones: connected areas above P90 / below P10 (same definition as the Rhino layers)
+    for z in hot_cool_zones(a, tr):
+        lon, lat = TO_LL.transform(z["x"], z["y"])
+        ext = "max" if z["kind"] == "chaude" else "min"
+        add(f"zone_{z['kind']}", f"zone_{z['kind']}_{z['rank']}", z["mean"], unit,
+            f"{ext} {z['extreme']:.1f}; surface {z['area_km2']:.2f} km2; centre x={z['x']:.0f} y={z['y']:.0f} m "
+            f"(modele), lon={lon:.5f} lat={lat:.5f}")
     cat = WORK / "category_samples.npz"
     if cat.exists():
         d = np.load(cat, allow_pickle=True)
@@ -72,9 +64,20 @@ def main():
                 vv, w = vv[ok], w[ok]
                 add("categorie_surface", f"{name}_moyenne_ponderee_surface", np.average(vv, weights=w), unit,
                     f"surface couverte {w.sum() / 1e6:.2f} km2")
-                add("categorie_surface", f"{name}_mediane", np.median(vv), unit)
+                add("categorie_surface", f"{name}_mediane_ponderee_surface", weighted_median(vv, w), unit)
+                add("categorie_surface", f"{name}_P10_P90", np.percentile(vv, 10), unit,
+                    f"P90 = {np.percentile(vv, 90):.1f} (par face)")
     with open(WORK / "Oran_Thermal_2024_Statistics.csv", "w", newline="", encoding="utf-8") as f:
         wr = csv.DictWriter(f, fieldnames=list(rows[0])); wr.writeheader(); wr.writerows(rows)
+    cells = grid_cells(a, tr)
+    with open(WORK / "Oran_Thermal_2024_Grille_1km.csv", "w", newline="", encoding="utf-8") as f:
+        wr = csv.writer(f)
+        wr.writerow(["id", "x0_m", "y0_m", "lon_centre", "lat_centre", "couverture_pct", "moyenne", "mediane",
+                     "minimum", "maximum", "unite"])
+        for c in cells:
+            lo, la = TO_LL.transform(c["x0"] + 500, c["y0"] + 500)
+            wr.writerow([c["id"], c["x0"], c["y0"], f"{lo:.5f}", f"{la:.5f}", f"{100 * c['cover']:.0f}",
+                         f"{c['mean']:.2f}", f"{c['median']:.2f}", f"{c['min']:.2f}", f"{c['max']:.2f}", unit])
     # 2D map with the document's legend colours
     lut = np.load(WORK / "legend_lut.npz")
     cmap = ListedColormap(lut["rgb"] / 255.0)

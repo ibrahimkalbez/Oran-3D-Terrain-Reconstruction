@@ -28,7 +28,7 @@ from rasterio.transform import from_origin
 from rasterio.warp import Resampling, calculate_default_transform, reproject
 from pyproj import Transformer
 
-from thermal_common import LOCAL_CRS, WORK, load_config
+from thermal_common import LOCAL_CRS, WORK, grid_cells, hot_cool_zones, load_config
 
 NODATA = -9999.0
 LOC = Transformer.from_crs("EPSG:4326", LOCAL_CRS, always_xy=True)
@@ -155,6 +155,18 @@ def main():
                       "label": [f"{edges[r[0]-1]:g}-{edges[r[0]]:g}" for r in recs],
                       "area_m2": [r[1].area for r in recs]},
                      geometry=[r[1] for r in recs], crs=crs).to_file(gpkg, layer="thermal_classes", driver="GPKG")
+    # hot / cool zones (connected areas > P90 / < P10) and 1 km grid statistics
+    from shapely.geometry import box
+    zs = hot_cool_zones(out, tr)
+    zrec = []
+    for z in zs:
+        poly = unary_union([shape(s_) for s_, v_ in shapes(z["mask"].astype(np.uint8), mask=z["mask"], transform=tr)])
+        zrec.append(({k: v for k, v in z.items() if k != "mask"} | {"name": f"Zone {z['kind']} {z['rank']}"}, poly))
+    gpd.GeoDataFrame([r[0] for r in zrec], geometry=[r[1] for r in zrec], crs=crs).to_file(
+        gpkg, layer="zones_chaudes_fraiches", driver="GPKG")
+    cells = grid_cells(out, tr)
+    gpd.GeoDataFrame(cells, geometry=[box(c["x0"], c["y0"], c["x0"] + c["size"], c["y0"] + c["size"]) for c in cells],
+                     crs=crs).to_file(gpkg, layer="grille_1km", driver="GPKG")
     rep = {"model": model, "n_gcp": len(g),
            "median_residual_m": float(np.median(np.linalg.norm(res, axis=1))),
            "p90_residual_m": float(np.percentile(np.linalg.norm(res, axis=1), 90)),

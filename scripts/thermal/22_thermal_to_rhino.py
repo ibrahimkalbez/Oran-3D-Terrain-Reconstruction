@@ -13,6 +13,10 @@ THERMAL_ORAN_2024_07_10
                                           terrain (+DZ m), one sub-layer per class
   TOITURES_THERMIQUES                     copies of roof faces coloured with the raster value
                                           under each vertex (NOT a per-building measurement)
+  ZONES_CHAUDES / ZONES_FRAICHES          outlines of the 8 largest areas > P90 / < P10 with a
+                                          label (mean, extreme, area) - zone by zone reading
+  GRILLE_1KM                              1 km squares draped on the terrain + label with the
+                                          mean / min / max value of each square
   LIMITE_ZONE_ETUDIEE                     outline of the study area on the terrain
   LEGENDE_THERMIQUE                       colour bar + text dots, next to the model
 
@@ -225,9 +229,51 @@ def main():
     rep["category_faces_with_value"] = {c: int(sum(np.isfinite(x[:, 0]).sum() for x in s))
                                         for c, s in samples.items()}
 
-    # study-area outline
     import geopandas as gpd
-    sa = gpd.read_file(WORK / "Oran_Thermal_2024.gpkg", layer="study_area").geometry.iloc[0]
+    gpkg = WORK / "Oran_Thermal_2024.gpkg"
+
+    def drape(ring, dz):
+        ring = np.asarray(ring)[:, :2]
+        z = terr(np.c_[ring[:, 1], ring[:, 0]])
+        z = np.where(np.isfinite(z), z, 0) + dz
+        return r3.Polyline([r3.Point3d(float(x), float(y), float(zz)) for (x, y), zz in zip(ring, z)])
+
+    def densify(ring, step=25.0):
+        ring = np.asarray(ring)[:, :2]; pts = []
+        for a, b in zip(ring[:-1], ring[1:]):
+            k = max(1, int(np.ceil(np.linalg.norm(b - a) / step)))
+            pts.append(a + (b - a) * np.arange(k)[:, None] / k)
+        return np.vstack(pts + [ring[-1:]])
+
+    # hot / cool zones
+    l_hot = add_layer(model, "ZONES_CHAUDES", (180, 0, 0, 255), root)
+    l_cool = add_layer(model, "ZONES_FRAICHES", (0, 90, 160, 255), root)
+    zones = gpd.read_file(gpkg, layer="zones_chaudes_fraiches")
+    for _, z in zones.iterrows():
+        lay = l_hot if z["kind"] == "chaude" else l_cool
+        ext = "max" if z["kind"] == "chaude" else "min"
+        txt = (f"{z['name']} : moy {z['mean']:.1f} {unit}, {ext} {z['extreme']:.1f}, {z['area_km2']:.2f} km2")
+        for poly in getattr(z.geometry, "geoms", [z.geometry]):
+            model.Objects.AddPolyline(drape(densify(poly.exterior.coords), DZ_CLOUD + 2), attrs(lay, txt))
+        zc = terr([[z["y"], z["x"]]])[0]
+        model.Objects.AddTextDot(f"{z['name'].replace('Zone ', '')} {z['mean']:.1f}",
+                                 r3.Point3d(z["x"], z["y"], (0 if np.isnan(zc) else zc) + 40), attrs(lay, txt))
+    rep["zones"] = int(len(zones))
+    # 1 km grid with values
+    l_grid = add_layer(model, "GRILLE_1KM", (90, 90, 90, 255), root)
+    l_gl = add_layer(model, "GRILLE_1KM_VALEURS", (0, 0, 0, 255), root)
+    grid = gpd.read_file(gpkg, layer="grille_1km")
+    for _, c in grid.iterrows():
+        txt = (f"{c['id']} : moy {c['mean']:.1f} {unit} (min {c['min']:.1f}, max {c['max']:.1f}, "
+               f"mediane {c['median']:.1f}, couverture {100 * c['cover']:.0f} %)")
+        model.Objects.AddPolyline(drape(densify(c.geometry.exterior.coords), DZ_CLOUD), attrs(l_grid, txt))
+        cx_, cy_ = c["x0"] + c["size"] / 2, c["y0"] + c["size"] / 2
+        zc = terr([[cy_, cx_]])[0]
+        if np.isfinite(zc):
+            model.Objects.AddTextDot(f"{c['mean']:.1f}", r3.Point3d(cx_, cy_, zc + 20), attrs(l_gl, txt))
+    rep["grid_cells_1km"] = int(len(grid))
+    # study-area outline
+    sa = gpd.read_file(gpkg, layer="study_area").geometry.iloc[0]
     for poly in getattr(sa, "geoms", [sa]):
         ring = np.array(poly.exterior.coords)
         z = terr(np.c_[ring[:, 1], ring[:, 0]]); z = np.where(np.isfinite(z), z, 0) + DZ_CLOUD

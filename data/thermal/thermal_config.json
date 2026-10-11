@@ -42,11 +42,17 @@
  "mask_auto": true,
  "class_edges": [
   20,
+  22.5,
   25,
+  27.5,
   30,
+  32.5,
   35,
+  37.5,
   40,
-  47
+  42.5,
+  45,
+  46
  ],
  "quantity": "Temperature de surface terrestre (LST)",
  "unit": "degC",
