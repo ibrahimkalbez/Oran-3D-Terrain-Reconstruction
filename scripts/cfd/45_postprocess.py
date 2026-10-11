@@ -110,6 +110,7 @@ def main():
     U = read_list(tdir / "U"); p = read_list(tdir / ("p_rgh" if th and (tdir / "p_rgh").exists() else "p"))
     T = read_list(tdir / "T") - 273.15 if th else None
     tree = cKDTree(C)
+    Uprev = read_list(case / f"{times[-2]:g}" / "U") if len(times) >= 2 else None
     g = np.load(GEO / "terrain_grid.npz"); zg = RegularGridInterpolator((g["ys"], g["xs"]), g["Z"], bounds_error=False, fill_value=0)
     tri_dir = case / "constant/triSurface"          # the buildings actually meshed in THIS case
     inside, roofs = footprints(tri_dir)
@@ -140,6 +141,12 @@ def main():
         if art.any():
             Q, Um, r = Q[~art], Um[~art], {kk: (vv[~art] if hasattr(vv, "__len__") and len(vv) == len(art) else vv) for kk, vv in r.items()}
         along = r["U"][:, :2] @ flow[:2]
+        stab = None
+        if Uprev is not None:                     # iterative stability of the pedestrian field
+            d_, i_ = tree.query(Q, k=8); w_ = 1.0 / np.maximum(d_, 0.1) ** 2; w_ /= w_.sum(1, keepdims=True)
+            Up = np.linalg.norm((Uprev[i_] * w_[..., None]).sum(1), axis=1)
+            stab = {"iter_compare": [int(times[-2]), int(times[-1])], "dU_moy_rel_pct": float(100 * np.abs(Um - Up).mean() / Um.mean()),
+                    "dUmoy_secteur_rel_pct": float(100 * abs(Um.mean() - Up.mean()) / Um.mean())}
         for j in range(len(Q)):
             rows.append([k, *Q[j], Um[j], *r["U"][j], r["p"][j], (r["T"][j] if T is not None else np.nan)])
         ind[k] = {"points_fluide_5m": int(len(Q)), "surface_fluide_km2": len(Q) * 25 / 1e6, "U_moy": float(Um.mean()),
@@ -147,7 +154,7 @@ def main():
                   "pct_acceleration_U_sup_1.2Uref": float(100 * (Um > 1.2 * uref).mean()),
                   "pct_stagnation_U_inf_0.5": float(100 * (Um < 0.5).mean()),
                   "pct_flux_inverse": float(100 * (along < 0).mean()),
-                  "artefacts_exclus_U_sup_3Uref": int(art.sum())}
+                  "artefacts_exclus_U_sup_3Uref": int(art.sum()), "stabilite_iterative": stab}
         if T is not None:
             ind[k].update({"T_air_2m_moy_C": float(r["T"].mean()), "T_air_2m_p90_C": float(np.percentile(r["T"], 90)),
                            "T_air_2m_max_C": float(r["T"].max())})

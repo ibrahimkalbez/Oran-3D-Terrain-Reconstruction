@@ -369,8 +369,8 @@ boundaryField
     outl = " ".join(p for p, r in roles.items() if r == "outlet")
     w(case / "system/controlDict", "dictionary", "controlDict", f"""
 application {"buoyantBoussinesqSimpleFoam" if thermal else "simpleFoam"};
-startFrom latestTime; startTime 0; stopAt endTime; endTime {2500 if thermal else 2000}; deltaT 1;
-writeControl timeStep; writeInterval 500; purgeWrite 1; writeFormat ascii; writePrecision 7;
+startFrom latestTime; startTime 0; stopAt endTime; endTime {1500 if thermal else 1200}; deltaT 1;
+writeControl timeStep; writeInterval 200; purgeWrite 2; writeFormat ascii; writePrecision 7;
 writeCompression off; timeFormat general; timePrecision 6; runTimeModifiable true;
 libs ("libatmosphericModels.so");
 // function objects disabled: this OpenFOAM v1912 Debian build aborts on any functionObject
@@ -420,7 +420,7 @@ cd "$(dirname "$0")"
 . /usr/share/openfoam/etc/bashrc 2>/dev/null; export OMPI_ALLOW_RUN_AS_ROOT=1 OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
 decomposePar -force > log.decomposePar 2>&1 || exit 1
 mpirun --allow-run-as-root --oversubscribe -np 4 {"buoyantBoussinesqSimpleFoam" if thermal else "simpleFoam"} -parallel > log.solver 2>&1
-reconstructPar -latestTime > log.reconstructPar 2>&1
+reconstructPar > log.reconstructPar 2>&1     # the 2 last written times (stability check)
 rm -rf processor*
 echo SOLVE_DONE
 """)
