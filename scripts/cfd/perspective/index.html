@@ -1,0 +1,76 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#cfd8dc;font-family:'DejaVu Sans',sans-serif}
+#hud{position:absolute;left:24px;top:18px;color:#fff;text-shadow:0 1px 4px #000}
+#t1{font:700 30px 'DejaVu Sans'} #t2{font:17px 'DejaVu Sans';margin-top:6px} #t3{font:14px 'DejaVu Sans Mono';margin-top:8px;white-space:pre}
+#leg{position:absolute;right:30px;bottom:34px;width:420px;background:rgba(0,0,0,.55);padding:10px 14px;color:#fff;font:13px 'DejaVu Sans'}
+#bar{height:16px;margin:6px 0 3px 0} #ticks{display:flex;justify-content:space-between;font:12px 'DejaVu Sans Mono'}
+#tag{position:absolute;left:24px;bottom:30px;background:rgba(0,0,0,.55);color:#fff;padding:8px 12px;font:13px 'DejaVu Sans';max-width:900px}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script></head><body>
+<div id="hud"><div id="t1"></div><div id="t2"></div><div id="t3"></div></div>
+<div id="leg"><div>Vitesse du vent calculée à 2 m du sol, U / Uref</div><div id="bar"></div><div id="ticks"></div><div id="legm"></div></div>
+<div id="tag"></div>
+<script type="module">
+import * as THREE from 'three';
+const S = await (await fetch('scene.json')).json(); window.S = S;
+const W = 1920, H = 1080;
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true }); r.setSize(W, H); document.body.prepend(r.domElement);
+const jet = t => { t = Math.min(1, Math.max(0, t)); return new THREE.Color(Math.min(1, Math.max(0, 1.5 - Math.abs(4 * t - 3))),
+  Math.min(1, Math.max(0, 1.5 - Math.abs(4 * t - 2))), Math.min(1, Math.max(0, 1.5 - Math.abs(4 * t - 1)))); };
+const VMAX = 1.6;
+document.getElementById('bar').style.background = 'linear-gradient(90deg,' + [...Array(11).keys()].map(i => '#' + jet(i / 10).getHexString()).join(',') + ')';
+document.getElementById('ticks').innerHTML = [0, 0.4, 0.8, 1.2, 1.6].map(v => `<span>${v.toFixed(1)}</span>`).join('');
+document.getElementById('legm').textContent = `soit 0 à ${(VMAX * S.uref).toFixed(1)} m/s (Uref = ${S.uref} m/s à 10 m, Es Sénia)`;
+async function bin(u, T) { return new T(await (await fetch(u)).arrayBuffer()); }
+const scenes = {};
+async function build(k) {
+  const sc = new THREE.Scene(); sc.background = new THREE.Color(0xbfd3e6); sc.fog = new THREE.Fog(0xbfd3e6, 1500, 5200);
+  sc.add(new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 1.1));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(-800, 1500, 600); sc.add(sun);
+  let g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(await bin(`${k}_terrain_pos.bin`, Float32Array), 3));
+  g.setIndex(new THREE.BufferAttribute(await bin(`${k}_terrain_idx.bin`, Uint32Array), 1)); g.computeVertexNormals();
+  sc.add(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: 0x9e9e98 })));
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), new THREE.MeshLambertMaterial({ color: 0x3f6f8f }));
+  sea.rotation.x = -Math.PI / 2; sea.position.y = 0.3; sc.add(sea);
+  const q = await bin(`${k}_ped.bin`, Float32Array); const n = q.length / 4;
+  const pp = new Float32Array(3 * n), cc = new Float32Array(3 * n);
+  for (let i = 0; i < n; i++) { pp.set([q[4 * i], q[4 * i + 1], q[4 * i + 2]], 3 * i); const c = jet(q[4 * i + 3] / VMAX); cc.set([c.r, c.g, c.b], 3 * i); }
+  g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pp, 3)); g.setAttribute('color', new THREE.BufferAttribute(cc, 3));
+  g.setIndex(new THREE.BufferAttribute(await bin(`${k}_ped_idx.bin`, Uint32Array), 1));
+  sc.add(new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide })));
+  g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(await bin(`${k}_bld.bin`, Float32Array), 3)); g.computeVertexNormals();
+  sc.add(new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color: 0xf2efe8, side: THREE.DoubleSide })));
+  const s = await bin(`${k}_sl.bin`, Float32Array); let pos = 0; sc.userData.tubes = [];
+  while (pos < s.length) {
+    const m = s[pos], hi = s[pos + 1] > 0.5; const pts = [], us = [];
+    for (let j = 1; j <= m; j++) { const o = pos + 4 * j; pts.push(new THREE.Vector3(s[o], s[o + 2], -s[o + 1])); us.push(s[o + 3]); }
+    pos += 4 * (m + 1);
+    if (pts.length < 3) continue;
+    const curve = new THREE.CatmullRomCurve3(pts); const seg = Math.min(400, pts.length * 2);
+    const tg = new THREE.TubeGeometry(curve, seg, 1.3, 6, false);
+    const tgThin = new THREE.TubeGeometry(curve, seg, 0.35, 6, false);
+    const col = new Float32Array(tg.attributes.position.count * 3);
+    for (let a = 0; a <= seg; a++) { const u = us[Math.min(us.length - 1, Math.round(a / seg * (us.length - 1)))]; const c = jet(u / VMAX);
+      for (let b2 = 0; b2 <= 6; b2++) { const v = a * 7 + b2; col[3 * v] = c.r; col[3 * v + 1] = c.g; col[3 * v + 2] = c.b; } }
+    tg.setAttribute('color', new THREE.BufferAttribute(col, 3)); tgThin.setAttribute('color', new THREE.BufferAttribute(col, 3));
+    const thick = new THREE.Mesh(tg, new THREE.MeshLambertMaterial({ vertexColors: true }));
+    const thin = new THREE.Mesh(tgThin, new THREE.MeshLambertMaterial({ vertexColors: true }));
+    sc.add(thick); sc.add(thin); sc.userData.tubes.push({ thick, thin, hi });
+  }
+  return sc;
+}
+for (const k of S.sectors) scenes[k] = await build(k);
+const cam = new THREE.PerspectiveCamera(45, W / H, 0.5, 20000);
+const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
+window.renderShot = i => {
+  const s = S.shots[i]; cam.fov = s.fov; cam.updateProjectionMatrix();
+  cam.position.set(...s.cam); cam.lookAt(...s.tgt);
+  for (const t of scenes[s.sector].userData.tubes) { t.thick.visible = !s.street; t.thin.visible = !!s.street && !t.hi; }
+  document.getElementById('t1').textContent = s.label;
+  document.getElementById('t2').textContent = `Scénario ${S.sid} — vent venant du ${dirs[Math.round(S.dir / 22.5) % 16]} (${S.dir}°), Uref = ${S.uref} m/s`;
+  document.getElementById('t3').textContent = `${S.solver}\nmaillage ${S.cells ? (S.cells / 1e6).toFixed(2) + ' M mailles' : ''} · sol coloré : U/Uref calculé à 2 m · tubes : lignes de courant (10 et 30 m)`;
+  document.getElementById('tag').textContent = 'Résultat de simulation OpenFOAM (pas ANSYS) — bâtiments : emprises réelles OSM/Google/Microsoft de la maquette Rhino ; relief Copernicus GLO-30.';
+  r.render(scenes[s.sector], cam); return true;
+};
+window.ready = true;
+</script></body></html>

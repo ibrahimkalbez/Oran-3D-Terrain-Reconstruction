@@ -23,7 +23,10 @@ from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
-GEO = ROOT / "results/cfd/geometrie"
+GEO = ROOT / "results/cfd/geometrie"            # terrain + reference buildings (main layer of the maquette)
+import os as _os
+if _os.environ.get("CFD_GEO"):
+    GEO = Path(_os.environ["CFD_GEO"])
 SECT = json.loads((ROOT / "results/cfd/secteurs.json").read_text())
 DOMAIN = (-5500.0, -4500.0, 11500.0, 5500.0)
 ZMIN, ZTOP = -10.0, 900.0
@@ -396,7 +399,8 @@ SIMPLE {{ nNonOrthogonalCorrectors 1; consistent no; {"pRefCell 0; pRefValue 0;"
     residualControl {{ {pn} 1e-4; U 1e-5; "(k|epsilon)" 1e-5; {"T 1e-6;" if thermal else ""} }} }}
 relaxationFactors {{ fields {{ {pn} 0.3; }} equations {{ U 0.6; "(k|epsilon)" 0.6; {"T 0.6;" if thermal else ""} }} }}
 """)
-    meta = {"scenario": sc, "flow_to": flow.tolist(), "roles": roles, "Ublend_60m": Ublend, "ustar_airport": ustar_ap,
+    bati = json.loads((GEO / "geometrie_report.json").read_text()).get("bati", "reelles") if (GEO / "geometrie_report.json").exists() else "?"
+    meta = {"scenario": sc, "bati": bati, "flow_to": flow.tolist(), "roles": roles, "Ublend_60m": Ublend, "ustar_airport": ustar_ap,
             "ustar_upstream_median": ustar_ref, "z0_upstream_median": float(np.median(z0_in)),
             "U_inlet_max": max(Uin) if Uin else None, "probes": probes, "thermal": thermal,
             "z0_ground_classes": {"mer": 0.0002, "secteurs_bati_explicite": 0.05, "tissu_urbain": 0.5, "autre": 0.1},

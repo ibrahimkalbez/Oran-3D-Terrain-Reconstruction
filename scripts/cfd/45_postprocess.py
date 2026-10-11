@@ -84,13 +84,13 @@ def mesh_centres(case):
     return C / cnt[:, None]
 
 
-def footprints():
+def footprints(tri_dir):
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
     from shapely.prepared import prep
     polys, raw = [], {}
     for k in SECT:
-        txt = (GEO / f"buildings_{k}.stl").read_text().split("vertex")[1:]
+        txt = (tri_dir / f"buildings_{k}.stl").read_text().split("vertex")[1:]
         V = np.array([list(map(float, t.split()[:3])) for t in txt]).reshape(-1, 3, 3)
         nz = np.cross(V[:, 1] - V[:, 0], V[:, 2] - V[:, 0])
         roof = V[nz[:, 2] > 0.9 * np.linalg.norm(nz, axis=1)][:, :, :2]
@@ -111,7 +111,8 @@ def main():
     T = read_list(tdir / "T") - 273.15 if th else None
     tree = cKDTree(C)
     g = np.load(GEO / "terrain_grid.npz"); zg = RegularGridInterpolator((g["ys"], g["xs"]), g["Z"], bounds_error=False, fill_value=0)
-    inside, roofs = footprints()
+    tri_dir = case / "constant/triSurface"          # the buildings actually meshed in THIS case
+    inside, roofs = footprints(tri_dir)
     from shapely.geometry import Point
 
     def interp(Q, keep_mask=None):
@@ -218,7 +219,7 @@ def main():
             mass["out"] += ph
     imb = abs(mass["in"] + mass["out"]) / max(abs(mass["in"]), 1e-12)
     m = {"scenario": sid, "solver": "OpenFOAM v1912 " + ("buoyantBoussinesqSimpleFoam" if th else "simpleFoam") + ", RANS realizable k-epsilon",
-         "mesh_cells": int(len(C)), "dir_from_deg": sc["dir_from_deg"], "U10_ref_ms": uref, "U_scale_max": round(2.0 * uref, 1),
+         "mesh_cells": int(len(C)), "geo_dir": str(tri_dir), "bati": meta.get("bati", "?"), "dir_from_deg": sc["dir_from_deg"], "U10_ref_ms": uref, "U_scale_max": round(2.0 * uref, 1),
          "units": {"U": "m/s", "p": "m2/s2 (pression cinématique)", "T": "degC"}, "iterations": int(times[-1]),
          "final_residuals": {k: v[-1] for k, v in res.items() if k != "iter"}, "mass_flux_in_m3s": mass["in"],
          "mass_flux_out_m3s": mass["out"], "mass_imbalance_rel": imb, "indicateurs_secteurs": ind, "streamlines": len(lines)}
