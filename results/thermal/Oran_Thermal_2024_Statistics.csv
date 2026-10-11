@@ -1,0 +1,68 @@
+section,indicateur,valeur,unite,note
+global,pixels_valides,121927.0,pixels,
+global,surface_etudiee,195.083,km2,
+global,minimum,23.771,degC,
+global,maximum,45.876,degC,
+global,moyenne,34.892,degC,
+global,ecart_type,3.236,degC,
+global,mediane,35.302,degC,
+quantiles,P5,29.109,degC,
+quantiles,P10,30.317,degC,
+quantiles,P25,32.784,degC,
+quantiles,P75,36.712,degC,
+quantiles,P90,38.273,degC,
+quantiles,P95,40.035,degC,
+classes,20-21,0.0,km2,0.0 % de la zone
+classes,21-22,0.0,km2,0.0 % de la zone
+classes,22-23,0.0,km2,0.0 % de la zone
+classes,23-24,0.069,km2,0.0 % de la zone
+classes,24-25,0.624,km2,0.3 % de la zone
+classes,25-26,0.402,km2,0.2 % de la zone
+classes,26-27,0.56,km2,0.3 % de la zone
+classes,27-28,1.651,km2,0.8 % de la zone
+classes,28-29,6.163,km2,3.2 % de la zone
+classes,29-30,6.418,km2,3.3 % de la zone
+classes,30-31,10.221,km2,5.2 % de la zone
+classes,31-32,10.576,km2,5.4 % de la zone
+classes,32-33,15.461,km2,7.9 % de la zone
+classes,33-34,9.29,km2,4.8 % de la zone
+classes,34-35,25.109,km2,12.9 % de la zone
+classes,35-36,35.349,km2,18.1 % de la zone
+classes,36-37,32.134,km2,16.5 % de la zone
+classes,37-38,17.747,km2,9.1 % de la zone
+classes,38-39,9.771,km2,5.0 % de la zone
+classes,39-40,3.16,km2,1.6 % de la zone
+classes,40-41,2.99,km2,1.5 % de la zone
+classes,41-42,3.733,km2,1.9 % de la zone
+classes,42-43,1.466,km2,0.8 % de la zone
+classes,43-44,1.195,km2,0.6 % de la zone
+classes,44-45,0.557,km2,0.3 % de la zone
+classes,45-46,0.438,km2,0.2 % de la zone
+zone_chaude,zone_chaude_1,41.386,degC,"max 45.9; surface 2.13 km2; centre x=7725 y=-4865 m (modele), lon=-0.54970 lat=35.65513"
+zone_chaude,zone_chaude_2,40.215,degC,"max 45.9; surface 1.84 km2; centre x=7408 y=4936 m (modele), lon=-0.55310 lat=35.74346"
+zone_chaude,zone_chaude_3,41.285,degC,"max 45.9; surface 1.62 km2; centre x=4831 y=-5226 m (modele), lon=-0.58166 lat=35.65188"
+zone_chaude,zone_chaude_4,40.183,degC,"max 44.1; surface 0.95 km2; centre x=7029 y=2093 m (modele), lon=-0.55732 lat=35.71784"
+zone_chaude,zone_chaude_5,40.343,degC,"max 44.6; surface 0.62 km2; centre x=8481 y=4168 m (modele), lon=-0.54125 lat=35.73653"
+zone_chaude,zone_chaude_6,41.062,degC,"max 44.6; surface 0.58 km2; centre x=9507 y=3570 m (modele), lon=-0.52991 lat=35.73113"
+zone_chaude,zone_chaude_7,42.239,degC,"max 45.8; surface 0.58 km2; centre x=-1369 y=-6248 m (modele), lon=-0.65011 lat=35.64268"
+zone_chaude,zone_chaude_8,40.304,degC,"max 43.7; surface 0.48 km2; centre x=-2943 y=-7486 m (modele), lon=-0.66749 lat=35.63152"
+zone_fraiche,zone_fraiche_1,28.483,degC,"min 24.5; surface 5.13 km2; centre x=-4789 y=-70 m (modele), lon=-0.68791 lat=35.69835"
+zone_fraiche,zone_fraiche_2,29.128,degC,"min 27.2; surface 1.61 km2; centre x=5656 y=-1777 m (modele), lon=-0.57252 lat=35.68297"
+zone_fraiche,zone_fraiche_3,25.992,degC,"min 23.8; surface 1.35 km2; centre x=2580 y=-3459 m (modele), lon=-0.60651 lat=35.66782"
+zone_fraiche,zone_fraiche_4,29.168,degC,"min 27.2; surface 0.52 km2; centre x=7777 y=-944 m (modele), lon=-0.54908 lat=35.69046"
+zone_fraiche,zone_fraiche_5,29.303,degC,"min 27.6; surface 0.52 km2; centre x=80 y=-5334 m (modele), lon=-0.63412 lat=35.65093"
+zone_fraiche,zone_fraiche_6,28.981,degC,"min 26.7; surface 0.44 km2; centre x=1612 y=-7753 m (modele), lon=-0.61720 lat=35.62913"
+zone_fraiche,zone_fraiche_7,29.212,degC,"min 27.6; surface 0.38 km2; centre x=-341 y=-6018 m (modele), lon=-0.63877 lat=35.64476"
+zone_fraiche,zone_fraiche_8,29.393,degC,"min 27.6; surface 0.38 km2; centre x=-5086 y=-5039 m (modele), lon=-0.69116 lat=35.65357"
+categorie_surface,batiments_moyenne_ponderee_surface,36.454,degC,surface couverte 28.71 km2
+categorie_surface,batiments_mediane_ponderee_surface,36.41,degC,
+categorie_surface,batiments_P10_P90,33.59,degC,P90 = 38.6 (par face)
+categorie_surface,routes_voies_moyenne_ponderee_surface,35.85,degC,surface couverte 28.59 km2
+categorie_surface,routes_voies_mediane_ponderee_surface,36.007,degC,
+categorie_surface,routes_voies_P10_P90,32.784,degC,P90 = 38.2 (par face)
+categorie_surface,espaces_verts_moyenne_ponderee_surface,31.776,degC,surface couverte 17.11 km2
+categorie_surface,espaces_verts_mediane_ponderee_surface,31.475,degC,
+categorie_surface,espaces_verts_P10_P90,28.353,degC,P90 = 34.9 (par face)
+categorie_surface,eau_moyenne_ponderee_surface,28.321,degC,surface couverte 1.82 km2
+categorie_surface,eau_mediane_ponderee_surface,26.037,degC,
+categorie_surface,eau_P10_P90,30.317,degC,P90 = 39.6 (par face)

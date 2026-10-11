@@ -1,0 +1,30 @@
+{
+ "source_image": "Oran_LST_multidates_source.jpg",
+ "panel_px": [
+  676,
+  1168,
+  1322,
+  1678
+ ],
+ "panel_size_px": [
+  646,
+  510
+ ],
+ "legend_px": [
+  1399,
+  1346,
+  1905,
+  1372
+ ],
+ "legend_range": [
+  20,
+  45
+ ],
+ "legend_samples": 506,
+ "legend_step": 0.050352416206074745,
+ "valid_pixels": 123884,
+ "nodata_pixels": 205576,
+ "median_color_error_dE": 1.5014717486502227,
+ "value_min": 23.771411895751953,
+ "value_max": 45.876121520996094
+}

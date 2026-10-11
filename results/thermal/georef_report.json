@@ -1,0 +1,53 @@
+{
+ "model": "similarity",
+ "n_gcp": 719,
+ "median_residual_m": 51.75722106194358,
+ "p90_residual_m": 188.8656510238387,
+ "rmse_m": 174.46720388049957,
+ "max_residual_m": 1018.5013956824423,
+ "leave_one_out_mean_m": null,
+ "leave_one_out_max_m": null,
+ "panel_pixel_ground_size_m": 39.67955475991717,
+ "output_pixel_m": 40.0,
+ "grid": [
+  658,
+  527
+ ],
+ "bounds_model_m": [
+  -8040.0,
+  -11360.0,
+  18280.0,
+  9720.0
+ ],
+ "valid_cells": 121927,
+ "class_edges": [
+  20.0,
+  21.0,
+  22.0,
+  23.0,
+  24.0,
+  25.0,
+  26.0,
+  27.0,
+  28.0,
+  29.0,
+  30.0,
+  31.0,
+  32.0,
+  33.0,
+  34.0,
+  35.0,
+  36.0,
+  37.0,
+  38.0,
+  39.0,
+  40.0,
+  41.0,
+  42.0,
+  43.0,
+  44.0,
+  45.0,
+  46.0
+ ],
+ "crs_model": "+proj=tmerc +lat_0=35.699 +lon_0=-0.635 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs"
+}

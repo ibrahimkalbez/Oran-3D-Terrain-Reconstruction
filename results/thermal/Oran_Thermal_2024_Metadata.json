@@ -1,0 +1,253 @@
+{
+ "titre": "Carte thermique d'Oran du 10/07/2024 intégrée à la maquette blanche Rhino 8",
+ "date_donnees": "2024-07-10",
+ "grandeur": "Temperature de surface terrestre (LST)",
+ "unite": "degC",
+ "source": {
+  "document": "Oran_LST_multidates_source.jpg",
+  "sha256": "7568f218b3fc367afa0a45e6173104b6db04b3d2db2078742cd9dbbaf368342f",
+  "origine_declaree": "Figure issue de « Spatiotemporal Impact of Urbanization on Urban Heat Island Using Landsat Imagery in Oran, Algeria: 1984–2024 » (2025, https://www.researchgate.net/publication/390254230). Grandeur cartographiée : température de surface terrestre (LST) en °C, dérivée de Landsat (algorithme split-window pour OLI-TIRS). Pour le 10/07/2024 le capteur est Landsat 8/9 OLI-TIRS (infrarouge thermique natif 100 m, livré rééchantillonné à 30 m). Raster original non publié/accessible ici.",
+  "panneau_extrait_px": [
+   676,
+   1168,
+   1322,
+   1678
+  ],
+  "legende_px": [
+   1399,
+   1346,
+   1905,
+   1372
+  ],
+  "legende_min_max": [
+   20,
+   45
+  ]
+ },
+ "nature_des_valeurs": "Reconstruites à partir des couleurs de l'image (légende du document) ; approximatives, quantifiées par la légende ; ce ne sont pas les valeurs du raster original.",
+ "temperature": "Température de SURFACE terrestre (LST, Landsat) — ne pas confondre avec la température de l'air.",
+ "crs_modele": "+proj=tmerc +lat_0=35.699 +lon_0=-0.635 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs",
+ "crs_copie_SIG": "EPSG:32630",
+ "ancrage_rhino": {
+  "lat": 35.699,
+  "lon": -0.635
+ },
+ "resolution_sortie_m": 40.0,
+ "taille_pixel_image_au_sol_m": 39.7,
+ "georeferencement": {
+  "methode": "calage automatique trait de cote + centre du lac sur la maquette (script 21a)",
+  "modele": "similarity",
+  "n_points_controle": 719,
+  "ecart_median_m": 51.8,
+  "ecart_P90_m": 188.9,
+  "registration": {
+   "transform_kind": "similarity",
+   "px_to_model": [
+    [
+     -7356.088065614926,
+     39.659015324794545,
+     -1.276545891454612
+    ],
+    [
+     9714.442208879685,
+     -1.276545891454612,
+     -39.659015324794545
+    ]
+   ],
+   "pixel_convention": "panel pixel centre = (col + 0.5, row + 0.5)",
+   "scale_m_per_px": [
+    39.67955475991733,
+    39.67955475991733
+   ],
+   "rotation_deg": -1.8436022025945846,
+   "scalebar_m_per_px": 39.787798408488065,
+   "fit_similarity": {
+    "params": [
+     39.67955475991733,
+     -0.03217692853229505,
+     -7356.088065614926,
+     9714.442208879685
+    ],
+    "coast_points": 718,
+    "coast_median_m": 52.019597042780674,
+    "coast_rmse_m": 174.58039478706866,
+    "coast_p90_m": 189.64661548279398,
+    "lake_centroid_error_m": 45.511900479996264
+   },
+   "fit_affine": {
+    "coast_points": 718,
+    "coast_median_m": 39.637488934605614,
+    "coast_rmse_m": 161.07057802387953,
+    "coast_p90_m": 183.99776892823473,
+    "lake_centroid_error_m": 298.0890336857817
+   },
+   "fit_similarity_utm_rotation": {
+    "params": [
+     39.59882279531221,
+     -0.0240995063115377,
+     -7338.381867633359,
+     9625.217610572685
+    ],
+    "coast_points": 718,
+    "coast_median_m": 58.70748886007894,
+    "coast_rmse_m": 171.04374746130145,
+    "coast_p90_m": 196.69453370737835,
+    "lake_centroid_error_m": 149.53770776838334
+   },
+   "chosen_fit": {
+    "coast_points": 718,
+    "coast_median_m": 52.019597042780674,
+    "coast_rmse_m": 174.58039478706866,
+    "coast_p90_m": 189.64661548279398,
+    "lake_centroid_error_m": 45.511900479996264
+   },
+   "lake": {
+    "panel_px": [
+     261.95133991537375,
+     323.4055007052186
+    ],
+    "model_xy": [
+     2574.334326062643,
+     -3443.892463270192
+    ],
+    "panel_area_km2": 1.1162971497552023,
+    "model_area_km2": 1.2830610575481505
+   },
+   "check_runways_to_warm_pixels_m": {
+    "n": 462,
+    "median_m": 80.51987104464803,
+    "p90_m": 242.42016530410743
+   },
+   "sensitivity_m": {
+    "similarity_libre": {
+     "max": 0.0,
+     "mean": 0.0
+    },
+    "similarity_rotation_utm": {
+     "max": 171.13871552620427,
+     "mean": 103.52836406615408
+    }
+   }
+  }
+ },
+ "nodata": -9999,
+ "classes": [
+  20.0,
+  21.0,
+  22.0,
+  23.0,
+  24.0,
+  25.0,
+  26.0,
+  27.0,
+  28.0,
+  29.0,
+  30.0,
+  31.0,
+  32.0,
+  33.0,
+  34.0,
+  35.0,
+  36.0,
+  37.0,
+  38.0,
+  39.0,
+  40.0,
+  41.0,
+  42.0,
+  43.0,
+  44.0,
+  45.0,
+  46.0
+ ],
+ "maquette": {
+  "source": "Oran_maquette_blanche_complete_Rhino8.3dm",
+  "sha256": "d3d456df560e528d6341463cbbd3213a1ed2bd03f80f48d6a15e252320e27023",
+  "calque_thermique": "THERMAL_ORAN_2024_07_10",
+  "sous_calques": [
+   "THERMAL_ORAN_2024_07_10",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES",
+   "THERMAL_ORAN_2024_07_10::LIMITE_ZONE_ETUDIEE",
+   "THERMAL_ORAN_2024_07_10::LEGENDE_THERMIQUE",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_23-24",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_23-24",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_23-24",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_24-25",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_24-25",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_24-25",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_25-26",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_25-26",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_25-26",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_26-27",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_26-27",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_26-27",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_27-28",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_27-28",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_27-28",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_28-29",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_28-29",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_28-29",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_29-30",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_29-30",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_29-30",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_30-31",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_30-31",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_30-31",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_31-32",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_31-32",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_31-32",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_32-33",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_32-33",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_32-33",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_33-34",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_33-34",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_33-34",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_34-35",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_34-35",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_34-35",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_35-36",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_35-36",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_35-36",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_36-37",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_36-37",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_36-37",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_37-38",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_37-38",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_37-38",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_38-39",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_38-39",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_38-39",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_39-40",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_39-40",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_39-40",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_40-41",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_40-41",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_40-41",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_41-42",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_41-42",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_41-42",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_42-43",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_42-43",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_42-43",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_43-44",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_43-44",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_43-44",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_44-45",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_44-45",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_44-45",
+   "THERMAL_ORAN_2024_07_10::NUAGE_POINTS_THERMIQUE::NUAGE_45-46",
+   "THERMAL_ORAN_2024_07_10::SURFACE_THERMIQUE_TERRAIN::SURF_45-46",
+   "THERMAL_ORAN_2024_07_10::TOITURES_THERMIQUES::TOIT_45-46",
+   "THERMAL_ORAN_2024_07_10::ZONES_CHAUDES",
+   "THERMAL_ORAN_2024_07_10::ZONES_FRAICHES",
+   "THERMAL_ORAN_2024_07_10::GRILLE_1KM",
+   "THERMAL_ORAN_2024_07_10::GRILLE_1KM_VALEURS"
+  ]
+ },
+ "fichiers": {
+  "Oran_Thermal_2024_3D.3dm": "238ceb0466b07339495afbd623fae31c21e74f9a5b97725ec84d794a6accb987",
+  "Oran_Original_Backup.3dm": "d3d456df560e528d6341463cbbd3213a1ed2bd03f80f48d6a15e252320e27023"
+ }
+}

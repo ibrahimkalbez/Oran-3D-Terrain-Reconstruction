@@ -1,0 +1,32 @@
+{
+ "zip": "/home/user/work/pkg/ORAN_THERMAL_2024_COMPLETE.zip",
+ "zip_bytes": 530079274,
+ "missing_files": [],
+ "members": 42,
+ "crc_test_first_bad": null,
+ "Oran_Original_Backup.3dm": {
+  "opens": true,
+  "objects": 2510,
+  "thermal_layer": false
+ },
+ "Oran_Thermal_2024_3D.3dm": {
+  "opens": true,
+  "objects": 3084,
+  "thermal_layer": true
+ },
+ "zip_sha256": "417535af1736f270a93972d6ea3ae46a584794a6ff8a498afafda7533a9508c2",
+ "split_parts": [
+  "ORAN_THERMAL_2024_COMPLETE.zip.001",
+  "ORAN_THERMAL_2024_COMPLETE.zip.002",
+  "ORAN_THERMAL_2024_COMPLETE.zip.003",
+  "ORAN_THERMAL_2024_COMPLETE.zip.004",
+  "ORAN_THERMAL_2024_COMPLETE.zip.005",
+  "ORAN_THERMAL_2024_COMPLETE.zip.006",
+  "ORAN_THERMAL_2024_COMPLETE.zip.007",
+  "ORAN_THERMAL_2024_COMPLETE.zip.008",
+  "ORAN_THERMAL_2024_COMPLETE.zip.009",
+  "ORAN_THERMAL_2024_COMPLETE.zip.010",
+  "ORAN_THERMAL_2024_COMPLETE.zip.011",
+  "ORAN_THERMAL_2024_COMPLETE.zip.012"
+ ]
+}

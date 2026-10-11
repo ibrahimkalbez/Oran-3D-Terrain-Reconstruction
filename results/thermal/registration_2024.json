@@ -1,0 +1,89 @@
+{
+ "transform_kind": "similarity",
+ "px_to_model": [
+  [
+   -7356.088065614926,
+   39.659015324794545,
+   -1.276545891454612
+  ],
+  [
+   9714.442208879685,
+   -1.276545891454612,
+   -39.659015324794545
+  ]
+ ],
+ "pixel_convention": "panel pixel centre = (col + 0.5, row + 0.5)",
+ "scale_m_per_px": [
+  39.67955475991733,
+  39.67955475991733
+ ],
+ "rotation_deg": -1.8436022025945846,
+ "scalebar_m_per_px": 39.787798408488065,
+ "fit_similarity": {
+  "params": [
+   39.67955475991733,
+   -0.03217692853229505,
+   -7356.088065614926,
+   9714.442208879685
+  ],
+  "coast_points": 718,
+  "coast_median_m": 52.019597042780674,
+  "coast_rmse_m": 174.58039478706866,
+  "coast_p90_m": 189.64661548279398,
+  "lake_centroid_error_m": 45.511900479996264
+ },
+ "fit_affine": {
+  "coast_points": 718,
+  "coast_median_m": 39.637488934605614,
+  "coast_rmse_m": 161.07057802387953,
+  "coast_p90_m": 183.99776892823473,
+  "lake_centroid_error_m": 298.0890336857817
+ },
+ "fit_similarity_utm_rotation": {
+  "params": [
+   39.59882279531221,
+   -0.0240995063115377,
+   -7338.381867633359,
+   9625.217610572685
+  ],
+  "coast_points": 718,
+  "coast_median_m": 58.70748886007894,
+  "coast_rmse_m": 171.04374746130145,
+  "coast_p90_m": 196.69453370737835,
+  "lake_centroid_error_m": 149.53770776838334
+ },
+ "chosen_fit": {
+  "coast_points": 718,
+  "coast_median_m": 52.019597042780674,
+  "coast_rmse_m": 174.58039478706866,
+  "coast_p90_m": 189.64661548279398,
+  "lake_centroid_error_m": 45.511900479996264
+ },
+ "lake": {
+  "panel_px": [
+   261.95133991537375,
+   323.4055007052186
+  ],
+  "model_xy": [
+   2574.334326062643,
+   -3443.892463270192
+  ],
+  "panel_area_km2": 1.1162971497552023,
+  "model_area_km2": 1.2830610575481505
+ },
+ "check_runways_to_warm_pixels_m": {
+  "n": 462,
+  "median_m": 80.51987104464803,
+  "p90_m": 242.42016530410743
+ },
+ "sensitivity_m": {
+  "similarity_libre": {
+   "max": 0.0,
+   "mean": 0.0
+  },
+  "similarity_rotation_utm": {
+   "max": 171.13871552620427,
+   "mean": 103.52836406615408
+  }
+ }
+}
