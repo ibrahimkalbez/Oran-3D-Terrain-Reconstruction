@@ -45,13 +45,13 @@ function geomUV(a) { const n = a.length / 5, pos = new Float32Array(3 * n), uv =
 const scenes = {};
 async function build(k) {
   const sc = new THREE.Scene();
-  sc.background = new THREE.Color(0x9cc3e4); sc.fog = new THREE.Fog(0xb9d3ea, 1400, 4800);
+  sc.background = new THREE.Color(0x050607); sc.fog = new THREE.Fog(0x050607, 1800, 5200);   // black technical background
   sc.add(new THREE.HemisphereLight(0xdfefff, 0x8a7f6a, 0.9));
   const sun = new THREE.DirectionalLight(0xfff3df, 2.6);           // July afternoon, Oran (az ~250 deg, elevation ~50 deg)
   sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.6;
   sc.add(sun); sc.add(sun.target); sc.userData.sun = sun;
   const ter = await bin(`${k}_terrain.bin`); let m_ = new THREE.Mesh(geomUV(ter), material(12)); m_.receiveShadow = true; sc.add(m_);
-  const sea = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), new THREE.MeshStandardMaterial({ color: 0x2f6b8f, roughness: 0.25, metalness: 0.1 }));
+  const sea = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), new THREE.MeshStandardMaterial({ color: 0x15191d, roughness: 0.35, metalness: 0.1 }));
   sea.rotation.x = -Math.PI / 2; sea.position.y = 0.2; sc.add(sea);
   for (const [mi] of Object.entries(M.sectors[k].materials)) {
     const a = await bin(`${k}_mat${mi}.bin`); if (!a) continue;
