@@ -21,3 +21,5 @@ results/thermal_evolution/web/index.html
 results/thermal_evolution/web/render.mjs
 results/thermal_evolution/web/frames/
 results/cfd/wind/wind_hourly_clean.csv
+results/cfd/geometrie/ground.stl
+results/cfd/geometrie/urban_cover_100m.npz

@@ -1,0 +1,53 @@
+{
+ "source": "Oran_maquette_urbaine_detaillee_Rhino8.3dm",
+ "domain_m": [
+  -5500.0,
+  -4500.0,
+  11500.0,
+  5500.0
+ ],
+ "building_layers_used": [
+  "BUILDINGS_EMPRISES_REELLES_OSM_GOOGLE_MICROSOFT"
+ ],
+ "ground": {
+  "grid": [
+   697,
+   417
+  ],
+  "triangles": 579072,
+  "z_range": [
+   0.0,
+   430.31121826171875
+  ]
+ },
+ "buildings": {
+  "CENTRE_VILLE": {
+   "n": 1593,
+   "n_core": 776,
+   "triangles": 27413,
+   "h_median": 15.53,
+   "h_p95": 18.23399999999999,
+   "h_max": 61.48,
+   "lst2024_with_value": 1531
+  },
+  "GAMBETTA": {
+   "n": 1924,
+   "n_core": 1081,
+   "triangles": 31002,
+   "h_median": 15.364999999999998,
+   "h_p95": 17.0985,
+   "h_max": 116.56,
+   "lst2024_with_value": 1873
+  },
+  "BD_DES_LIONS": {
+   "n": 2385,
+   "n_core": 1365,
+   "triangles": 54788,
+   "h_median": 15.42,
+   "h_p95": 28.955999999999996,
+   "h_max": 37.08,
+   "lst2024_with_value": 2359
+  }
+ },
+ "thermal_alignment_correction": "thermal raster sampled at model + d(x,y), d ~ (+3.6, -32.7) m near the centre"
+}
