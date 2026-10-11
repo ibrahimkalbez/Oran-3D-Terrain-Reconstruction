@@ -77,7 +77,7 @@ def mesh_centres(case):
         t, h = body(pm / name)
         return np.fromstring(t[t.index("(", h) + 1:t.rindex(")")], sep=" ", dtype=np.int64)
     own, nei = ilist("owner"), ilist("neighbour")
-    nc = own.max() + 1
+    nc = int(max(own.max(), nei.max())) + 1
     C = np.zeros((nc, 3)); cnt = np.zeros(nc)
     np.add.at(C, own, fc[:len(own)]); np.add.at(cnt, own, 1)
     np.add.at(C, nei, fc[:len(nei)]); np.add.at(cnt, nei, 1)

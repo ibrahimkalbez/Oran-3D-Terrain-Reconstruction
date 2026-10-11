@@ -1,0 +1,69 @@
+{
+ "scenario": "S6_ete_NNO",
+ "solver": "OpenFOAM v1912 simpleFoam, RANS realizable k-epsilon",
+ "mesh_cells": 1448909,
+ "geo_dir": "/home/user/work/cfd/cases/S6_ref_coarse/constant/triSurface",
+ "bati": "principal",
+ "dir_from_deg": 337.5,
+ "U10_ref_ms": 5.83,
+ "U_scale_max": 11.7,
+ "units": {
+  "U": "m/s",
+  "p": "m2/s2 (pression cinématique)",
+  "T": "degC"
+ },
+ "iterations": 1200,
+ "final_residuals": {
+  "Ux": 0.0007540123,
+  "Uy": 0.0003841984,
+  "Uz": 0.001308222,
+  "p": 0.01177411,
+  "epsilon": 0.0002223234,
+  "k": 0.001692797
+ },
+ "mass_flux_in_m3s": -142755989.73797,
+ "mass_flux_out_m3s": 142756324.73299998,
+ "mass_imbalance_rel": 2.3466267902369025e-06,
+ "indicateurs_secteurs": {
+  "CENTRE_VILLE": {
+   "points_fluide_5m": 53563,
+   "surface_fluide_km2": 1.339075,
+   "U_moy": 2.0701094291616977,
+   "U_p90": 4.169750047415813,
+   "U_max": 9.245139795288964,
+   "K_moy_U_sur_Uref": 0.3550788043159001,
+   "pct_acceleration_U_sup_1.2Uref": 1.2695330732035173,
+   "pct_stagnation_U_inf_0.5": 10.352295427813976,
+   "pct_flux_inverse": 29.48863954595523,
+   "artefacts_exclus_U_sup_3Uref": 0,
+   "stabilite_iterative": null
+  },
+  "GAMBETTA": {
+   "points_fluide_5m": 82733,
+   "surface_fluide_km2": 2.068325,
+   "U_moy": 2.761183950999728,
+   "U_p90": 5.715384315958104,
+   "U_max": 10.961202704717659,
+   "K_moy_U_sur_Uref": 0.47361645814746617,
+   "pct_acceleration_U_sup_1.2Uref": 2.579381866969649,
+   "pct_stagnation_U_inf_0.5": 9.551206894467745,
+   "pct_flux_inverse": 24.181402825958205,
+   "artefacts_exclus_U_sup_3Uref": 0,
+   "stabilite_iterative": null
+  },
+  "BD_DES_LIONS": {
+   "points_fluide_5m": 143900,
+   "surface_fluide_km2": 3.5975,
+   "U_moy": 2.1642973209701197,
+   "U_p90": 4.401850583044222,
+   "U_max": 7.362231531442121,
+   "K_moy_U_sur_Uref": 0.37123453189881983,
+   "pct_acceleration_U_sup_1.2Uref": 0.001389854065323141,
+   "pct_stagnation_U_inf_0.5": 11.261987491313413,
+   "pct_flux_inverse": 19.538568450312717,
+   "artefacts_exclus_U_sup_3Uref": 0,
+   "stabilite_iterative": null
+  }
+ },
+ "streamlines": 126
+}
