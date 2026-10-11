@@ -1,0 +1,223 @@
+<!doctype html><html><head><meta charset="utf-8">
+<!-- Oran 1984 -> 2024 : evolution of the land-surface-temperature spot on the white Rhino
+     maquette (left, 3D) and the corresponding 2D plans (right). Rendered headless by render.mjs. -->
+<style>
+html,body{margin:0;width:1920px;height:1080px;background:#101418;overflow:hidden;font-family:'DejaVu Sans',sans-serif;color:#e8ecef}
+#c3d{position:absolute;left:0;top:0}
+#right{position:absolute;left:1200px;top:0;width:720px;height:1080px;background:#f4f4f2;color:#111}
+.cap{font-size:13px;color:#444;padding:4px 10px;height:18px}
+.imgbox{position:relative;width:720px}
+.imgbox img{position:absolute;left:0;top:0}
+#date{position:absolute;left:28px;top:20px;font:700 54px 'DejaVu Sans';letter-spacing:1px;text-shadow:0 2px 6px #000}
+#mode{position:absolute;left:30px;top:88px;font:16px 'DejaVu Sans';color:#cfd8dc}
+#ind{position:absolute;left:28px;top:122px;width:372px;background:rgba(10,14,18,.72);border-left:4px solid #e34a33;padding:10px 14px;font:14px 'DejaVu Sans Mono',monospace;line-height:21px;white-space:pre}
+#legend{position:absolute;left:870px;top:24px;width:300px}
+#legend .bar{height:14px;border:1px solid #ccc}
+#legend .t{display:flex;justify-content:space-between;font:12px 'DejaVu Sans Mono';margin-top:3px}
+#chart{position:absolute;left:0;top:852px;width:1200px;height:228px;background:rgba(10,14,18,.82)}
+#note{position:absolute;left:430px;top:122px;width:420px;font:12.5px 'DejaVu Sans';color:#b0bec5;line-height:17px}
+#title{position:absolute;left:0;top:0;width:1200px;height:852px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+#title h1{font:700 40px 'DejaVu Sans';margin:0 0 14px 0;text-shadow:0 2px 8px #000}
+#title p{font:17px 'DejaVu Sans';color:#dfe6ea;margin:4px;max-width:980px;text-shadow:0 1px 4px #000}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script></head>
+<body>
+<canvas id="c3d" width="1200" height="1080"></canvas>
+<div id="date"></div><div id="mode"></div><div id="ind"></div><div id="note"></div>
+<div id="legend"><div class="bar" id="lbar"></div><div class="t" id="lt"></div><div style="font:12px 'DejaVu Sans';margin-top:2px;color:#cfd8dc" id="lname">LST (°C)</div></div>
+<div id="title"></div>
+<svg id="chart" viewBox="0 0 1200 228"></svg>
+<div id="right">
+ <div class="cap" id="cap1">Document source — panneau original</div>
+ <div class="imgbox" style="height:520px"><img id="iA" width="660" style="left:30px"><img id="iB" width="660" style="left:30px"></div>
+ <div class="cap" id="cap2">Plan 2D géoréférencé dans le repère de la maquette</div>
+ <div class="imgbox" style="height:500px"><img id="pA" width="720"><img id="pB" width="720"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+const S = await (await fetch('scene.json')).json();
+const FPS = 25, D = S.dates, ND = D.length, G = S.grid, IND = S.ind;
+const fmt = d => `${d.slice(8)}/${d.slice(5,7)}/${d.slice(0,4)}`;
+const yearOf = d => +d.slice(0,4) + (+d.slice(5,7) - 1) / 12;
+// ---------------- timeline (frames)
+const seg = []; let f = 0;
+const add = (kind, n, o) => { seg.push({kind, a: f, b: f + n, ...o}); f += n; };
+add('intro', 5 * FPS); add('calage', 4 * FPS);
+for (let i = 0; i < ND; i++) { add('hold', 5 * FPS, {i}); if (i < ND - 1) add('morph', Math.round(1.6 * FPS), {i}); }
+add('diff', 7 * FPS); add('outro', 4 * FPS);
+window.N = f;
+// ---------------- renderer / scene
+const r = new THREE.WebGLRenderer({canvas: document.getElementById('c3d'), antialias: true, preserveDrawingBuffer: true});
+r.setSize(1200, 1080, false);
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x101418);
+scene.fog = new THREE.Fog(0x101418, 30000, 60000);
+const cam = new THREE.PerspectiveCamera(38, 1200 / 1080, 50, 90000);
+async function bin(u, T) { return new T(await (await fetch(u)).arrayBuffer()); }
+const nx = G.nx, ny = G.ny;
+const texs = [];
+for (let i = 0; i < ND; i++) {
+  const t = new THREE.DataTexture(await bin(`lst_${i}.bin`, Float32Array), nx, ny, THREE.RedFormat, THREE.FloatType);
+  t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; texs.push(t);
+}
+const tD = new THREE.DataTexture(await bin('lst_diff.bin', Float32Array), nx, ny, THREE.RedFormat, THREE.FloatType);
+tD.minFilter = tD.magFilter = THREE.NearestFilter; tD.needsUpdate = true;
+const lutData = new Uint8Array(S.lut.rgb.length * 4);
+S.lut.rgb.forEach((c, k) => lutData.set([c[0], c[1], c[2], 255], 4 * k));
+const lutT = new THREE.DataTexture(lutData, S.lut.rgb.length, 1, THREE.RGBAFormat);
+lutT.minFilter = lutT.magFilter = THREE.LinearFilter; lutT.needsUpdate = true;
+const U = {texA: {value: texs[0]}, texB: {value: texs[0]}, texD: {value: tD}, mixT: {value: 0}, lut: {value: lutT},
+  vmin: {value: S.lut.v[0]}, vmax: {value: S.lut.v[S.lut.v.length - 1]}, whiteMix: {value: 1}, diffMode: {value: 0},
+  g0: {value: new THREE.Vector4(G.x0, G.y1, G.res, 0)}, gn: {value: new THREE.Vector2(nx, ny)},
+  L: {value: new THREE.Vector3(-0.45, 0.8, 0.4).normalize()}, base: {value: new THREE.Color(0xe9e9e6)},
+  T0: {value: 35.0}, K: {value: 70.0}, KD: {value: 55.0}};
+const common = /* glsl */`
+uniform sampler2D texA, texB, texD, lut; uniform float mixT, vmin, vmax, whiteMix, diffMode;
+uniform vec4 g0; uniform vec2 gn;
+float val(vec2 xy, out bool ok){ // model metres -> LST of the current (morphed) date
+  vec2 uv = vec2((xy.x - g0.x) / (gn.x * g0.z), (g0.y - xy.y) / (gn.y * g0.z));
+  ok = all(greaterThanEqual(uv, vec2(0.))) && all(lessThan(uv, vec2(1.)));
+  if (diffMode > .5) { float d = texture2D(texD, uv).r; ok = ok && d > -90.; return d; }
+  float a = texture2D(texA, uv).r, b = texture2D(texB, uv).r; ok = ok && a > 0. && b > 0.;
+  return mix(a, b, mixT); }
+vec3 lstColor(float v){ return texture2D(lut, vec2(clamp((v - vmin) / (vmax - vmin), 0., 1.), .5)).rgb; }
+vec3 divColor(float d){ float t = clamp(d / 15., -1., 1.);
+  return t > 0. ? mix(vec3(.97), vec3(.70, .02, .09), t) : mix(vec3(.97), vec3(.13, .40, .67), -t); }`;
+function surfMat() {
+  return new THREE.ShaderMaterial({uniforms: U, side: THREE.DoubleSide,
+    vertexShader: `varying vec3 wp; varying vec3 wn; void main(){ wp = (modelMatrix * vec4(position,1.)).xyz;
+      wn = normalize(mat3(modelMatrix) * normal); gl_Position = projectionMatrix * viewMatrix * vec4(wp,1.); }`,
+    fragmentShader: common + `uniform vec3 L, base; varying vec3 wp; varying vec3 wn;
+      void main(){ bool ok; float v = val(vec2(wp.x, -wp.z), ok);
+        vec3 c = base; if (ok) c = diffMode > .5 ? divColor(v) : lstColor(v);
+        c = mix(c, base, whiteMix);
+        float sh = .50 + .55 * max(dot(normalize(wn), L), 0.) + .08 * wn.y;
+        gl_FragColor = vec4(c * sh, 1.); }`});
+}
+// terrain
+const tp = await bin('terrain_pos.bin', Float32Array), ti = await bin('terrain_idx.bin', Uint32Array);
+let g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(tp, 3));
+g.setIndex(new THREE.BufferAttribute(ti, 1)); g.computeVertexNormals();
+scene.add(new THREE.Mesh(g, surfMat()));
+// sea
+const sea = new THREE.Mesh(new THREE.PlaneGeometry(80000, 80000), new THREE.MeshBasicMaterial({color: 0x1d3446}));
+sea.rotation.x = -Math.PI / 2; sea.position.y = 0.5; scene.add(sea);
+// buildings of the maquette (roofs/walls take the LST of the cell below them)
+const bp = await bin('bld_pos.bin', Float32Array);
+g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(bp, 3)); g.computeVertexNormals();
+const bmat = surfMat(); scene.add(new THREE.Mesh(g, bmat));
+// 3D heat spots: one vertex per 40 m cell, raised by K m per degC above T0 (diff mode: KD m per degC of warming)
+const tz = await bin('tz_grid.bin', Float32Array);
+const pos = new Float32Array(nx * ny * 3), cell = new Float32Array(nx * ny * 2);
+for (let r_ = 0; r_ < ny; r_++) for (let c_ = 0; c_ < nx; c_++) { const k = r_ * nx + c_;
+  pos.set([G.x0 + (c_ + .5) * G.res, tz[k], -(G.y1 - (r_ + .5) * G.res)], 3 * k); cell.set([c_, r_], 2 * k); }
+const idx = []; for (let r_ = 0; r_ < ny - 1; r_++) for (let c_ = 0; c_ < nx - 1; c_++) { const k = r_ * nx + c_;
+  idx.push(k, k + nx, k + 1, k + 1, k + nx, k + nx + 1); }
+g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+g.setAttribute('cell', new THREE.BufferAttribute(cell, 2)); g.setIndex(idx);
+const spotMat = new THREE.ShaderMaterial({uniforms: U, side: THREE.DoubleSide, transparent: true,
+  vertexShader: common + `uniform float T0, K, KD; attribute vec2 cell; varying float amt; varying float vv; varying vec3 nn;
+    float h(vec2 c, out bool ok){ vec2 xy = vec2(g0.x + (c.x + .5) * g0.z, g0.y - (c.y + .5) * g0.z); float v = val(xy, ok);
+      return diffMode > .5 ? max(v, 0.) * KD : max(v - T0, 0.) * K; }
+    void main(){ bool ok, o1, o2; float hh = h(cell, ok); vec2 xy = vec2(g0.x + (cell.x + .5) * g0.z, g0.y - (cell.y + .5) * g0.z);
+      vv = val(xy, ok); amt = ok ? hh : -1.;
+      float hx = h(cell + vec2(1., 0.), o1) - h(cell - vec2(1., 0.), o2), hy = h(cell + vec2(0., 1.), o1) - h(cell - vec2(0., 1.), o2);
+      nn = normalize(vec3(-hx, 2. * g0.z, hy));
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position + vec3(0., 6. + hh, 0.), 1.); }`,
+  fragmentShader: common + `uniform vec3 L; uniform float T0; varying float amt; varying float vv; varying vec3 nn;
+    void main(){ if (amt < 4.) discard; vec3 c = diffMode > .5 ? divColor(vv) : lstColor(vv);
+      float sh = .55 + .6 * max(dot(normalize(nn), L), 0.); gl_FragColor = vec4(c * sh, (1. - whiteMix) * .93); }`});
+const spots = new THREE.Mesh(g, spotMat); scene.add(spots);
+// hot-zone outlines (>= P90 of each date) draped on the relief
+const zl = [];
+for (let i = 0; i < ND; i++) { const zp = await bin(`zones_${i}.bin`, Float32Array);
+  const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.BufferAttribute(zp, 3));
+  const l = new THREE.LineSegments(gg, new THREE.LineBasicMaterial({color: 0x000000})); l.visible = false; scene.add(l); zl.push(l); }
+// ---------------- HUD
+const lb = document.getElementById('lbar');
+lb.style.background = `linear-gradient(90deg,${S.lut.rgb.map(c => `rgb(${c})`).join(',')})`;
+document.getElementById('lt').innerHTML = [25, 30, 35, 40, 45].map(v => `<span>${v}</span>`).join('');
+const svg = document.getElementById('chart');
+const y0 = 1984, y1 = 2025, X = y => 90 + (y - y0) / (y1 - y0) * 1060;
+const keys = [['moyenne', '#ffd54f', 'moyenne'], ['P90', '#ef5350', 'P90'], ['P10', '#4fc3f7', 'P10']];
+const allv = IND.flatMap(o => [o.P10, o.P90]); const vmn = Math.floor(Math.min(...allv)) - 1, vmx = Math.ceil(Math.max(...allv)) + 1;
+const Y = v => 200 - (v - vmn) / (vmx - vmn) * 160;
+let sv = `<text x="20" y="22" fill="#cfd8dc" font-size="14">LST de la zone d'étude (°C) — moyenne, P10, P90 — et part > 40 °C (barres, %)</text>`;
+for (let v = Math.ceil(vmn); v <= vmx; v += 2) sv += `<line x1="90" x2="1150" y1="${Y(v)}" y2="${Y(v)}" stroke="#37474f" stroke-width="1"/><text x="58" y="${Y(v) + 4}" fill="#90a4ae" font-size="11">${v}</text>`;
+IND.forEach(o => { const x = X(yearOf(o.date)); const hpx = o.pct_sup_40 * 3;
+  sv += `<rect x="${x - 7}" y="${200 - hpx}" width="14" height="${hpx}" fill="#b71c1c" opacity=".55"/>`
+      + `<text x="${x}" y="218" fill="#cfd8dc" font-size="12" text-anchor="middle">${o.date.slice(0, 4)}</text>`; });
+for (const [k, col] of keys) sv += `<polyline fill="none" stroke="${col}" stroke-width="2.4" points="${IND.map(o => `${X(yearOf(o.date))},${Y(o[k])}`).join(' ')}"/>`
+  + IND.map(o => `<circle cx="${X(yearOf(o.date))}" cy="${Y(o[k])}" r="4" fill="${col}"/>`).join('');
+sv += keys.map(([k, col, n], j) => `<text x="${830 + j * 105}" y="22" fill="${col}" font-size="13">■ ${n}</text>`).join('');
+sv += `<line id="cur" x1="0" x2="0" y1="30" y2="205" stroke="#fff" stroke-width="2"/>`;
+svg.innerHTML = sv;
+const $ = id => document.getElementById(id);
+function indText(o) {
+  return `moyenne        ${o.moyenne.toFixed(1)} °C\nmédiane        ${o.mediane.toFixed(1)} °C\n` +
+    `P10 / P90      ${o.P10.toFixed(1)} / ${o.P90.toFixed(1)} °C\nécart-type     ${o.ecart_type.toFixed(1)} °C\n` +
+    `> 35 °C        ${o.pct_sup_35.toFixed(1)} % de la zone\n> 40 °C        ${o.pct_sup_40.toFixed(1)} %  (${o.km2_sup_40.toFixed(1)} km²)\n` +
+    `ICU surface    ${o.suhi_bati_moins_non_bati >= 0 ? '+' : ''}${o.suhi_bati_moins_non_bati.toFixed(2)} °C (bâti − non bâti)\n` +
+    `zones ≥ P90    ${o.km2_zones_chaudes_P90.toFixed(1)} km², ${o.n_zones_chaudes_4px} taches\n` +
+    `centre chaleur ${o.centre_lat.toFixed(4)} N ${(-o.centre_lon).toFixed(4)} O`;
+}
+const NOTE = 'Maquette blanche Rhino 8 (relief Copernicus GLO-30, bâtiments OSM) — repère TM local, m.<br>' +
+  'LST Landsat (°C) reconstruite depuis la figure : couleur → valeur par la légende, ΔE médian ≈ 1,4.<br>' +
+  'Calage côte + Petit Lac : écart médian 52 m. Maille 40 m. Taches 3D : +70 m par °C au-dessus de 35 °C.<br>' +
+  'ICU = indicateur : bâti actuel (OSM) appliqué à toutes les dates.';
+function setImgs(a, b, t, pre1, pre2) {
+  $('iA').src = a[0]; $('iB').src = b[0]; $('iB').style.opacity = t;
+  $('pA').src = a[1]; $('pB').src = b[1]; $('pB').style.opacity = t;
+}
+// camera: orbit around the study area (model metres)
+const C = [3000, -1500];
+function camAt(th, R, H, tgtZ = 0) { const t = th * Math.PI / 180;
+  cam.position.set(C[0] + R * Math.cos(t), H, -(C[1] + R * Math.sin(t))); cam.lookAt(C[0], tgtZ, -C[1]); }
+const lerp = (a, b, t) => a + (b - a) * t, ease = t => t * t * (3 - 2 * t);
+const holdStart = seg.find(s => s.kind === 'hold').a, holdEnd = seg.filter(s => s.kind === 'hold' || s.kind === 'morph').at(-1).b;
+window.renderFrame = (fr) => {
+  const s = seg.find(q => fr >= q.a && fr < q.b) || seg.at(-1); const u = (fr - s.a) / Math.max(1, s.b - s.a - 1);
+  U.diffMode.value = 0; U.mixT.value = 0; zl.forEach(l => l.visible = false);
+  $('title').innerHTML = ''; $('note').innerHTML = NOTE; $('cur').setAttribute('x1', -10); $('cur').setAttribute('x2', -10);
+  $('lname').textContent = 'LST (°C) — légende du document';
+  if (s.kind === 'intro' || s.kind === 'calage') {
+    U.whiteMix.value = s.kind === 'intro' ? 1 : 1 - ease(u); U.texA.value = U.texB.value = texs[0];
+    camAt(lerp(70, 100, (fr) / (seg[1].b)), lerp(26000, 21000, fr / seg[1].b), lerp(15000, 10500, fr / seg[1].b));
+    $('date').textContent = s.kind === 'intro' ? 'ORAN 1984 → 2024' : fmt(D[0]);
+    $('mode').textContent = s.kind === 'intro' ? 'Maquette numérique blanche (Rhino 8) — état initial' : 'Correspondance 2D ↔ 3D : calage des plans sur la maquette';
+    $('ind').textContent = s.kind === 'intro' ? 'Données : 8 dates de la figure\n1984 · 2000 · 2004 · 2010 · 2015\n2020 · 2023 · 2024' : indText(IND[0]);
+    if (s.kind === 'intro') $('title').innerHTML = '<h1>Évolution de la tache de chaleur d\'Oran</h1><p>Température de surface (LST, Landsat) 1984 – 2024 projetée sur la maquette numérique Rhino</p><p>gauche : maquette 3D et taches de chaleur en relief — droite : plans 2D (document source + plan géoréférencé)</p>';
+    $('cap1').textContent = 'Document source — figure complète (8 dates)'; $('cap2').textContent = 'Contrôle du calage : côte, port, pistes et lac de la maquette sur le plan 2024';
+    setImgs(['fig.jpg', 'calage.png'], ['fig.jpg', 'calage.png'], 0);
+  } else if (s.kind === 'hold' || s.kind === 'morph') {
+    U.whiteMix.value = 0; const i = s.i, j = s.kind === 'morph' ? i + 1 : i, t = s.kind === 'morph' ? ease(u) : 0;
+    U.texA.value = texs[i]; U.texB.value = texs[j]; U.mixT.value = t;
+    if (s.kind === 'hold') zl[i].visible = true;
+    const w = (fr - holdStart) / (holdEnd - holdStart); camAt(lerp(100, 245, w), lerp(21000, 17500, Math.sin(w * Math.PI)), lerp(10500, 8200, Math.sin(w * Math.PI)));
+    const dt = t < .5 ? D[i] : D[j]; $('date').textContent = fmt(dt);
+    $('mode').textContent = s.kind === 'morph' ? `transition ${D[i].slice(0, 4)} → ${D[j].slice(0, 4)} (interpolation linéaire, visuelle)` : 'LST absolue — contour noir : zones ≥ P90 de la date';
+    $('ind').textContent = indText(IND[t < .5 ? i : j]);
+    const yr = lerp(yearOf(D[i]), yearOf(D[j]), t); $('cur').setAttribute('x1', X(yr)); $('cur').setAttribute('x2', X(yr));
+    $('cap1').textContent = `Document source — panneau original du ${fmt(dt)}`; $('cap2').textContent = 'Plan 2D géoréférencé (repère maquette) — même donnée que la maquette 3D';
+    setImgs([`panel_${i}.png`, `plan_${i}.png`], [`panel_${j}.png`, `plan_${j}.png`], t);
+  } else if (s.kind === 'diff') {
+    U.whiteMix.value = 0; U.diffMode.value = 1; camAt(lerp(245, 290, u), 16500, lerp(8200, 9000, u));
+    $('date').textContent = '2024 − 1984'; $('mode').textContent = 'Réchauffement de surface par cellule de 40 m (taches 3D : +55 m par °C)';
+    $('lname').textContent = 'ΔLST (°C) : bleu = refroidissement, rouge = réchauffement';
+    const a = IND[0], b = IND[ND - 1];
+    $('ind').textContent = `Δ moyenne      ${(b.moyenne - a.moyenne >= 0 ? '+' : '')}${(b.moyenne - a.moyenne).toFixed(1)} °C\nΔ P90          ${(b.P90 - a.P90 >= 0 ? '+' : '')}${(b.P90 - a.P90).toFixed(1)} °C\n> 40 °C        ${a.pct_sup_40.toFixed(1)} % → ${b.pct_sup_40.toFixed(1)} %\nICU surface    ${a.suhi_bati_moins_non_bati.toFixed(2)} → ${b.suhi_bati_moins_non_bati.toFixed(2)} °C\n\nAttention : 2 acquisitions isolées\n(conditions météo du jour incluses)`;
+    $('cap1').textContent = 'Plan 2D : différence 2024 − 1984'; $('cap2').textContent = 'Plan 2D géoréférencé — 10/07/2024';
+    setImgs(['plan_diff.png', `plan_${ND - 1}.png`], ['plan_diff.png', `plan_${ND - 1}.png`], 0);
+  } else {
+    U.whiteMix.value = 0; U.texA.value = U.texB.value = texs[ND - 1]; zl[ND - 1].visible = true;
+    camAt(290, lerp(16500, 24000, ease(u)), lerp(9000, 17000, ease(u)));
+    $('date').textContent = 'Synthèse 1984 → 2024'; $('mode').textContent = 'LST 10/07/2024 — maquette numérique Rhino';
+    $('ind').textContent = indText(IND[ND - 1]);
+    $('title').innerHTML = '<p style="margin-top:420px">Sources : figure LST 1984–2024 (Landsat) · maquette blanche Rhino 8 · Copernicus GLO-30 · OSM</p><p>Valeurs approximatives (lecture des couleurs de la figure) — température de SURFACE, pas de l\'air</p>';
+    $('cap1').textContent = 'Document source — panneau original du 10/07/2024'; $('cap2').textContent = 'Plan 2D : différence 2024 − 1984';
+    setImgs([`panel_${ND - 1}.png`, 'plan_diff.png'], [`panel_${ND - 1}.png`, 'plan_diff.png'], 0);
+  }
+  r.render(scene, cam);
+  return new Promise(res => { const imgs = [...document.images]; Promise.all(imgs.map(im => im.complete ? 0 : new Promise(q => { im.onload = im.onerror = q; }))).then(() => res(true)); });
+};
+window.ready = true;
+</script></body></html>
