@@ -1,0 +1,63 @@
+{
+ "scenario": "S6_ete_NNO",
+ "solver": "OpenFOAM v1912 simpleFoam, RANS realizable k-epsilon",
+ "mesh_cells": 1359902,
+ "geo_dir": "/home/user/work/cfd/cases/S6_coarse/constant/triSurface",
+ "bati": "reelles (variante de sensibilite, emprises incompletes)",
+ "dir_from_deg": 337.5,
+ "U10_ref_ms": 5.83,
+ "U_scale_max": 11.7,
+ "units": {
+  "U": "m/s",
+  "p": "m2/s2 (pression cinématique)",
+  "T": "degC"
+ },
+ "iterations": 1000,
+ "final_residuals": {
+  "Ux": 0.0008216444,
+  "Uy": 0.0004158189,
+  "Uz": 0.001530155,
+  "p": 0.01573599,
+  "epsilon": NaN,
+  "k": NaN
+ },
+ "mass_flux_in_m3s": -142803328.27769,
+ "mass_flux_out_m3s": 142801360.7876,
+ "mass_imbalance_rel": 1.3777620687921508e-05,
+ "indicateurs_secteurs": {
+  "CENTRE_VILLE": {
+   "points_fluide_5m": 79549,
+   "surface_fluide_km2": 1.988725,
+   "U_moy": 2.8359520670443286,
+   "U_p90": 5.212013120511203,
+   "U_max": 9.966590234556246,
+   "K_moy_U_sur_Uref": 0.48644117788067387,
+   "pct_acceleration_U_sup_1.2Uref": 2.379665363486656,
+   "pct_stagnation_U_inf_0.5": 4.362091289645376,
+   "pct_flux_inverse": 15.074985229229783
+  },
+  "GAMBETTA": {
+   "points_fluide_5m": 103758,
+   "surface_fluide_km2": 2.59395,
+   "U_moy": 2.9757581401101523,
+   "U_p90": 5.822501818930985,
+   "U_max": 10.869188139829252,
+   "K_moy_U_sur_Uref": 0.5104216363825304,
+   "pct_acceleration_U_sup_1.2Uref": 3.378052776653367,
+   "pct_stagnation_U_inf_0.5": 5.076235085487384,
+   "pct_flux_inverse": 12.444341641126467
+  },
+  "BD_DES_LIONS": {
+   "points_fluide_5m": 153151,
+   "surface_fluide_km2": 3.828775,
+   "U_moy": 2.356779005714027,
+   "U_p90": 4.525755918756263,
+   "U_max": 65.74172029409277,
+   "K_moy_U_sur_Uref": 0.40425025826998745,
+   "pct_acceleration_U_sup_1.2Uref": 0.02611801424737677,
+   "pct_stagnation_U_inf_0.5": 9.204641171131758,
+   "pct_flux_inverse": 17.663613035500912
+  }
+ },
+ "streamlines": 126
+}

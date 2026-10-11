@@ -135,6 +135,10 @@ def main():
         Q = Q[fluid(Q)]
         r = interp(Q)
         Um = np.linalg.norm(r["U"], axis=1)
+        # numerical artefacts: isolated values > 3 Uref (a few distorted cells) are reported and excluded
+        art = Um > 3.0 * uref
+        if art.any():
+            Q, Um, r = Q[~art], Um[~art], {kk: (vv[~art] if hasattr(vv, "__len__") and len(vv) == len(art) else vv) for kk, vv in r.items()}
         along = r["U"][:, :2] @ flow[:2]
         for j in range(len(Q)):
             rows.append([k, *Q[j], Um[j], *r["U"][j], r["p"][j], (r["T"][j] if T is not None else np.nan)])
@@ -142,7 +146,8 @@ def main():
                   "U_p90": float(np.percentile(Um, 90)), "U_max": float(Um.max()), "K_moy_U_sur_Uref": float(Um.mean() / uref),
                   "pct_acceleration_U_sup_1.2Uref": float(100 * (Um > 1.2 * uref).mean()),
                   "pct_stagnation_U_inf_0.5": float(100 * (Um < 0.5).mean()),
-                  "pct_flux_inverse": float(100 * (along < 0).mean())}
+                  "pct_flux_inverse": float(100 * (along < 0).mean()),
+                  "artefacts_exclus_U_sup_3Uref": int(art.sum())}
         if T is not None:
             ind[k].update({"T_air_2m_moy_C": float(r["T"].mean()), "T_air_2m_p90_C": float(np.percentile(r["T"], 90)),
                            "T_air_2m_max_C": float(r["T"].max())})
@@ -221,7 +226,7 @@ def main():
     m = {"scenario": sid, "solver": "OpenFOAM v1912 " + ("buoyantBoussinesqSimpleFoam" if th else "simpleFoam") + ", RANS realizable k-epsilon",
          "mesh_cells": int(len(C)), "geo_dir": str(tri_dir), "bati": meta.get("bati", "?"), "dir_from_deg": sc["dir_from_deg"], "U10_ref_ms": uref, "U_scale_max": round(2.0 * uref, 1),
          "units": {"U": "m/s", "p": "m2/s2 (pression cinématique)", "T": "degC"}, "iterations": int(times[-1]),
-         "final_residuals": {k: v[-1] for k, v in res.items() if k != "iter"}, "mass_flux_in_m3s": mass["in"],
+         "final_residuals": {k: next((x for x in reversed(v) if x == x), None) for k, v in res.items() if k != "iter"}, "mass_flux_in_m3s": mass["in"],
          "mass_flux_out_m3s": mass["out"], "mass_imbalance_rel": imb, "indicateurs_secteurs": ind, "streamlines": len(lines)}
     (out / f"meta_{sid}.json").write_text(json.dumps(m, indent=1, ensure_ascii=False))
     (out / f"residus_{sid}.json").write_text(json.dumps(res))
