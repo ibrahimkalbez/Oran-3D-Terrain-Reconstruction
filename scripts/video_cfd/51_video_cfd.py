@@ -67,8 +67,8 @@ def overview_map(out):
     fig.tight_layout(); fig.savefig(out, facecolor=fig.get_facecolor()); plt.close(fig)
 
 
-def mesh_slice(out, case="mesh_ref_coarse"):
-    """Vertical slice of the cell size through Gambetta (from cell volumes)."""
+def mesh_slice(out, case="S6_ref_coarse"):
+    """Vertical slice of the cell size through Gambetta (mesh_ref_coarse, read from a solved case whose polyMesh is ascii)."""
     import importlib.util
     sp = importlib.util.spec_from_file_location("pp", ROOT / "scripts/cfd/45_postprocess.py"); pp = importlib.util.module_from_spec(sp); sp.loader.exec_module(pp)
     c = CASES / case
