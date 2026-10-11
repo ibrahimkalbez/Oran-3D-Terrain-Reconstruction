@@ -139,6 +139,23 @@ mpirun --allow-run-as-root --oversubscribe -np 4 snappyHexMesh -overwrite -paral
 reconstructParMesh -constant > log.reconstructParMesh 2>&1 || exit 1
 rm -rf processor*
 checkMesh -allGeometry -allTopology > log.checkMesh 2>&1
+# remove only the CRITICAL cells (negative volume, inverted faces, non-orthogonality > 90 deg);
+# their exposed faces join the ground patch. Other warnings (skewness, concavity) are kept.
+cat > system/topoSetDict <<EOT
+FoamFile {{ version 2.0; format ascii; class dictionary; object topoSetDict; }}
+actions
+(
+  {{ name badF; type faceSet; action new; source faceToFace; sets (wrongOrientedFaces nonOrthoFaces); }}
+  {{ name keep; type cellSet; action new; source faceToCell; set badF; option any; }}
+  {{ name keep; type cellSet; action add; source cellToCell; sets (zeroVolumeCells); }}
+  {{ name keep; type cellSet; action invert; }}
+);
+EOT
+for s in wrongOrientedFaces nonOrthoFaces zeroVolumeCells; do [ -f constant/polyMesh/sets/$s ] || echo "skip $s"; done
+topoSet > log.topoSet 2>&1 && subsetMesh keep -patch ground -overwrite > log.subsetMesh 2>&1
+rm -rf constant/polyMesh/sets
+checkMesh -allGeometry -allTopology > log.checkMesh.final 2>&1
+foamMeshToFluent > log.foamMeshToFluent 2>&1
 echo MESH_DONE
 """)
     (case / "Allmesh").chmod(0o755)
