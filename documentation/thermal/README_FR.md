@@ -60,7 +60,7 @@ python scripts/thermal/22_thermal_to_rhino.py <maquette_blanche.3dm> <dossier_so
 python scripts/thermal/23_statistics_2024.py
 python scripts/thermal/24_previews_metadata_validation.py <dossier_sortie>
 python scripts/thermal/24b_rapport_2024.py
-python scripts/thermal/25_package_2024.py <dossier_sortie> <dossier_paquet> 45
+python scripts/thermal/25_package_2024.py <dossier_sortie> <dossier_paquet> 28
 ```
 
 Tous les réglages (cadrage du panneau, graduations de la légende, paramètres du calage automatique) se trouvent dans `data/thermal/thermal_config.json`.
