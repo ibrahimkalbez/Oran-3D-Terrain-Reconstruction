@@ -11,7 +11,8 @@ transferred to the upstream roughness through a blending height of 60 m (log-law
 
 Usage:
   python 44_case_openfoam.py mesh  <case_dir> <coarse|medium>
-  python 44_case_openfoam.py setup <case_dir> <scenario_id> [--thermal]   (after the mesh)
+  python 44_case_openfoam.py setup <case_dir> <scenario_id> [--thermal] [--init-from <converged_case>]   (after the mesh)
+  --init-from: start from the converged isothermal fields (U, k, epsilon, nut, p -> p_rgh) of a case on the same mesh
 """
 import json
 import math
@@ -377,7 +378,7 @@ libs ("libatmosphericModels.so");
 // (IOstream "sha1" error); residuals, mass balance and sampling are computed by 45_postprocess.py
 """)
     div = ("div(phi,U) bounded Gauss linearUpwind grad(U);\n div(phi,k) bounded Gauss upwind;\n div(phi,epsilon) bounded Gauss upwind;\n"
-           " div((nuEff*dev2(T(grad(U))))) Gauss linear;\n div(phi,T) bounded Gauss linearUpwind grad(T);\n")
+           " div((nuEff*dev2(T(grad(U))))) Gauss linear;\n div(phi,T) bounded Gauss {'upwind' if thermal else 'linearUpwind grad(T)'};\n")
     w(case / "system/fvSchemes", "dictionary", "fvSchemes", f"""
 ddtSchemes {{ default steadyState; }}
 gradSchemes {{ default Gauss linear; grad(U) cellLimited Gauss linear 1; }}
@@ -395,9 +396,9 @@ solvers
     {pn} {{ solver GAMG; smoother GaussSeidel; tolerance 1e-7; relTol 0.05; }}
     "(U|k|epsilon|T)" {{ solver smoothSolver; smoother symGaussSeidel; tolerance 1e-8; relTol 0.1; }}
 }}
-SIMPLE {{ nNonOrthogonalCorrectors 1; consistent no; {"pRefCell 0; pRefValue 0;" if thermal else ""}
+SIMPLE {{ nNonOrthogonalCorrectors {2 if thermal else 1}; consistent no; {"pRefCell 0; pRefValue 0;" if thermal else ""}
     residualControl {{ {pn} 1e-4; U 1e-5; "(k|epsilon)" 1e-5; {"T 1e-6;" if thermal else ""} }} }}
-relaxationFactors {{ fields {{ {pn} 0.3; }} equations {{ U 0.6; "(k|epsilon)" 0.6; {"T 0.6;" if thermal else ""} }} }}
+relaxationFactors {{ fields {{ {pn} {0.2 if thermal else 0.3}; }} equations {{ U {0.4 if thermal else 0.6}; "(k|epsilon)" {0.4 if thermal else 0.6}; {"T 0.4;" if thermal else ""} }} }}
 """)
     bati = json.loads((GEO / "geometrie_report.json").read_text()).get("bati", "reelles") if (GEO / "geometrie_report.json").exists() else "?"
     meta = {"scenario": sc, "bati": bati, "flow_to": flow.tolist(), "roles": roles, "Ublend_60m": Ublend, "ustar_airport": ustar_ap,
@@ -524,8 +525,34 @@ boundaryField
     (case / "thermal_bc.json").write_text(json.dumps(rep, indent=1))
 
 
+def internal_block(text):
+    """'internalField ...;' entry of an ascii OpenFOAM field file (uniform or nonuniform list)."""
+    i = text.index("internalField"); j = text.index("boundaryField", i)
+    return text[i:text.rindex(";", i, j) + 1]
+
+
+def init_from(case, src):
+    """Thermal model B stabilisation: the first thermal run started from rest diverged (k/epsilon unbounded from
+    iteration 95). Start instead from the converged isothermal solution on the same mesh, keeping the
+    boundary conditions written by setup()."""
+    case, src = Path(case), Path(src)
+    last = max((d for d in src.iterdir() if d.name.replace(".", "").isdigit() and d.name != "0"), key=lambda d: float(d.name))
+    for f, fs in (("U", "U"), ("k", "k"), ("epsilon", "epsilon"), ("nut", "nut"), ("p_rgh", "p")):
+        dst = case / "0" / f
+        t = dst.read_text()
+        dst.write_text(t.replace(internal_block(t), internal_block((last / fs).read_text())))
+    meta = json.loads((case / "scenario.json").read_text())
+    # the flow is already developed: 1000 iterations (stability checked between the last two written times)
+    cd = case / "system/controlDict"; cd.write_text(cd.read_text().replace("endTime 1500;", "endTime 1000;"))
+    meta["init_from"] = f"{src.name}/{last.name}"
+    (case / "scenario.json").write_text(json.dumps(meta, indent=1, ensure_ascii=False))
+    print("initialised from", src.name, last.name)
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "mesh":
         mesh_case(sys.argv[2], sys.argv[3])
     else:
         setup(sys.argv[2], sys.argv[3], thermal="--thermal" in sys.argv)
+        if "--init-from" in sys.argv:
+            init_from(sys.argv[2], sys.argv[sys.argv.index("--init-from") + 1])
