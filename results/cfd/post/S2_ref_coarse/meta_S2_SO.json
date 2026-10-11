@@ -1,0 +1,90 @@
+{
+ "scenario": "S2_SO",
+ "solver": "OpenFOAM v1912 simpleFoam, RANS realizable k-epsilon",
+ "mesh_cells": 1448909,
+ "geo_dir": "/home/user/work/cfd/cases/S2_ref_coarse/constant/triSurface",
+ "bati": "principal",
+ "dir_from_deg": 225.0,
+ "U10_ref_ms": 4.63,
+ "U_scale_max": 9.3,
+ "units": {
+  "U": "m/s",
+  "p": "m2/s2 (pression cinématique)",
+  "T": "degC"
+ },
+ "iterations": 1200,
+ "final_residuals": {
+  "Ux": 1.659739e-08,
+  "Uy": 1.880888e-08,
+  "Uz": 2.69019e-07,
+  "p": 0.001046715,
+  "epsilon": 1.038607e-08,
+  "k": 1.001112e-07
+ },
+ "mass_flux_in_m3s": -111054125.03385,
+ "mass_flux_out_m3s": 111054124.59235999,
+ "mass_imbalance_rel": 3.9754489920343045e-09,
+ "indicateurs_secteurs": {
+  "CENTRE_VILLE": {
+   "points_fluide_5m": 53563,
+   "surface_fluide_km2": 1.339075,
+   "U_moy": 0.9460482264804204,
+   "U_p90": 1.932072235005586,
+   "U_max": 4.011834298224266,
+   "K_moy_U_sur_Uref": 0.20433007051412969,
+   "pct_acceleration_U_sup_1.2Uref": 0.0,
+   "pct_stagnation_U_inf_0.5": 31.82420700856935,
+   "pct_flux_inverse": 29.115247465601257,
+   "artefacts_exclus_U_sup_3Uref": 0,
+   "stabilite_iterative": {
+    "iter_compare": [
+     1000,
+     1200
+    ],
+    "dU_moy_rel_pct": 0.002636367569203728,
+    "dUmoy_secteur_rel_pct": 0.0011168370078149538
+   }
+  },
+  "GAMBETTA": {
+   "points_fluide_5m": 82733,
+   "surface_fluide_km2": 2.068325,
+   "U_moy": 1.5590584213702252,
+   "U_p90": 3.350355869808927,
+   "U_max": 4.073520775983687,
+   "K_moy_U_sur_Uref": 0.3367296806415173,
+   "pct_acceleration_U_sup_1.2Uref": 0.0,
+   "pct_stagnation_U_inf_0.5": 19.455356387414938,
+   "pct_flux_inverse": 16.507318724088332,
+   "artefacts_exclus_U_sup_3Uref": 0,
+   "stabilite_iterative": {
+    "iter_compare": [
+     1000,
+     1200
+    ],
+    "dU_moy_rel_pct": 0.012795361018908257,
+    "dUmoy_secteur_rel_pct": 0.0022257262951125493
+   }
+  },
+  "BD_DES_LIONS": {
+   "points_fluide_5m": 143900,
+   "surface_fluide_km2": 3.5975,
+   "U_moy": 1.5198804831540478,
+   "U_p90": 2.9319584225535595,
+   "U_max": 4.457953359295252,
+   "K_moy_U_sur_Uref": 0.3282679229274401,
+   "pct_acceleration_U_sup_1.2Uref": 0.0,
+   "pct_stagnation_U_inf_0.5": 17.803335649756775,
+   "pct_flux_inverse": 19.454482279360665,
+   "artefacts_exclus_U_sup_3Uref": 0,
+   "stabilite_iterative": {
+    "iter_compare": [
+     1000,
+     1200
+    ],
+    "dU_moy_rel_pct": 0.0011587552934392144,
+    "dUmoy_secteur_rel_pct": 7.400589176811731e-05
+   }
+  }
+ },
+ "streamlines": 132
+}
