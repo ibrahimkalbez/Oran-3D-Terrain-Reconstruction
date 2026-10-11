@@ -367,17 +367,11 @@ boundaryField
     w(case / "system/controlDict", "dictionary", "controlDict", f"""
 application {"buoyantBoussinesqSimpleFoam" if thermal else "simpleFoam"};
 startFrom latestTime; startTime 0; stopAt endTime; endTime {2500 if thermal else 2000}; deltaT 1;
-writeControl timeStep; writeInterval 500; purgeWrite 1; writeFormat binary; writePrecision 7;
+writeControl timeStep; writeInterval 500; purgeWrite 1; writeFormat ascii; writePrecision 7;
 writeCompression off; timeFormat general; timePrecision 6; runTimeModifiable true;
 libs ("libatmosphericModels.so");
-functions
-{{
-    residuals {{ type solverInfo; libs ("libutilityFunctionObjects.so"); fields (U p{"_rgh T" if thermal else ""} k epsilon); writeControl timeStep; writeInterval 1; }}
-    massIn  {{ type surfaceFieldValue; libs ("libfieldFunctionObjects.so"); regionType patch; names ({inl}); operation sum; fields (phi); writeFields false; writeControl timeStep; writeInterval 10; log false; }}
-    massOut {{ type surfaceFieldValue; libs ("libfieldFunctionObjects.so"); regionType patch; names ({outl} top); operation sum; fields (phi); writeFields false; writeControl timeStep; writeInterval 10; log false; }}
-    probes10m {{ type probes; libs ("libsampling.so"); fields (U{" T" if thermal else ""}); writeControl timeStep; writeInterval 10; probeLocations ({" ".join(f"({x:.1f} {y:.1f} {z:.1f})" for x, y, z in probes)}); }}
-    yPlus {{ type yPlus; libs ("libfieldFunctionObjects.so"); writeControl writeTime; }}
-}}
+// function objects disabled: this OpenFOAM v1912 Debian build aborts on any functionObject
+// (IOstream "sha1" error); residuals, mass balance and sampling are computed by 45_postprocess.py
 """)
     div = ("div(phi,U) bounded Gauss linearUpwind grad(U);\n div(phi,k) bounded Gauss upwind;\n div(phi,epsilon) bounded Gauss upwind;\n"
            " div((nuEff*dev2(T(grad(U))))) Gauss linear;\n div(phi,T) bounded Gauss linearUpwind grad(T);\n")
