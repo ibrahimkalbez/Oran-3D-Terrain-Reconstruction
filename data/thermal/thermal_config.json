@@ -1,0 +1,80 @@
+{
+ "source_image": "Oran_LST_multidates_source.jpg",
+ "date": "2024-07-10",
+ "panel_label": "10/07/2024 (panneau inférieur central)",
+ "panel_px": [
+  676,
+  1168,
+  1322,
+  1678
+ ],
+ "legend_px": [
+  1399,
+  1346,
+  1905,
+  1372
+ ],
+ "legend_ticks_px": [
+  [
+   1490,
+   25
+  ],
+  [
+   1589,
+   30
+  ],
+  [
+   1688.5,
+   35
+  ],
+  [
+   1788,
+   40
+  ],
+  [
+   1887,
+   45
+  ]
+ ],
+ "legend_min": 20,
+ "legend_max": 45,
+ "max_color_dist": 12.0,
+ "mask_auto": true,
+ "class_edges": [
+  20,
+  25,
+  30,
+  35,
+  40,
+  47
+ ],
+ "quantity": "Temperature de surface terrestre (LST)",
+ "unit": "degC",
+ "gcps": [],
+ "edge_erode_px": 1,
+ "registration": {
+  "method": "chamfer coastline + lake centroid (scripts/thermal/21a)",
+  "scalebar_px": [
+   1531,
+   1908
+  ],
+  "scalebar_km": 15,
+  "lake_seed_px": [
+   261,
+   323
+  ],
+  "lake_max_value": 28.5,
+  "model_lake_box": [
+   1500,
+   -5000,
+   3500,
+   -2000
+  ],
+  "outline_gray_max": 150,
+  "coast_select_m": 600,
+  "lake_weight_points": 200,
+  "runway_min_value": 37.0,
+  "utm_rotation_deg": -1.3808
+ },
+ "source_reference": "Figure issue de « Spatiotemporal Impact of Urbanization on Urban Heat Island Using Landsat Imagery in Oran, Algeria: 1984–2024 » (2025, https://www.researchgate.net/publication/390254230). Grandeur cartographiée : température de surface terrestre (LST) en °C, dérivée de Landsat (algorithme split-window pour OLI-TIRS). Pour le 10/07/2024 le capteur est Landsat 8/9 OLI-TIRS (infrarouge thermique natif 100 m, livré rééchantillonné à 30 m). Raster original non publié/accessible ici."
+}

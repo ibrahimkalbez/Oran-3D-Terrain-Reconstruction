@@ -42,6 +42,16 @@ def legend_lut(img, cfg):
     bar = np.asarray(img.crop((x0, y0, x1, y1)).convert("RGB"), float)
     vertical = bar.shape[0] >= bar.shape[1]
     prof = np.median(bar, axis=1 if vertical else 0)          # colour along the long axis
+    if cfg.get("legend_ticks_px"):
+        # values from the measured tick marks (absolute image coordinate along the bar),
+        # not from the bar ends (the coloured bar may extend beyond the first/last label)
+        t = np.array(cfg["legend_ticks_px"], float)
+        a, b = np.polyfit(t[:, 0], t[:, 1], 1)
+        pos = (np.arange(y0, y1) if vertical else np.arange(x0, x1)) + 0.5
+        v = a * pos + b
+        if v[0] > v[-1]:
+            v, prof = v[::-1], prof[::-1]
+        return v, prof.round().astype(np.uint8)
     low = cfg.get("legend_low_end", "bottom" if vertical else "left")
     if low in ("bottom", "right"):
         prof = prof[::-1]
@@ -66,6 +76,20 @@ def main():
     val = lut_v[best].astype(np.float32)
     val[dist > cfg.get("max_color_dist", 12.0)] = np.nan       # Lab distance (ΔE)
     val = val.reshape(P.shape[:2])
+    if cfg.get("mask_auto", True):
+        # study area = largest connected region of legend-coloured pixels, holes filled
+        # (the label, north arrow, scale bar and port drawing are outside it)
+        from scipy import ndimage
+        ok0 = np.isfinite(val)
+        lab, n = ndimage.label(ndimage.binary_closing(ok0, iterations=2))
+        if n:
+            big = lab == (np.argmax(ndimage.sum(ok0, lab, range(1, n + 1))) + 1)
+            area = ndimage.binary_fill_holes(big)
+            val[~area] = np.nan
+            k = int(cfg.get("edge_erode_px", 0))   # pixels blended with the drawn outline
+            if k:
+                val[area & ~ndimage.binary_erosion(area, iterations=k)] = np.nan
+            np.save(WORK / "area_mask_px.npy", area)
     if cfg.get("mask_polygon_px"):
         m = Image.new("L", panel.size, 0)
         ImageDraw.Draw(m).polygon([tuple(p) for p in cfg["mask_polygon_px"]], fill=1)

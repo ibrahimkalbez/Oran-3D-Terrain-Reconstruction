@@ -54,28 +54,51 @@ def apply(coef, src, model):
 
 def main():
     cfg = load_config()
-    model = cfg.get("gcp_model", "affine")
-    g = cfg["gcps"]
-    px = np.array([p["px"] for p in g], float) + 0.5            # pixel centres
-    xy = np.array(LOC.transform([p["lon"] for p in g], [p["lat"] for p in g])).T
-    need = 8 if model == "poly2" else 3
-    if len(g) < need:
-        raise SystemExit(f"{model} needs >= {need} GCPs, got {len(g)}")
-    fwd = fit(px, xy, model)
-    inv = fit(xy, px, model)
-    res = apply(fwd, px, model) - xy
-    loo = []
-    for i in range(len(g)):
-        k = np.arange(len(g)) != i
-        if k.sum() >= need:
-            loo.append(float(np.linalg.norm(apply(fit(px[k], xy[k], model), px[i:i + 1], model) - xy[i])))
+    regf = WORK / "registration_2024.json"
+    if not cfg.get("gcps") and regf.exists():
+        # automatic registration of step 21a (coastline + lake on the maquette)
+        R = json.loads(regf.read_text())
+        A = np.array(R["px_to_model"])
+        model = R["transform_kind"]
+        cp = np.load(WORK / "control_points_2024.npz")
+        px, xy = cp["px"], cp["model_xy"]
+        res = cp["matched_coast_xy"] - xy
+        loo = []
+        fwd_f = lambda q: q @ A[:, 1:].T + A[:, 0]                       # noqa: E731
+        Minv = np.linalg.inv(A[:, 1:])
+        inv_f = lambda q: (q - A[:, 0]) @ Minv.T                         # noqa: E731
+        g = [{"name": f"cote_{k}"} for k in range(len(px))] + [{"name": "lac_centroide"}]
+        px = np.vstack([px, cp["lake_px"][None]]); xy = np.vstack([xy, fwd_f(cp["lake_px"][None])])
+        res = np.vstack([res, cp["lake_model_xy"][None] - xy[-1:]])
+        lonlat = np.array(Transformer.from_crs(LOCAL_CRS, "EPSG:4326", always_xy=True).transform(xy[:, 0], xy[:, 1])).T
+        for k, gg in enumerate(g):
+            gg["lon"], gg["lat"] = float(lonlat[k, 0]), float(lonlat[k, 1])
+        px = px - 0.5                                                     # back to pixel corner convention
+    else:
+        model = cfg.get("gcp_model", "affine")
+        g = cfg["gcps"]
+        px = np.array([p["px"] for p in g], float)
+        xy = np.array(LOC.transform([p["lon"] for p in g], [p["lat"] for p in g])).T
+        need = 8 if model == "poly2" else 3
+        if len(g) < need:
+            raise SystemExit(f"{model} needs >= {need} GCPs, got {len(g)}")
+        fwd = fit(px + 0.5, xy, model)
+        inv = fit(xy, px + 0.5, model)
+        fwd_f = lambda q: apply(fwd, q, model)                            # noqa: E731
+        inv_f = lambda q: apply(inv, q, model)                            # noqa: E731
+        res = fwd_f(px + 0.5) - xy
+        loo = []
+        for i in range(len(g)):
+            k = np.arange(len(g)) != i
+            if k.sum() >= need:
+                loo.append(float(np.linalg.norm(apply(fit(px[k] + .5, xy[k], model), px[i:i + 1] + .5, model) - xy[i])))
     val = np.load(WORK / "values_px.npy")
     h, w = val.shape
     # ground size of one panel pixel (affine part of the fit)
-    J = np.linalg.lstsq(design(px, "affine"), xy, rcond=None)[0][1:]
-    gsd = float(np.sqrt(abs(np.linalg.det(J))))
+    e = fwd_f(np.array([[0., 0.], [1., 0.], [0., 1.]]))
+    gsd = float(np.sqrt(abs(np.linalg.det(np.c_[e[1] - e[0], e[2] - e[0]]))))
     res_m = float(cfg.get("output_pixel_m", round(gsd)))
-    corners = apply(fwd, np.array([[0, 0], [w, 0], [0, h], [w, h]], float), model)
+    corners = fwd_f(np.array([[0, 0], [w, 0], [0, h], [w, h]], float))
     xmin, ymin = corners.min(0); xmax, ymax = corners.max(0)
     xmin, ymin = np.floor([xmin / res_m, ymin / res_m]) * res_m
     xmax, ymax = np.ceil([xmax / res_m, ymax / res_m]) * res_m
@@ -83,7 +106,7 @@ def main():
     cx = xmin + (np.arange(nx) + 0.5) * res_m
     cy = ymax - (np.arange(ny) + 0.5) * res_m
     X, Y = np.meshgrid(cx, cy)
-    sp = apply(inv, np.c_[X.ravel(), Y.ravel()], model)
+    sp = inv_f(np.c_[X.ravel(), Y.ravel()])
     c, r = np.floor(sp[:, 0]).astype(int), np.floor(sp[:, 1]).astype(int)
     inside = (c >= 0) & (c < w) & (r >= 0) & (r < h)
     out = np.full(nx * ny, np.nan, np.float32)
@@ -117,7 +140,7 @@ def main():
     gpkg = WORK / "Oran_Thermal_2024.gpkg"
     gpkg.unlink(missing_ok=True)
     gpd.GeoDataFrame({"name": [p["name"] for p in g], "lon": [p["lon"] for p in g],
-                      "lat": [p["lat"] for p in g], "px_col": px[:, 0] - .5, "px_row": px[:, 1] - .5,
+                      "lat": [p["lat"] for p in g], "px_col": px[:, 0], "px_row": px[:, 1],
                       "residual_m": np.linalg.norm(res, axis=1)},
                      geometry=[Point(*p) for p in xy], crs=crs).to_file(gpkg, layer="gcp", driver="GPKG")
     valid = np.isfinite(out)
@@ -133,6 +156,8 @@ def main():
                       "area_m2": [r[1].area for r in recs]},
                      geometry=[r[1] for r in recs], crs=crs).to_file(gpkg, layer="thermal_classes", driver="GPKG")
     rep = {"model": model, "n_gcp": len(g),
+           "median_residual_m": float(np.median(np.linalg.norm(res, axis=1))),
+           "p90_residual_m": float(np.percentile(np.linalg.norm(res, axis=1), 90)),
            "rmse_m": float(np.sqrt((res ** 2).sum(1).mean())),
            "max_residual_m": float(np.linalg.norm(res, axis=1).max()),
            "leave_one_out_mean_m": float(np.mean(loo)) if loo else None,
