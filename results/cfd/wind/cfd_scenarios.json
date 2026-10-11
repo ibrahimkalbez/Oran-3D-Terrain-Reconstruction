@@ -1,0 +1,44 @@
+[
+ {
+  "id": "S1_N",
+  "dir_from_deg": 0.0,
+  "freq_pct": 13.835361550142226,
+  "U10_ref_ms": 3.93,
+  "role": "direction dominante observée, vitesse moyenne du secteur"
+ },
+ {
+  "id": "S2_SO",
+  "dir_from_deg": 225.0,
+  "freq_pct": 12.731783476270934,
+  "U10_ref_ms": 4.63,
+  "role": "direction dominante observée, vitesse moyenne du secteur"
+ },
+ {
+  "id": "S3_NNO",
+  "dir_from_deg": 337.5,
+  "freq_pct": 10.4519109438159,
+  "U10_ref_ms": 4.75,
+  "role": "direction dominante observée, vitesse moyenne du secteur"
+ },
+ {
+  "id": "S4_OSO",
+  "dir_from_deg": 247.5,
+  "freq_pct": 10.354599311333063,
+  "U10_ref_ms": 5.02,
+  "role": "direction dominante observée, vitesse moyenne du secteur"
+ },
+ {
+  "id": "S5_N_fort",
+  "dir_from_deg": 0.0,
+  "freq_pct": 13.835361550142226,
+  "U10_ref_ms": 6.7,
+  "role": "même direction, vent fort (P90 du secteur) : confort/sécurité"
+ },
+ {
+  "id": "S6_ete_NNO",
+  "dir_from_deg": 337.5,
+  "U10_ref_ms": 5.83,
+  "Tair_ref_C": 29.5,
+  "role": "après-midi d'été (situation des cartes LST) : cas couplé thermique"
+ }
+]

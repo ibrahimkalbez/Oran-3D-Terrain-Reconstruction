@@ -1,0 +1,59 @@
+{
+ "CENTRE_VILLE": {
+  "ref": "Place du 1er Novembre / Sidi El Houari / bd Larbi Ben M'hidi (Overture divisions + places)",
+  "lonlat_box": [
+   -0.656,
+   35.696,
+   -0.638,
+   35.7085
+  ],
+  "model_box_m": [
+   -1901,
+   -333,
+   -271,
+   1054
+  ],
+  "size_km": [
+   1.63,
+   1.39
+  ]
+ },
+ "GAMBETTA": {
+  "ref": "Cité Gambetta (Overture division 'Gambetta', centroïde -0.61982 / 35.71145)",
+  "lonlat_box": [
+   -0.63,
+   35.704,
+   -0.61,
+   35.718
+  ],
+  "model_box_m": [
+   452,
+   555,
+   2262,
+   2108
+  ],
+  "size_km": [
+   1.81,
+   1.55
+  ]
+ },
+ "BD_DES_LIONS": {
+  "ref": "Boulevard des Lions (Overture segments, -0.5757 -> -0.5522) + rond-point",
+  "lonlat_box": [
+   -0.579,
+   35.6995,
+   -0.55,
+   35.715
+  ],
+  "model_box_m": [
+   5068,
+   57,
+   7691,
+   1779
+  ],
+  "size_km": [
+   2.62,
+   1.72
+  ]
+ }
+}

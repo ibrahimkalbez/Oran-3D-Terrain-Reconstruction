@@ -20,3 +20,4 @@ results/thermal_evolution/web/node_modules
 results/thermal_evolution/web/index.html
 results/thermal_evolution/web/render.mjs
 results/thermal_evolution/web/frames/
+results/cfd/wind/wind_hourly_clean.csv
