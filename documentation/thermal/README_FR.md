@@ -16,17 +16,20 @@
 ## Ouvrir dans Rhino 8
 
 1. Ouvrir `01_RHINO_MODEL/Oran_Thermal_2024_3D.3dm` (unités : mètres ; point d'ancrage terrestre 35,699 N / 0,635 O).
-2. Passer la vue en mode **Ombré** ou **Rendu** : les couleurs par sommet et les couleurs du nuage de points s'affichent.
+2. Les couleurs sont **portées par les calques** : un calque par classe de 1 °C, couleur = couleur exacte de la légende,
+   avec un matériau de même couleur. Elles s'affichent donc en Filaire, Ombré et Rendu. Allumer/éteindre un calque
+   `…_34-35` isole précisément les surfaces entre 34 et 35 °C.
 3. Calques :
 
 ```
 THERMAL_ORAN_2024_07_10                 <- tout allumer / éteindre d'un clic
  ├─ NUAGE_POINTS_THERMIQUE
- │   ├─ NUAGE_22.5-25 … NUAGE_45-46    <- nuage de couleurs, classe par classe de 2,5 °C
+ │   ├─ NUAGE_23-24 … NUAGE_45-46      <- nuage de couleurs, classe par classe de 1 °C
  │                                        (1 point par cellule de 40 m, valeur °C attachée au point)
  ├─ SURFACE_THERMIQUE_TERRAIN
- │   ├─ SURF_22.5-25 … SURF_45-46      <- carreaux colorés de 40 m posés sur le relief (+1 m)
- ├─ TOITURES_THERMIQUES                 <- toits colorés (+0,3 m)
+ │   ├─ SURF_23-24 … SURF_45-46        <- carreaux de 40 m posés sur le relief (+1 m)
+ ├─ TOITURES_THERMIQUES
+ │   ├─ TOIT_23-24 … TOIT_45-46        <- toits (+0,3 m), par classe
  ├─ ZONES_CHAUDES / ZONES_FRAICHES      <- contours + étiquettes des zones > P90 / < P10
  ├─ GRILLE_1KM / GRILLE_1KM_VALEURS     <- carrés de 1 km + moyenne °C (min/max/médiane dans le nom)
  ├─ LIMITE_ZONE_ETUDIEE

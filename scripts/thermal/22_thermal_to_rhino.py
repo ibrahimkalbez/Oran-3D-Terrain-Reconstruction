@@ -6,13 +6,14 @@ object is kept untouched and the thermal data are ADDED on a dedicated layer
 tree that can be switched off independently:
 
 THERMAL_ORAN_2024_07_10
-  NUAGE_POINTS_THERMIQUE::NUAGE_<a>-<b>   coloured point cloud, 1 point per raster cell,
-                                          point value = thermal value (Rhino point-cloud values),
-                                          one sub-layer per thermal class -> zone by zone
-  SURFACE_THERMIQUE_TERRAIN::SURF_<a>-<b> one coloured square per raster cell draped on the
-                                          terrain (+DZ m), one sub-layer per class
-  TOITURES_THERMIQUES                     copies of roof faces coloured with the raster value
-                                          under each vertex (NOT a per-building measurement)
+  Colours are carried by the LAYERS: one layer per 1 degC class, layer colour = exact
+  legend colour at the class centre, plus a Rhino render material of the same colour;
+  every thermal object takes "colour from layer" and "material from layer".
+  NUAGE_POINTS_THERMIQUE::NUAGE_<a>-<b>   point cloud, 1 point per raster cell, value (degC)
+                                          attached to each point
+  SURFACE_THERMIQUE_TERRAIN::SURF_<a>-<b> one square per raster cell draped on the terrain (+DZ m)
+  TOITURES_THERMIQUES::TOIT_<a>-<b>       copies of the roof faces, class of the raster cell under
+                                          the face centre (NOT a per-building measurement)
   ZONES_CHAUDES / ZONES_FRAICHES          outlines of the 8 largest areas > P90 / < P10 with a
                                           label (mean, extreme, area) - zone by zone reading
   GRILLE_1KM                              1 km squares draped on the terrain + label with the
@@ -89,15 +90,34 @@ def terrain_interp(model):
     raise RuntimeError("layer TERRAIN_ET_SOCLE not found")
 
 
-def add_layer(model, name, color, parent=None):
+def add_layer(model, name, color, parent=None, material=None):
     L = r3.Layer(); L.Name = name; L.Color = color
     if parent is not None:
         L.ParentLayerId = model.Layers[parent].Id
+    if material is not None:
+        L.RenderMaterialIndex = material
     return model.Layers.Add(L)
 
 
-def attrs(layer, name):
+def add_material(model, name, rgb):
+    """Plain Rhino material of the exact legend colour (shaded / rendered views)."""
+    m = r3.Material(); m.Name = name
+    m.DiffuseColor = m.AmbientColor = rgb
+    m.SpecularColor = (0, 0, 0, 255); m.Shine = 0.0
+    model.Materials.Add(m)
+    return len(model.Materials) - 1
+
+
+def attrs(layer, name, color=None, material=None):
+    """Objects follow their LAYER colour and LAYER material, unless an explicit
+    colour/material is given (legend swatches)."""
     a = r3.ObjectAttributes(); a.LayerIndex = layer; a.Name = name
+    if color is None:
+        a.ColorSource = r3.ObjectColorSource.ColorFromLayer
+        a.MaterialSource = r3.ObjectMaterialSource.MaterialFromLayer
+    else:
+        a.ColorSource = r3.ObjectColorSource.ColorFromObject; a.ObjectColor = color
+        a.MaterialSource = r3.ObjectMaterialSource.MaterialFromObject; a.MaterialIndex = material
     return a
 
 
@@ -111,8 +131,9 @@ def add_colored_mesh(model, V, F, C, at):
             m.Faces.AddFace(*f)
         else:
             m.Faces.AddFace(f[0], f[1], f[2])
-    for c in C.tolist():
-        m.VertexColors.Add(*c)
+    if C is not None:
+        for c in C.tolist():
+            m.VertexColors.Add(*c)
     m.Normals.ComputeNormals()
     return model.Objects.AddMesh(m, at)
 
@@ -153,23 +174,27 @@ def main():
     unit = cfg.get("unit", "")
     cls = np.digitize(T, edges[1:-1])                     # 0 .. n-1
     rep["classes"] = {}
+    styles = {}                                           # class -> (label, rgb, material, roof layer)
     for k, (lo, hi) in enumerate(zip(edges[:-1], edges[1:])):
         lab = f"{lo:g}-{hi:g}"
         sel = valid & (cls == k)
         n = int(sel.sum()); rep["classes"][lab] = n
         if not n:
             continue
-        mid_rgb = tuple(int(c) for c in lut_colors([(lo + hi) / 2], lut_v, lut_rgb)[0]) + (255,)
-        lc = add_layer(model, f"NUAGE_{lab}", mid_rgb, l_cloud)
-        ls = add_layer(model, f"SURF_{lab}", mid_rgb, l_surf)
-        vals = T[sel]; col = lut_colors(vals, lut_v, lut_rgb)
-        # point cloud: colour + value per point
+        # exact legend colour at the class centre -> layer colour + render material
+        rgb = tuple(int(c) for c in lut_colors([(lo + hi) / 2], lut_v, lut_rgb)[0]) + (255,)
+        mat = add_material(model, f"LST_2024_{lab}", rgb)
+        lc = add_layer(model, f"NUAGE_{lab}", rgb, l_cloud, mat)
+        ls = add_layer(model, f"SURF_{lab}", rgb, l_surf, mat)
+        lr = add_layer(model, f"TOIT_{lab}", rgb, l_roof, mat)
+        styles[k] = (lab, rgb, mat, lr)
+        vals = T[sel]
+        # point cloud: one point per cell, colour = layer colour, value (degC) attached to each point
         pc = r3.PointCloud()
-        up = r3.Vector3d(0, 0, 1)
-        for x, y, z, v, c in zip(X[sel], Y[sel], Zc[sel] + DZ_CLOUD, vals, col.tolist()):
-            pc.Add(r3.Point3d(x, y, z), up, (c[0], c[1], c[2], 255), float(v))
+        for x, y, z, v in zip(X[sel], Y[sel], Zc[sel] + DZ_CLOUD, vals):
+            pc.Add(r3.Point3d(x, y, z), float(v))
         model.Objects.AddPointCloud(pc, attrs(lc, f"Nuage thermique {lab} {unit} - 10/07/2024"))
-        # draped squares: one square per cell, corners on the terrain
+        # draped squares: one square per cell, corners on the terrain, colour = layer colour
         h = res / 2
         off = np.array([[-h, -h], [h, -h], [h, h], [-h, h]])
         P = np.stack([X[sel], Y[sel]], -1)[:, None, :] + off[None]          # (n,4,2)
@@ -177,8 +202,8 @@ def main():
         Zq = np.where(np.isfinite(Zq), Zq, Zc[sel][:, None]) + DZ_SURF
         V = np.c_[P.reshape(-1, 2), Zq.ravel()]
         F = np.arange(4 * n).reshape(n, 4)
-        add_colored_mesh(model, V, F, np.repeat(col, 4, 0),
-                         attrs(ls, f"Surface thermique {lab} {unit} - 10/07/2024"))
+        add_colored_mesh(model, V, F, None, attrs(ls, f"Surface thermique {lab} {unit} - 10/07/2024"))
+    rep["class_colors"] = {v[0]: list(v[1][:3]) for v in styles.values()}
 
     def sample(xy):
         c = np.floor((xy[:, 0] - tr.c) / res).astype(int)
@@ -189,8 +214,7 @@ def main():
 
     # roofs + per-category samples (face centroid value, horizontal area weight)
     samples = {c: [] for c in CATEGORIES}
-    roofV, roofF, roofC = [], [], []
-    nroof = 0
+    roofs = {k: [] for k in styles}
     for o in list(model.Objects)[:n_orig]:
         g = o.Geometry
         if not isinstance(g, r3.Mesh):
@@ -210,19 +234,18 @@ def main():
         val = sample(cen[up, :2])
         samples[cat].append(np.c_[val, 0.5 * np.abs(nrm[up, 2])])
         if cat == "batiments":
-            Fr = F[up][np.isfinite(val)]
-            if len(Fr):
-                Vr = V[Fr].reshape(-1, 3); vv = sample(Vr[:, :2])
-                vv = np.where(np.isfinite(vv), vv, np.repeat(val[np.isfinite(val)], 3))
-                roofV.append(Vr + [0, 0, DZ_ROOF]); roofC.append(lut_colors(vv, lut_v, lut_rgb))
-                roofF.append(np.arange(len(Vr)).reshape(-1, 3) + nroof); nroof += len(Vr)
-                if nroof > 3_000_000:                                       # flush in chunks
-                    add_colored_mesh(model, np.vstack(roofV), np.vstack(roofF) - np.vstack(roofF).min(),
-                                     np.vstack(roofC), attrs(l_roof, "Toitures thermiques 10/07/2024"))
-                    roofV, roofF, roofC, nroof = [], [], [], 0
-    if roofV:
-        add_colored_mesh(model, np.vstack(roofV), np.vstack(roofF) - np.vstack(roofF).min(),
-                         np.vstack(roofC), attrs(l_roof, "Toitures thermiques 10/07/2024"))
+            ok = np.isfinite(val)
+            Fr, kr = F[up][ok], np.digitize(val[ok], edges[1:-1])
+            for k in np.unique(kr):
+                if k in roofs:
+                    roofs[k].append(V[Fr[kr == k]].reshape(-1, 3) + [0, 0, DZ_ROOF])
+    nroof = 0
+    for k, parts in roofs.items():
+        if parts:
+            Vr = np.vstack(parts); nroof += len(Vr) // 3
+            lab, rgb, mat, lr = styles[k]
+            add_colored_mesh(model, Vr, np.arange(len(Vr)).reshape(-1, 3), None,
+                             attrs(lr, f"Toitures thermiques {lab} {unit} - 10/07/2024"))
     np.savez(WORK / "category_samples.npz",
              **{c: (np.vstack(s) if s else np.zeros((0, 2))) for c, s in samples.items()})
     rep["category_faces_sampled"] = {c: int(sum(len(x) for x in s)) for c, s in samples.items()}
@@ -279,19 +302,18 @@ def main():
         z = terr(np.c_[ring[:, 1], ring[:, 0]]); z = np.where(np.isfinite(z), z, 0) + DZ_CLOUD
         model.Objects.AddPolyline(r3.Polyline([r3.Point3d(x, y, zz) for (x, y), zz in zip(ring[:, :2], z)]),
                                   attrs(l_lim, "Limite zone etudiee - carte 10/07/2024"))
-    # legend bar beside the model (east side)
-    x0 = float(np.nanmax(X[valid])) + 600; y0 = float(np.nanmin(Y[valid])); H = 4000.0; W = 300.0
-    k = len(lut_v)
-    ys = y0 + np.linspace(0, H, k + 1)
-    Vl = np.vstack([[[x0, ys[i], 0], [x0 + W, ys[i], 0], [x0 + W, ys[i + 1], 0], [x0, ys[i + 1], 0]]
-                    for i in range(k)])
-    add_colored_mesh(model, Vl, np.arange(4 * k).reshape(k, 4), np.repeat(lut_rgb.astype(int), 4, 0),
-                     attrs(l_leg, "Legende thermique"))
-    for e in edges:
-        y = y0 + H * (e - lut_v[0]) / (lut_v[-1] - lut_v[0])
-        model.Objects.AddTextDot(f"{e:g} {unit}", r3.Point3d(x0 + W + 250, y, 0), attrs(l_leg, f"{e:g}"))
-    model.Objects.AddTextDot(f"{cfg.get('quantity', '')} - 10/07/2024", r3.Point3d(x0, y0 + H + 400, 0),
-                             attrs(l_leg, "titre"))
+    # legend beside the model (east side): one swatch per class, same colour / material as its layers
+    x0 = float(np.nanmax(X[valid])) + 600; y0 = float(np.nanmin(Y[valid])); Wd = 300.0
+    Hs = 4000.0 / max(1, len(styles))
+    for i, k in enumerate(sorted(styles)):
+        lab, rgb, mat, _ = styles[k]
+        y = y0 + i * Hs
+        Vl = np.array([[x0, y, 0], [x0 + Wd, y, 0], [x0 + Wd, y + Hs, 0], [x0, y + Hs, 0]], float)
+        add_colored_mesh(model, Vl, np.array([[0, 1, 2, 3]]), None,
+                         attrs(l_leg, f"Legende {lab} {unit}", color=rgb, material=mat))
+        model.Objects.AddTextDot(f"{lab} {unit}", r3.Point3d(x0 + Wd + 350, y + Hs / 2, 0), attrs(l_leg, lab))
+    model.Objects.AddTextDot(f"{cfg.get('quantity', '')} - 10/07/2024",
+                             r3.Point3d(x0, y0 + len(styles) * Hs + 400, 0), attrs(l_leg, "titre"))
 
     invalid = [o.Attributes.Name for o in list(model.Objects)[n_orig:]
                if hasattr(o.Geometry, "IsValid") and not o.Geometry.IsValid]
@@ -303,8 +325,7 @@ def main():
                 "objects_original": n_orig, "objects_output": len(chk.Objects),
                 "objects_thermal_added": len(chk.Objects) - n_orig, "invalid_thermal_objects": invalid,
                 "thermal_layers": [n for n in names if n.startswith(LAYER)],
-                "roof_triangles": int(sum(o.Geometry.Faces.Count for o in chk.Objects
-                                          if chk.Layers[o.Attributes.LayerIndex].Name == "TOITURES_THERMIQUES")),
+                "roof_triangles": int(nroof), "materials": len(chk.Materials),
                 "offsets_m": {"surface": DZ_SURF, "cloud": DZ_CLOUD, "roofs": DZ_ROOF}})
     (WORK / "rhino_thermal_report.json").write_text(json.dumps(rep, indent=1))
     print(json.dumps(rep, indent=1))

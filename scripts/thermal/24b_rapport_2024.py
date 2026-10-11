@@ -123,19 +123,26 @@ def main():
     w(f"| Calque (sous `{LAYER}`) | Contenu |")
     w("|---|---|")
     w("| `NUAGE_POINTS_THERMIQUE::NUAGE_a-b` | **Nuage de couleurs** : 1 point par cellule de 40 m, à 3 m au-dessus du relief, "
-      "couleur de la légende + valeur °C attachée au point ; un sous-calque par classe de 2,5 °C → **lecture zone par zone** |")
-    w("| `SURFACE_THERMIQUE_TERRAIN::SURF_a-b` | Carreaux colorés de 40 m posés sur le relief (+1 m, au-dessus des rues drapées), mêmes classes |")
-    w(f"| `TOITURES_THERMIQUES` | {rh['roof_triangles']} triangles de toits recolorés (+0,3 m) d'après la cellule sous chaque sommet |")
+      "valeur °C exacte attachée à chaque point ; un sous-calque par classe de **1 °C** → **lecture zone par zone** |")
+    w("| `SURFACE_THERMIQUE_TERRAIN::SURF_a-b` | Carreaux de 40 m posés sur le relief (+1 m, au-dessus des rues drapées), mêmes classes |")
+    w(f"| `TOITURES_THERMIQUES::TOIT_a-b` | {rh['roof_triangles']} triangles de toits (+0,3 m), rangés selon la classe de la cellule sous le centre de chaque face |")
     w(f"| `ZONES_CHAUDES` / `ZONES_FRAICHES` | {rh.get('zones', 0)} contours drapés + étiquettes (moyenne, extrême, surface) |")
     w(f"| `GRILLE_1KM` / `GRILLE_1KM_VALEURS` | {rh.get('grid_cells_1km', 0)} carrés de 1 km drapés + étiquette de la moyenne (détail min/max/médiane dans le nom de l'objet) |")
     w("| `LIMITE_ZONE_ETUDIEE`, `LEGENDE_THERMIQUE` | Contour de l'étude, barre de couleurs et graduations à l'est du modèle |")
     w("")
-    w("Répartition des cellules par classe dans la maquette :")
+    w("**Couleurs portées par les calques Rhino** : chaque classe de 1 °C a son propre calque dont la couleur est la couleur "
+      "exacte de la légende au centre de la classe, et un **matériau de rendu** de la même couleur "
+      f"({rh.get('materials', '?')} matériaux dans le fichier). Tous les objets thermiques sont en « couleur du calque » et "
+      "« matériau du calque » : le rendu est identique en filaire, ombré et rendu, et chaque classe s'allume ou s'éteint "
+      "d'un clic (filtrage chirurgical d'une plage de température).")
     w("")
-    w("| Classe (°C) | Cellules |")
-    w("|---|---|")
+    w("Répartition des cellules et couleur (RVB) de chaque calque :")
+    w("")
+    w("| Classe (°C) | Cellules | Couleur du calque (R, V, B) |")
+    w("|---|---|---|")
     for k, n in rh["classes"].items():
-        w(f"| {k} | {n} |")
+        if n:
+            w(f"| {k} | {n} | {', '.join(map(str, rh['class_colors'][k]))} |")
     w("")
     w(f"Couverture : {100 * rh['raster_fraction_on_model']:.1f} % de la zone d'étude tombe sur le relief de la maquette ; "
       "le reste (extrémité est, au-delà de x = 13 650 m) dépasse l'emprise de la maquette et n'est présent que dans le raster et le GPKG.")
