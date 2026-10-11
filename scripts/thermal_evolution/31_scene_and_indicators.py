@@ -73,7 +73,7 @@ def main():
             k = (c[:, 0] > gx0 - 500) & (c[:, 0] < gx1 + 500) & (c[:, 1] > gy0 - 500) & (c[:, 1] < gy1 + 500)
             bld.append(V[T[k]].reshape(-1, 3))
     # terrain crop (study area + 1.5 km)
-    ix = (xs > gx0 - 1500) & (xs < gx1 + 1500); iy = (ys > gy0 - 1500) & (ys < gy1 + 1500)
+    ix = (xs > gx0 - 4000) & (xs < gx1 + 4000); iy = (ys > gy0 - 4000) & (ys < gy1 + 4000)
     xs_, ys_, Z_ = xs[ix], ys[iy], Z[np.ix_(iy, ix)]
     X, Y = np.meshgrid(xs_, ys_)
     to3(np.c_[X.ravel(), Y.ravel(), Z_.ravel()]).tofile(WEB / "terrain_pos.bin")

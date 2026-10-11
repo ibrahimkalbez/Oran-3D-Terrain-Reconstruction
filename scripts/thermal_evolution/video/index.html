@@ -50,8 +50,8 @@ window.N = f;
 const r = new THREE.WebGLRenderer({canvas: document.getElementById('c3d'), antialias: true, preserveDrawingBuffer: true});
 r.setSize(1200, 1080, false);
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x101418);
-scene.fog = new THREE.Fog(0x101418, 30000, 60000);
-const cam = new THREE.PerspectiveCamera(38, 1200 / 1080, 50, 90000);
+scene.fog = new THREE.Fog(0x101418, 45000, 90000);
+const cam = new THREE.PerspectiveCamera(44, 1200 / 1080, 50, 120000);
 async function bin(u, T) { return new T(await (await fetch(u)).arrayBuffer()); }
 const nx = G.nx, ny = G.ny;
 const texs = [];
@@ -69,7 +69,7 @@ const U = {texA: {value: texs[0]}, texB: {value: texs[0]}, texD: {value: tD}, mi
   vmin: {value: S.lut.v[0]}, vmax: {value: S.lut.v[S.lut.v.length - 1]}, whiteMix: {value: 1}, diffMode: {value: 0},
   g0: {value: new THREE.Vector4(G.x0, G.y1, G.res, 0)}, gn: {value: new THREE.Vector2(nx, ny)},
   L: {value: new THREE.Vector3(-0.45, 0.8, 0.4).normalize()}, base: {value: new THREE.Color(0xe9e9e6)},
-  T0: {value: 35.0}, K: {value: 70.0}, KD: {value: 55.0}};
+  T0: {value: 36.0}, K: {value: 55.0}, KD: {value: 45.0}};
 const common = /* glsl */`
 uniform sampler2D texA, texB, texD, lut; uniform float mixT, vmin, vmax, whiteMix, diffMode;
 uniform vec4 g0; uniform vec2 gn;
@@ -117,9 +117,9 @@ g.setAttribute('cell', new THREE.BufferAttribute(cell, 2)); g.setIndex(idx);
 const spotMat = new THREE.ShaderMaterial({uniforms: U, side: THREE.DoubleSide, transparent: true,
   vertexShader: common + `uniform float T0, K, KD; attribute vec2 cell; varying float amt; varying float vv; varying vec3 nn;
     float h(vec2 c, out bool ok){ vec2 xy = vec2(g0.x + (c.x + .5) * g0.z, g0.y - (c.y + .5) * g0.z); float v = val(xy, ok);
-      return diffMode > .5 ? max(v, 0.) * KD : max(v - T0, 0.) * K; }
+      return diffMode > .5 ? max(v - 6., 0.) * KD : max(v - T0, 0.) * K; }
     void main(){ bool ok, o1, o2; float hh = h(cell, ok); vec2 xy = vec2(g0.x + (cell.x + .5) * g0.z, g0.y - (cell.y + .5) * g0.z);
-      vv = val(xy, ok); amt = ok ? hh : -1.;
+      vv = val(xy, ok); vv = diffMode > .5 ? max(vv, 6.) : max(vv, T0); amt = ok ? hh : -1.;
       float hx = h(cell + vec2(1., 0.), o1) - h(cell - vec2(1., 0.), o2), hy = h(cell + vec2(0., 1.), o1) - h(cell - vec2(0., 1.), o2);
       nn = normalize(vec3(-hx, 2. * g0.z, hy));
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position + vec3(0., 6. + hh, 0.), 1.); }`,
@@ -145,7 +145,7 @@ let sv = `<text x="20" y="22" fill="#cfd8dc" font-size="14">LST de la zone d'ét
 for (let v = Math.ceil(vmn); v <= vmx; v += 2) sv += `<line x1="90" x2="1150" y1="${Y(v)}" y2="${Y(v)}" stroke="#37474f" stroke-width="1"/><text x="58" y="${Y(v) + 4}" fill="#90a4ae" font-size="11">${v}</text>`;
 IND.forEach(o => { const x = X(yearOf(o.date)); const hpx = o.pct_sup_40 * 3;
   sv += `<rect x="${x - 7}" y="${200 - hpx}" width="14" height="${hpx}" fill="#b71c1c" opacity=".55"/>`
-      + `<text x="${x}" y="218" fill="#cfd8dc" font-size="12" text-anchor="middle">${o.date.slice(0, 4)}</text>`; });
+      + `<text x="${x}" y="218" fill="#cfd8dc" font-size="12" text-anchor="${o.date.startsWith('2023') ? 'end' : (o.date.startsWith('2024') ? 'start' : 'middle')}">${o.date.slice(0, 4)}</text>`; });
 for (const [k, col] of keys) sv += `<polyline fill="none" stroke="${col}" stroke-width="2.4" points="${IND.map(o => `${X(yearOf(o.date))},${Y(o[k])}`).join(' ')}"/>`
   + IND.map(o => `<circle cx="${X(yearOf(o.date))}" cy="${Y(o[k])}" r="4" fill="${col}"/>`).join('');
 sv += keys.map(([k, col, n], j) => `<text x="${830 + j * 105}" y="22" fill="${col}" font-size="13">■ ${n}</text>`).join('');
@@ -162,16 +162,18 @@ function indText(o) {
 }
 const NOTE = 'Maquette blanche Rhino 8 (relief Copernicus GLO-30, bâtiments OSM) — repère TM local, m.<br>' +
   'LST Landsat (°C) reconstruite depuis la figure : couleur → valeur par la légende, ΔE médian ≈ 1,4.<br>' +
-  'Calage côte + Petit Lac : écart médian 52 m. Maille 40 m. Taches 3D : +70 m par °C au-dessus de 35 °C.<br>' +
+  'Calage côte + Petit Lac : écart médian 52 m. Maille 40 m. Taches 3D : +55 m par °C au-dessus de 36 °C.<br>' +
   'ICU = indicateur : bâti actuel (OSM) appliqué à toutes les dates.';
 function setImgs(a, b, t, pre1, pre2) {
   $('iA').src = a[0]; $('iB').src = b[0]; $('iB').style.opacity = t;
   $('pA').src = a[1]; $('pB').src = b[1]; $('pB').style.opacity = t;
 }
 // camera: orbit around the study area (model metres)
-const C = [3000, -1500];
-function camAt(th, R, H, tgtZ = 0) { const t = th * Math.PI / 180;
-  cam.position.set(C[0] + R * Math.cos(t), H, -(C[1] + R * Math.sin(t))); cam.lookAt(C[0], tgtZ, -C[1]); }
+const C = [4200, -1200];
+function camAt(th, R, H, back = 0) { const t = th * Math.PI / 180;
+  // look slightly beyond the centre (towards the camera's far side) so the HUD chart does not hide the study area
+  cam.position.set(C[0] + R * Math.cos(t), H, -(C[1] + R * Math.sin(t)));
+  cam.lookAt(C[0] + back * Math.cos(t), 0, -(C[1] + back * Math.sin(t))); }
 const lerp = (a, b, t) => a + (b - a) * t, ease = t => t * t * (3 - 2 * t);
 const holdStart = seg.find(s => s.kind === 'hold').a, holdEnd = seg.filter(s => s.kind === 'hold' || s.kind === 'morph').at(-1).b;
 window.renderFrame = (fr) => {
@@ -181,7 +183,7 @@ window.renderFrame = (fr) => {
   $('lname').textContent = 'LST (°C) — légende du document';
   if (s.kind === 'intro' || s.kind === 'calage') {
     U.whiteMix.value = s.kind === 'intro' ? 1 : 1 - ease(u); U.texA.value = U.texB.value = texs[0];
-    camAt(lerp(70, 100, (fr) / (seg[1].b)), lerp(26000, 21000, fr / seg[1].b), lerp(15000, 10500, fr / seg[1].b));
+    camAt(lerp(70, 100, fr / seg[1].b), lerp(30000, 19000, ease(fr / seg[1].b)), lerp(26000, 21000, ease(fr / seg[1].b)), -2500);
     $('date').textContent = s.kind === 'intro' ? 'ORAN 1984 → 2024' : fmt(D[0]);
     $('mode').textContent = s.kind === 'intro' ? 'Maquette numérique blanche (Rhino 8) — état initial' : 'Correspondance 2D ↔ 3D : calage des plans sur la maquette';
     $('ind').textContent = s.kind === 'intro' ? 'Données : 8 dates de la figure\n1984 · 2000 · 2004 · 2010 · 2015\n2020 · 2023 · 2024' : indText(IND[0]);
@@ -192,7 +194,7 @@ window.renderFrame = (fr) => {
     U.whiteMix.value = 0; const i = s.i, j = s.kind === 'morph' ? i + 1 : i, t = s.kind === 'morph' ? ease(u) : 0;
     U.texA.value = texs[i]; U.texB.value = texs[j]; U.mixT.value = t;
     if (s.kind === 'hold') zl[i].visible = true;
-    const w = (fr - holdStart) / (holdEnd - holdStart); camAt(lerp(100, 245, w), lerp(21000, 17500, Math.sin(w * Math.PI)), lerp(10500, 8200, Math.sin(w * Math.PI)));
+    const w = (fr - holdStart) / (holdEnd - holdStart); camAt(lerp(100, 245, w), lerp(19000, 17000, Math.sin(w * Math.PI)), lerp(21000, 17500, Math.sin(w * Math.PI)), -2500);
     const dt = t < .5 ? D[i] : D[j]; $('date').textContent = fmt(dt);
     $('mode').textContent = s.kind === 'morph' ? `transition ${D[i].slice(0, 4)} → ${D[j].slice(0, 4)} (interpolation linéaire, visuelle)` : 'LST absolue — contour noir : zones ≥ P90 de la date';
     $('ind').textContent = indText(IND[t < .5 ? i : j]);
@@ -200,8 +202,8 @@ window.renderFrame = (fr) => {
     $('cap1').textContent = `Document source — panneau original du ${fmt(dt)}`; $('cap2').textContent = 'Plan 2D géoréférencé (repère maquette) — même donnée que la maquette 3D';
     setImgs([`panel_${i}.png`, `plan_${i}.png`], [`panel_${j}.png`, `plan_${j}.png`], t);
   } else if (s.kind === 'diff') {
-    U.whiteMix.value = 0; U.diffMode.value = 1; camAt(lerp(245, 290, u), 16500, lerp(8200, 9000, u));
-    $('date').textContent = '2024 − 1984'; $('mode').textContent = 'Réchauffement de surface par cellule de 40 m (taches 3D : +55 m par °C)';
+    U.whiteMix.value = 0; U.diffMode.value = 1; camAt(lerp(245, 290, u), 17000, lerp(17500, 18500, u), -2500);
+    $('date').textContent = '2024 − 1984'; $('mode').textContent = 'Réchauffement de surface par cellule de 40 m — taches 3D : zones réchauffées de plus de 6 °C (+45 m par °C)';
     $('lname').textContent = 'ΔLST (°C) : bleu = refroidissement, rouge = réchauffement';
     const a = IND[0], b = IND[ND - 1];
     $('ind').textContent = `Δ moyenne      ${(b.moyenne - a.moyenne >= 0 ? '+' : '')}${(b.moyenne - a.moyenne).toFixed(1)} °C\nΔ P90          ${(b.P90 - a.P90 >= 0 ? '+' : '')}${(b.P90 - a.P90).toFixed(1)} °C\n> 40 °C        ${a.pct_sup_40.toFixed(1)} % → ${b.pct_sup_40.toFixed(1)} %\nICU surface    ${a.suhi_bati_moins_non_bati.toFixed(2)} → ${b.suhi_bati_moins_non_bati.toFixed(2)} °C\n\nAttention : 2 acquisitions isolées\n(conditions météo du jour incluses)`;
@@ -209,7 +211,7 @@ window.renderFrame = (fr) => {
     setImgs(['plan_diff.png', `plan_${ND - 1}.png`], ['plan_diff.png', `plan_${ND - 1}.png`], 0);
   } else {
     U.whiteMix.value = 0; U.texA.value = U.texB.value = texs[ND - 1]; zl[ND - 1].visible = true;
-    camAt(290, lerp(16500, 24000, ease(u)), lerp(9000, 17000, ease(u)));
+    camAt(290, lerp(17000, 22000, ease(u)), lerp(18500, 28000, ease(u)), -2500);
     $('date').textContent = 'Synthèse 1984 → 2024'; $('mode').textContent = 'LST 10/07/2024 — maquette numérique Rhino';
     $('ind').textContent = indText(IND[ND - 1]);
     $('title').innerHTML = '<p style="margin-top:420px">Sources : figure LST 1984–2024 (Landsat) · maquette blanche Rhino 8 · Copernicus GLO-30 · OSM</p><p>Valeurs approximatives (lecture des couleurs de la figure) — température de SURFACE, pas de l\'air</p>';
