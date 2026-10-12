@@ -45,7 +45,7 @@ def main():
     GR = j(R / "geometrie/geometrie_report.json"); GRR = j(R / "geometrie_emprises_reelles/geometrie_report.json")
     INV = {p.stem: j(p) for p in (R / "inventaire").glob("inventaire_*.json")}
     runs = {"S6_ref_coarse": "S6 été NNO — maillage grossier (référence)", "S2_ref_coarse": "S2 SO — maillage grossier",
-            "S6T2_ref_coarse": "S6 thermique couplé (Boussinesq, initialisé depuis S6)", "S6_ref_medium": "S6 été NNO — maillage fin",
+            "S6T3_ref_coarse": "S6 thermique couplé (Boussinesq, initialisé depuis S6)", "S6_ref_medium": "S6 été NNO — maillage fin",
             "S6_coarse": "S6 — variante bâti « emprises réelles » (sensibilité)"}
     M = {k: meta(k) for k in runs}
     L = []; w = L.append
@@ -139,10 +139,18 @@ def main():
       "SIMPLE, quantité de mouvement linearUpwind limité, k et ε upwind.")
     w("* Thermique : `buoyantBoussinesqSimpleFoam` (Boussinesq, β = 3,3·10⁻³ K⁻¹), toitures et sol à la **LST du 10/07/2024** "
       "(température de surface imposée), murs à la température de l'air (aucune donnée), air entrant à la moyenne observée des après-midi d'été.")
-    w("* **Premier essai thermique divergé** (`S6T_ref_coarse`, démarré au repos, sous-relaxation 0,6) : k et ε non bornés dès "
-      "l'itération 95, arrêt sur exception numérique à l'itération 452 ; aucun résultat n'en est utilisé. Calcul refait "
-      "(`S6T2_ref_coarse`) à partir du champ isotherme convergé de S6, sous-relaxation 0,4 (U, k, ε, T) et 0,2 (p_rgh), "
-      "2 correcteurs de non-orthogonalité, T en upwind (1er ordre, plus diffusif), 1000 itérations.")
+    w("* **Deux essais thermiques divergés, non utilisés** : `S6T_ref_coarse` (démarré au repos, sous-relaxation 0,6) — k et ε "
+      "non bornés dès l'itération 95, exception numérique à l'itération 452 ; `S6T2_ref_coarse` (démarré du champ isotherme "
+      "convergé, sous-relaxation 0,4) — exception à l'itération 92. Diagnostic (champs écrits aux itérations 42 et 84) : la "
+      "divergence naît hors des secteurs, dans des mailles aplaties (2 à 4 m de haut pour 13 à 18 m de large) plaquées sur le "
+      "relief par snappyHexMesh (le maillage compte 2139 faces très obliques, obliquité max 19,8, et 1570 mailles de faible "
+      "déterminant), où le couplage pression–flottabilité produit des vitesses de plusieurs milliers de m/s ; l'air y est à "
+      "~29,6 °C, ce n'est donc pas un panache thermique physique.")
+    w("* **Calcul retenu** `S6T3_ref_coarse` : départ du champ isotherme convergé de S6, sous-relaxation 0,4 (U, k, ε, T) et "
+      "0,2 (p_rgh), 2 correcteurs de non-orthogonalité, T en upwind (1er ordre, plus diffusif), 1000 itérations, et "
+      "**garde-fou `limitVelocity` à 30 m/s** (≈ 5 Uref, sans effet sur un écoulement physique). Les points où U > 3 Uref "
+      "restent exclus et comptés en post-traitement. Un maillage de meilleure qualité au contact du relief (couches "
+      "prismatiques) est la correction de fond recommandée.")
     w("")
     w("## 5. Résultats")
     w("")

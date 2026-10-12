@@ -522,6 +522,12 @@ boundaryField
     (case / "0/p").write_text(pc)
     w(case / "constant/g", "uniformDimensionedVectorField", "g", "\ndimensions [0 1 -2 0 0 0 0];\nvalue (0 0 -9.81);\n")
     w(case / "constant/hRef", "uniformDimensionedScalarField", "hRef", "\ndimensions [0 1 0 0 0 0 0];\nvalue 0;\n")
+    # safeguards: the coarse mesh has flattened, skewed cells snapped on the terrain (2139 skew faces, max 19.8);
+    # without them the buoyancy/pressure coupling blew up there (U > 1000 m/s outside the sectors, it. 42-92).
+    # Caps far above any physical value; the post-processing still excludes and counts U > 3 Uref.
+    w(case / "constant/fvOptions", "dictionary", "fvOptions", f"""
+limitU {{ type limitVelocity; active yes; selectionMode all; U U; max 30; }}
+""")   # (limitTemperature needs a compressible thermo: not available with Boussinesq; T is bounded by upwind + BCs)
     (case / "thermal_bc.json").write_text(json.dumps(rep, indent=1))
 
 

@@ -97,7 +97,7 @@ def main():
     work, out_mp4 = Path(sys.argv[1]), Path(sys.argv[2]); work.mkdir(parents=True, exist_ok=True)
     W = j(R / "wind/wind_stats.json"); SC = j(R / "wind/cfd_scenarios.json"); GR = j(R / "geometrie/geometrie_report.json")
     INV = {p.stem: j(p) for p in (R / "inventaire").glob("inventaire_*.json")}
-    m6, m2, mT, mF, mV = (meta(c) for c in ("S6_ref_coarse", "S2_ref_coarse", "S6T2_ref_coarse", "S6_ref_medium", "S6_coarse"))
+    m6, m2, mT, mF, mV = (meta(c) for c in ("S6_ref_coarse", "S2_ref_coarse", "S6T3_ref_coarse", "S6_ref_medium", "S6_coarse"))
     overview_map(work / "carte_secteurs.png")
     mesh_png = mesh_slice(work / "coupe_maillage.png")
     segs = []
@@ -211,7 +211,7 @@ def main():
                                bullets=["IMPORTÉ : température de surface LST (toits, sol) — figure Landsat, 10/07/2024", "CALCULÉ : température de l'air (Boussinesq) sous le vent S6",
                                         "Murs à la température de l'air (pas de donnée) · mer supposée à 24 °C", "Non modélisé : rayonnement, ombrage, végétation transpirante"], min=6),
                          image(ROOT / "results/thermal/apercu_3d_thermique_centre.png", 4),
-                         image(next((R / "post/S6T2_ref_coarse").glob("carte_Tair_*.png"), None), 6, zoom=False)) if c])
+                         image(next((R / "post/S6T3_ref_coarse").glob("carte_Tair_*.png"), None), 6, zoom=False)) if c])
     else:
         seg("E_thermique", ["Le cas thermique couplé n'était pas disponible au moment du montage : la séquence est présentée comme une étape préparée."],
             [slide("E · Thermique", "Couplage vent – chaleur : étape préparée", badge=("plan", "non exécuté"))])
