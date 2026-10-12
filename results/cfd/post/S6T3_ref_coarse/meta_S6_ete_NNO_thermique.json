@@ -1,0 +1,100 @@
+{
+ "scenario": "S6_ete_NNO_thermique",
+ "solver": "OpenFOAM v1912 buoyantBoussinesqSimpleFoam, RANS realizable k-epsilon",
+ "mesh_cells": 1448909,
+ "geo_dir": "/home/user/work/cfd/cases/S6T3_ref_coarse/constant/triSurface",
+ "bati": "principal",
+ "dir_from_deg": 337.5,
+ "U10_ref_ms": 5.83,
+ "U_scale_max": 11.7,
+ "units": {
+  "U": "m/s",
+  "p": "m2/s2 (pression cinématique)",
+  "T": "degC"
+ },
+ "iterations": 1000,
+ "final_residuals": {
+  "Ux": 0.0002601253,
+  "Uy": 0.0001321958,
+  "Uz": 0.0006508199,
+  "T": 5.05448e-05,
+  "p_rgh": 0.01153121,
+  "epsilon": 8.715078e-05,
+  "k": 0.0006083104
+ },
+ "mass_flux_in_m3s": -142755989.73797,
+ "mass_flux_out_m3s": 142756583.02399582,
+ "mass_imbalance_rel": 4.155944888275055e-06,
+ "indicateurs_secteurs": {
+  "CENTRE_VILLE": {
+   "points_fluide_5m": 53563,
+   "surface_fluide_km2": 1.339075,
+   "U_moy": 1.825394423962961,
+   "U_p90": 3.604531026345825,
+   "U_max": 8.959366323538859,
+   "K_moy_U_sur_Uref": 0.31310367477923856,
+   "pct_acceleration_U_sup_1.2Uref": 0.9689524485185669,
+   "pct_stagnation_U_inf_0.5": 12.400350988555532,
+   "pct_flux_inverse": 32.692343595392344,
+   "artefacts_exclus_U_sup_3Uref": 0,
+   "stabilite_iterative": {
+    "iter_compare": [
+     800,
+     1000
+    ],
+    "dU_moy_rel_pct": 2.5097318750435513,
+    "dUmoy_secteur_rel_pct": 0.029509958689528853
+   },
+   "T_air_2m_moy_C": 29.68630829435941,
+   "T_air_2m_p90_C": 30.179723426771144,
+   "T_air_2m_max_C": 31.073126433610206
+  },
+  "GAMBETTA": {
+   "points_fluide_5m": 82727,
+   "surface_fluide_km2": 2.068175,
+   "U_moy": 2.6239793475161575,
+   "U_p90": 5.569420294240085,
+   "U_max": 16.93009949207942,
+   "K_moy_U_sur_Uref": 0.4500822208432517,
+   "pct_acceleration_U_sup_1.2Uref": 1.9449514668729677,
+   "pct_stagnation_U_inf_0.5": 10.879156744472784,
+   "pct_flux_inverse": 24.439421228861193,
+   "artefacts_exclus_U_sup_3Uref": 6,
+   "stabilite_iterative": {
+    "iter_compare": [
+     800,
+     1000
+    ],
+    "dU_moy_rel_pct": 1.3805494158086042,
+    "dUmoy_secteur_rel_pct": 0.02802347926527766
+   },
+   "T_air_2m_moy_C": 29.320516084402747,
+   "T_air_2m_p90_C": 30.057725218591003,
+   "T_air_2m_max_C": 31.54074669716549
+  },
+  "BD_DES_LIONS": {
+   "points_fluide_5m": 143877,
+   "surface_fluide_km2": 3.596925,
+   "U_moy": 2.2711133381290685,
+   "U_p90": 4.6441784882130595,
+   "U_max": 17.393257500872394,
+   "K_moy_U_sur_Uref": 0.38955631871853663,
+   "pct_acceleration_U_sup_1.2Uref": 0.2446534192400453,
+   "pct_stagnation_U_inf_0.5": 9.226631080714776,
+   "pct_flux_inverse": 19.813451767829466,
+   "artefacts_exclus_U_sup_3Uref": 23,
+   "stabilite_iterative": {
+    "iter_compare": [
+     800,
+     1000
+    ],
+    "dU_moy_rel_pct": 2.9656844306971193,
+    "dUmoy_secteur_rel_pct": 0.2008507682948436
+   },
+   "T_air_2m_moy_C": 30.927031253828922,
+   "T_air_2m_p90_C": 31.415670318256602,
+   "T_air_2m_max_C": 33.101342785681176
+  }
+ },
+ "streamlines": 126
+}
