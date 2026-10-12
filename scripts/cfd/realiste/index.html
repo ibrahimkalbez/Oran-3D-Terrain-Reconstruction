@@ -89,6 +89,13 @@ async function build(k) {
     tg.setAttribute('color', new THREE.BufferAttribute(col, 3));
     tubes.add(new THREE.Mesh(tg, new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.55, toneMapped: false }))); }
   sc.add(tubes); sc.userData.tubes = tubes;
+  // street-level particles (49_clips_realistes: traces advected by the computed wind at 2 m, equal time steps of 0.5 s)
+  const sr = await bin(`cfd/${k}_slrue.bin`); const rl = [];
+  if (sr) { let pos = 0; while (pos < sr.length) { const m = sr[pos]; const P = [], U = [];
+      for (let j = 1; j <= m; j++) { const o = pos + 4 * j; P.push(new THREE.Vector3(sr[o], sr[o + 2], -sr[o + 1])); U.push(sr[o + 3]); }
+      pos += 4 * (m + 1); rl.push({ P, U }); } }
+  const NR = 6, NT = 5, rp = new THREE.InstancedMesh(new THREE.SphereGeometry(0.16, 8, 6), new THREE.MeshBasicMaterial({ toneMapped: false }), Math.max(1, rl.length * NR * NT));
+  rp.renderOrder = 3; rp.visible = false; sc.add(rp); sc.userData.rparts = rp; sc.userData.rlines = rl;
   return sc;
 }
 for (const k of CFG.sectors) scenes[k] = await build(k);
@@ -112,9 +119,18 @@ window.frame = (f) => {
         const w = (sp - l.L[a - 1]) / Math.max(1e-6, l.L[a] - l.L[a - 1]); const p = l.P[a - 1].clone().lerp(l.P[a], w);
         mm.makeTranslation(p.x, p.y, p.z); parts.setMatrixAt(i, mm); parts.setColorAt(i, jet(l.U[a] / VMAX)); i++; } }
     parts.instanceMatrix.needsUpdate = true; if (parts.instanceColor) parts.instanceColor.needsUpdate = true; }
+  const rp = sc.userData.rparts; rp.visible = !!f.streetParticles;
+  if (f.streetParticles) { let i = 0; const t = f.t || 0;
+    // comet trails: head + 4 trailing points over the last 2 s, shrinking; nothing within 3 m of the eye
+    for (const l of sc.userData.rlines) { const n = l.P.length;
+      for (let j = 0; j < 6; j++) for (let q = 0; q < 5; q++) {
+        const fi = (((j / 6) * n + t / 0.5 - q) % (n - 1) + (n - 1)) % (n - 1); const a = Math.floor(fi), w = fi - a;
+        const p = l.P[a].clone().lerp(l.P[a + 1], w); const dc = p.distanceTo(cam.position), sz = dc < 3 ? 0 : (1 - q * 0.17) * Math.min(1, Math.max(0.3, dc / 10));
+        mm.makeScale(sz, sz, sz).setPosition(p); rp.setMatrixAt(i, mm); rp.setColorAt(i, jet(l.U[a] / VMAX)); i++; } }
+    rp.instanceMatrix.needsUpdate = true; if (rp.instanceColor) rp.instanceColor.needsUpdate = true; }
   $('t1').textContent = f.title || ''; $('t2').textContent = f.subtitle || ''; $('t3').textContent = f.tech || '';
   $('tag').textContent = f.tag || ''; $('tag').style.display = f.tag ? 'block' : 'none';
-  $('leg').style.display = (f.ground || f.particles || f.tubes) ? 'block' : 'none';
+  $('leg').style.display = (f.ground || f.particles || f.tubes || f.streetParticles) ? 'block' : 'none';
   $('legm').textContent = `soit 0 à ${(VMAX * f.uref).toFixed(1)} m/s (Uref = ${f.uref} m/s à 10 m, Es Sénia)`;
   $('sub').textContent = f.sub || '';
   r.render(sc, cam); return true;
