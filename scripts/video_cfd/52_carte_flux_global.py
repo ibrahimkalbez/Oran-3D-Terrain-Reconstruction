@@ -1,11 +1,12 @@
-"""Step 52 - 15 s overview video of the computed wind flow over the city centre and Gambetta (one map).
+"""Step 52 - 15 s overview video of the computed wind flow over one or several sectors in one map
+(default: city centre + Gambetta).
 
 Plan view at pedestrian height (2 m above the ground) of the OpenFOAM solution of one scenario, in the style of
 a CFD report: speed in colour (jet), white streaks advected by the computed horizontal wind, buildings in grey,
 annotations appearing one after the other. The annotated zones are detected in the field itself
 (stagnation U < 0.6 m/s, acceleration U > 1.2 Uref, reversed flow), never placed by hand.
 
-  python 52_carte_flux_global.py <case_dir> <out_mp4> [duration_s]
+  python 52_carte_flux_global.py <case_dir> <out_mp4> [duration_s] [SECTOR,SECTOR]   e.g. CENTRE_VILLE
 """
 import importlib.util
 import json
@@ -99,7 +100,12 @@ def blobs(mask, F, n, min_px):
 
 
 def main():
+    global KEYS
     case, out = Path(sys.argv[1]), Path(sys.argv[2]); dur = float(sys.argv[3]) if len(sys.argv) > 3 else 15.0
+    if len(sys.argv) > 4:
+        KEYS = tuple(sys.argv[4].split(","))
+    both = set(KEYS) == {"CENTRE_VILLE", "GAMBETTA"}
+    zone = "Centre-ville et Gambetta" if both else " + ".join(NAMES[k].capitalize() for k in KEYS)
     F = field(case); xs, ys, S = F["xs"], F["ys"], F["S"]; uref = F["uref"]; sc = F["sc"]
     d = sc["dir_from_deg"]; flow = np.array([-math.sin(math.radians(d)), -math.cos(math.radians(d))])
     # zones detected in the field
@@ -134,7 +140,7 @@ def main():
     ax.set_xlim(xs[0], xs[-1]); ax.set_ylim(ys[0], ys[-1]); ax.set_aspect("equal")
     ax.tick_params(colors="#b0bec5", labelsize=10)
     ax.set_xlabel("x (m) — Est", color="#b0bec5", fontsize=11); ax.set_ylabel("y (m) — Nord", color="#b0bec5", fontsize=11)
-    fig.text(0.045, 0.955, f"Centre-ville et Gambetta (Oran)  —  vent calculé à 2 m du sol  —  scénario {sc['id']}",
+    fig.text(0.045, 0.955, f"{zone} (Oran)  —  vent calculé à 2 m du sol  —  scénario {sc['id']}",
              color="w", fontsize=21, weight="bold")
     fig.text(0.045, 0.928, f"{F['solver']} · {F['ncells']:,} mailles · vent du {DIRS[round(d / 22.5) % 16]} ({d}°), {uref} m/s à 10 m (Es Sénia)"
              f" · traînées blanches : vent calculé, mouvement accéléré ×{SPEEDUP:.0f}".replace(",", " "), color="#cfd8dc", fontsize=12.5)
@@ -144,8 +150,9 @@ def main():
         ax.text(b[0] + 40, b[1] + 40, NAMES[k], color="w", fontsize=16, weight="bold", ha="left", va="bottom",
                 bbox=dict(boxstyle="round,pad=0.3", fc=(0, 0, 0, 0.6), ec="none"))
         placed.append((b[0] + 200, b[1] + 80))
-    gx = (SECT["CENTRE_VILLE"]["model_box_m"][2] + SECT["GAMBETTA"]["model_box_m"][0]) / 2
-    ax.text(gx, ys[0] + 300, "bâti hors\nzone modélisée", color="#90a4ae", fontsize=10, ha="center", style="italic")
+    if both:
+        gx = (SECT["CENTRE_VILLE"]["model_box_m"][2] + SECT["GAMBETTA"]["model_box_m"][0]) / 2
+        ax.text(gx, ys[0] + 300, "bâti hors\nzone modélisée", color="#90a4ae", fontsize=10, ha="center", style="italic")
     # wind arrow
     ax0 = xs[0] + 200; ay0 = ys[-1] - 330
     ax.annotate("", xy=(ax0 + 170 * flow[0], ay0 + 170 * flow[1]), xytext=(ax0 - 170 * flow[0], ay0 - 170 * flow[1]),
@@ -180,9 +187,23 @@ def main():
         for a in arts:
             for c in (a.collections if hasattr(a, "collections") else [a]):
                 c.set_visible(False)
-    captions = [(0.0, f"Vent du nord-nord-ouest (brise de mer d'été). Vitesse calculée à 2 m du sol sur l'ensemble centre-ville + Gambetta.")] + \
-               [(t0, txt) for t0, _, txt in layers] + \
-               [(dur * 0.86, "Gambetta : couloir de vent rapide sur l'escarpement. Centre-ville : ventilation faible, à préserver le long des axes NNO–SSE.")]
+    inb = np.zeros_like(F["bld"])
+    for k in KEYS:
+        b = SECT[k]["model_box_m"]
+        inb[np.ix_((ys > b[1]) & (ys < b[3]), (xs > b[0]) & (xs < b[2]))] = True
+    um = float(np.nanmean(S[inb])); pst = float(100 * np.nanmean((S[inb] < 0.6)[~np.isnan(S[inb])]))
+    if both:
+        intro = "Vent du nord-nord-ouest (brise de mer d'été). Vitesse calculée à 2 m du sol sur l'ensemble centre-ville + Gambetta."
+        accs = "En magenta : accélérations. Le vent de mer franchit le rebord de l'escarpement et s'accélère au sommet."
+        concl = "Gambetta : couloir de vent rapide sur l'escarpement. Centre-ville : ventilation faible, à préserver le long des axes NNO–SSE."
+    else:
+        fr = lambda v, n: f"{v:.{n}f}".replace(".", ",")
+        intro = (f"Vent du nord-nord-ouest (brise de mer d'été). Au niveau du piéton, la vitesse moyenne calculée n'est que de "
+                 f"{fr(um, 1)} m/s, soit {fr(um / uref, 2)} fois le vent de référence.")
+        accs = "En magenta : accélérations. Le vent de mer s'accélère en franchissant le rebord du front de mer, avant d'entrer dans le tissu dense."
+        concl = (f"Centre-ville : bien abrité mais peu ventilé ({pst:.0f} % de l'espace piéton sous 0,6 m/s). "
+                 f"Les axes orientés NNO–SSE sont les couloirs de ventilation à préserver.")
+    captions = [(0.0, intro)] + [(t0, txt if "magenta" not in txt else accs) for t0, _, txt in layers] + [(dur * 0.86, concl)]
     ff = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgba", "-s", f"{W}x{H}", "-r", str(FPS), "-i", "-",
                            "-vf", "format=yuv420p", "-c:v", "libx264", "-crf", "18", "-preset", "slow", "-movflags", "+faststart", str(out)],
                           stdin=subprocess.PIPE)
