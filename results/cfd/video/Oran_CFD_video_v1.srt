@@ -1,0 +1,172 @@
+1
+00:00:00,600 --> 00:00:06,738
+Cette vidéo présente l'étude du vent et de la chaleur dans trois secteurs d'Oran : le centre-ville, Gambetta et le boulevard des Lions.
+
+2
+00:00:07,188 --> 00:00:14,732
+Elle part des maquettes numériques existantes dans Rhino 8 et va jusqu'aux résultats des simulations, en distinguant ce qui est calculé, estimé ou seulement préparé.
+
+3
+00:00:16,182 --> 00:00:27,506
+La maquette urbaine détaillée compte 110416 objets répartis sur 334 calques, avec 24 matériaux et leurs textures : asphaltes, trottoirs en dalles, bordures en granit, végétation.
+
+4
+00:00:27,956 --> 00:00:35,204
+La topographie provient du modèle numérique Copernicus, les voiries sont hiérarchisées, et le mobilier urbain comprend lampadaires et arbres d'alignement.
+
+5
+00:00:35,654 --> 00:00:40,083
+Ces vues sont rendues directement à partir du fichier Rhino, avec ses matériaux d'origine.
+
+6
+00:00:41,533 --> 00:00:50,345
+La maquette thermique est déjà présente dans Rhino : la température de surface du 10 juillet 2024 y est représentée par un nuage de points et des calques de couleur, un calque par degré.
+
+7
+00:00:50,795 --> 00:01:00,675
+Ces températures ont été reconstruites à partir des couleurs d'une figure satellite Landsat, grâce à la légende du document : ce sont des valeurs approximatives de température de surface, pas de l'air.
+
+8
+00:01:02,125 --> 00:01:11,140
+Les trois secteurs ont été localisés à partir de données nommées : la place du Premier Novembre et Sidi El Houari pour le centre-ville, la cité Gambetta, et le tracé du boulevard des Lions.
+
+9
+00:01:11,590 --> 00:01:18,991
+Les deux maquettes partagent le même repère métrique ; un décalage connu d'environ trente-trois mètres a été corrigé avant d'associer une température à chaque bâtiment.
+
+10
+00:01:20,441 --> 00:01:32,605
+Une géométrie de calcul dérivée a été créée sans modifier la maquette : 6959 bâtiments au centre-ville, 7100 à Gambetta et 5438 au boulevard des Lions, chacun relié à son objet Rhino par un identifiant.
+
+11
+00:01:33,055 --> 00:01:40,667
+Les textures ne sont pas des propriétés aérodynamiques : elles restent dans Rhino, la simulation n'utilise que les volumes, le relief et une rugosité du sol.
+
+12
+00:01:42,117 --> 00:01:51,478
+Les conditions d'entrée reposent sur 93514 heures d'observations de la station d'Oran Es Sénia, entre 2014 et 2024, issues de la base NOAA ISD.
+
+13
+00:01:51,928 --> 00:01:57,573
+La vitesse moyenne à dix mètres est de 3,6 mètre par seconde, avec 7,2 pour cent de calmes.
+
+14
+00:01:58,023 --> 00:02:04,846
+La rose des vents montre deux régimes : une brise de mer de nord à nord-ouest, le jour et en été, et un vent de terre de sud-ouest, la nuit et en hiver.
+
+15
+00:02:05,296 --> 00:02:12,663
+Les après-midi d'été, le nord et le nord-nord-ouest représentent plus de soixante pour cent des heures, avec 5,8 mètres par seconde en moyenne.
+
+16
+00:02:13,113 --> 00:02:18,588
+Les scénarios de calcul reprennent ces situations observées ; aucune direction dominante n'a été supposée.
+
+17
+00:02:20,038 --> 00:02:27,075
+Le domaine de calcul mesure dix-sept kilomètres sur dix, et neuf cents mètres de haut ; il couvre les trois secteurs et les zones intermédiaires.
+
+18
+00:02:27,525 --> 00:02:35,842
+Le maillage est généré automatiquement autour du relief et des bâtiments, avec des mailles de douze mètres et demi contre les façades dans le maillage grossier, et de six mètres dans le maillage fin.
+
+19
+00:02:36,292 --> 00:02:45,577
+Le vent entre avec un profil logarithmique de couche limite neutre, calé sur la vitesse observée à Es Sénia ; le sol reçoit une rugosité différente pour la mer, la ville et la campagne.
+
+20
+00:02:46,027 --> 00:02:51,801
+La turbulence est représentée par le modèle k epsilon réalisable, adapté aux écoulements décollés autour des bâtiments.
+
+21
+00:02:52,251 --> 00:03:02,901
+Les calculs présentés ont été réalisés avec OpenFOAM. Le même maillage, exporté au format Fluent, et les mêmes conditions aux limites sont fournis pour ANSYS : cette étape est préparée mais n'a pas été exécutée ici.
+
+22
+00:03:04,351 --> 00:03:16,986
+Scénario S6 : vent venant du 337,5 degrés, 5,83 mètres par seconde à dix mètres à Es Sénia ; 1448909 mailles, bilan de masse équilibré à mieux que un pour cent mille.
+
+23
+00:03:17,436 --> 00:03:24,795
+À deux mètres du sol, la vitesse moyenne vaut 2,1 mètre par seconde au centre-ville, 2,8 à Gambetta et 2,2 au boulevard des Lions.
+
+24
+00:03:25,245 --> 00:03:31,448
+Les zones quasi calmes, sous un demi mètre par seconde, couvrent 10,4 pour cent de l'espace public au centre-ville.
+
+25
+00:03:31,898 --> 00:03:40,263
+La brise de mer s'accélère fortement au rebord de l'escarpement côtier de Gambetta et au sommet de la falaise du front de mer, puis les îlots denses créent de larges zones abritées et des sillages.
+
+26
+00:03:50,351 --> 00:04:02,740
+Scénario S2 : vent venant du 225,0 degrés, 4,63 mètres par seconde à dix mètres à Es Sénia ; 1448909 mailles, bilan de masse équilibré à mieux que un pour cent mille.
+
+27
+00:04:03,190 --> 00:04:10,804
+À deux mètres du sol, la vitesse moyenne vaut 0,9 mètre par seconde au centre-ville, 1,6 à Gambetta et 1,5 au boulevard des Lions.
+
+28
+00:04:11,254 --> 00:04:17,494
+Les zones quasi calmes, sous un demi mètre par seconde, couvrent 31,8 pour cent de l'espace public au centre-ville.
+
+29
+00:04:17,944 --> 00:04:25,344
+Avec le vent de terre, le centre-ville est presque entièrement abrité dans le sillage du bâti ; seuls les couloirs orientés sud-ouest nord-est restent ventilés.
+
+30
+00:04:26,794 --> 00:04:33,063
+En comparant les deux régimes, la brise de mer ventile nettement mieux les trois secteurs que le vent de terre, en particulier le centre-ville.
+
+31
+00:04:33,513 --> 00:04:38,709
+Gambetta reste le secteur le plus exposé, en raison de l'escarpement qui accélère le vent venant de la mer.
+
+32
+00:04:40,159 --> 00:04:49,474
+Pour le couplage thermique, les toits et le sol reçoivent la température de surface du 10 juillet 2024, importée de la maquette thermique ; c'est une donnée d'entrée, pas un résultat.
+
+33
+00:04:49,924 --> 00:04:56,887
+Le calcul résout ensuite la température de l'air transportée par le vent, avec un air entrant à la température moyenne observée des après-midi d'été.
+
+34
+00:04:57,337 --> 00:05:07,078
+La température de l'air calculée à deux mètres atteint en moyenne 29,69 degrés au centre-ville, 29,32 à Gambetta et 30,93 au boulevard des Lions.
+
+35
+00:05:07,528 --> 00:05:20,587
+Deux premiers essais ont divergé, à cause de mailles déformées plaquées sur le relief hors des secteurs ; ils ne sont pas utilisés. Le calcul retenu part du champ de vent convergé et plafonne la vitesse à trente mètres par seconde, un garde-fou sans effet sur l'écoulement physique.
+
+36
+00:05:21,037 --> 00:05:26,267
+Le rayonnement n'est pas modélisé et les murs n'ont pas de donnée : ces valeurs décrivent une tendance, pas une mesure.
+
+37
+00:05:27,717 --> 00:05:34,217
+Les bilans de masse sont équilibrés à mieux que un pour cent mille et les champs piétons varient de moins de un dixième de pour cent entre les dernières itérations.
+
+38
+00:05:34,667 --> 00:05:44,811
+La densité du bâti compte beaucoup : avec des emprises incomplètes, la ventilation du centre-ville serait surestimée, avec un rapport de vitesse de 0,49 au lieu de 0,36.
+
+39
+00:05:45,261 --> 00:05:53,633
+Aucune mesure de vent n'existe à l'intérieur des secteurs : la comparaison directe avec des observations n'est pas possible, et des mesures anémométriques dans les rues sont recommandées.
+
+40
+00:05:55,083 --> 00:06:02,906
+En synthèse, Gambetta présente les accélérations les plus fortes, au rebord de l'escarpement, à surveiller pour le confort et la sécurité des piétons par vent de mer.
+
+41
+00:06:03,356 --> 00:06:11,236
+Le centre-ville dense est bien abrité mais mal ventilé, surtout par vent de terre : les couloirs nord-nord-ouest, sud-sud-est sont essentiels à sa ventilation.
+
+42
+00:06:11,686 --> 00:06:15,842
+Le boulevard des Lions est ventilé par ses grands axes, mais ses cœurs d'îlots restent calmes.
+
+43
+00:06:16,292 --> 00:06:25,584
+Les recommandations portent sur la préservation des couloirs de ventilation orientés vers la mer, des protections végétales au rebord de l'escarpement, et des mesures de terrain pour valider ces résultats.
+
