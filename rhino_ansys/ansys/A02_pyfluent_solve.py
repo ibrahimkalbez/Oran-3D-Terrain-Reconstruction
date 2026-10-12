@@ -5,7 +5,7 @@ NOT EXECUTED in the preparation environment (no ANSYS there): to be run on the w
 where Fluent is installed. Inputs come from the OpenFOAM preparation (identical mesh and
 boundary data, so Fluent and OpenFOAM results can be compared one to one):
 
-  <pkg>/mesh/oran_<level>.msh          mesh exported by foamMeshToFluent (zones: ground,
+  <pkg>/mesh/oran_<level>.msh[.gz]     mesh exported by foamMeshToFluent (zones: ground,
                                         buildings_CENTRE_VILLE, buildings_GAMBETTA,
                                         buildings_BD_DES_LIONS, west, east, south, north, top)
   <pkg>/scenarios/<id>/scenario.json   roles of the boundaries (inlet / outlet / slip), u*, z0
@@ -43,7 +43,8 @@ def main():
     L(f"launch Fluent 3ddp, {a.cores} cores, scenario {a.sid}, thermal={thermal}")
     s = pyfluent.launch_fluent(mode="solver", precision="double", processor_count=a.cores,
                                ui_mode="no_gui", dimension=3, cleanup_on_exit=True)
-    s.file.read_mesh(file_name=str(pkg / "mesh" / f"oran_{a.level}.msh"))
+    msh = next(p for p in (pkg / "mesh" / f"oran_{a.level}.msh.gz", pkg / "mesh" / f"oran_{a.level}.msh") if p.exists())
+    s.file.read_mesh(file_name=str(msh))
     s.mesh.check(); s.mesh.quality()
     # --- physics
     s.setup.models.viscous.model = "k-epsilon"
