@@ -45,8 +45,21 @@ def stl_tris(path):
     return np.array([list(map(float, t.split()[:3])) for t in txt]).reshape(-1, 3, 3)
 
 
+def free_point(p, along, roofs, clear=3.0):
+    """First point near p (lateral offsets, then along the street) that is >= clear m from every building footprint:
+    the street axes come from OSM centroids and can fall inside a building of the reference layer."""
+    from shapely.geometry import Point
+    side = np.array([-along[1], along[0]])
+    for a in (0, 5, 10, 15, 20, 30):
+        for o in (0, 3, -3, 6, -6, 9, -9, 12, -12, 15, -15):
+            q = p + a * along + o * side
+            if roofs.distance(Point(q)) >= clear:
+                return q
+    return p
+
+
 def main():
-    post, sid, out = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]); out.mkdir(parents=True, exist_ok=True)
+    post, sid, out = Path(sys.argv[1]), sys.argv[2], Path(sys.argv[3]).resolve(); out.mkdir(parents=True, exist_ok=True)
     meta = json.loads((post / f"meta_{sid}.json").read_text()); uref = meta["U10_ref_ms"]
     ped = pd.read_csv(post / f"champ_pieton_{sid}.csv")
     sl = pd.read_csv(post / f"lignes_courant_{sid}.csv")
@@ -67,7 +80,12 @@ def main():
         n2 = ix.sum(); i = (np.arange(iy.sum() - 1)[:, None] * n2 + np.arange(n2 - 1)[None, :]).ravel()
         to3(P).tofile(web / f"{k}_terrain_pos.bin")
         np.r_[np.c_[i, i + n2, i + 1].ravel(), np.c_[i + 1, i + n2, i + n2 + 1].ravel()].astype(np.uint32).tofile(web / f"{k}_terrain_idx.bin")
-        to3(stl_tris(Path(meta["geo_dir"]) / f"buildings_{k}.stl").reshape(-1, 3)).tofile(web / f"{k}_bld.bin")
+        V = stl_tris(Path(meta["geo_dir"]) / f"buildings_{k}.stl")
+        to3(V.reshape(-1, 3)).tofile(web / f"{k}_bld.bin")
+        from shapely.geometry import Polygon
+        from shapely.ops import unary_union
+        nz = np.cross(V[:, 1] - V[:, 0], V[:, 2] - V[:, 0])
+        roofs = unary_union([Polygon(t[:, :2]) for t in V[nz[:, 2] > 0.9 * np.linalg.norm(nz, axis=1)] if Polygon(t[:, :2]).area > 1e-3])
         d = ped[ped.secteur == k]
         # continuous draped surface of the pedestrian field: regular 5 m grid, a quad where its 4 corners are fluid
         gx = np.round((d.x.values - b[0]) / 5).astype(int); gy = np.round((d.y.values - b[1]) / 5).astype(int)
@@ -95,7 +113,8 @@ def main():
         for j, (nm, pts) in enumerate(STREETS[k]):
             p0, p1 = np.array(pts[0], float), np.array(pts[-1], float)
             dvec = (p1 - p0) / np.linalg.norm(p1 - p0)
-            for tag, (src, dst) in (("rue", (p0 - 15 * dvec, p1)), ("rue_inverse", (p1 + 15 * dvec, p0))):
+            for tag, (src, dst) in (("rue", (free_point(p0 - 15 * dvec, dvec, roofs), p1)),
+                                    ("rue_inverse", (free_point(p1 + 15 * dvec, -dvec, roofs), p0))):
                 z0 = float(zg([[src[1], src[0]]])[0]) + 1.7; z1 = float(zg([[dst[1], dst[0]]])[0]) + 6.0
                 shots.append({"sector": k, "name": f"{k}_{tag}_{j}", "label": f"{nm} — vue piétonne (œil à 1,7 m)", "street": True,
                               "cam": to3([(src[0], src[1], z0)])[0].tolist(), "tgt": to3([(dst[0], dst[1], z1)])[0].tolist(), "fov": 70})
@@ -104,7 +123,7 @@ def main():
             shots.append({"sector": k, "name": f"{k}_rue_haute_{j}", "label": f"{nm} — perspective à 60 m",
                           "cam": to3([(c2[0], c2[1], float(zg([[c2[1], c2[0]]])[0]) + 60)])[0].tolist(),
                           "tgt": to3([(mid[0], mid[1], float(zg([[mid[1], mid[0]]])[0]))])[0].tolist(), "fov": 55})
-    scene = {"sid": sid, "uref": uref, "dir": meta["dir_from_deg"], "solver": meta["solver"], "cells": meta.get("mesh_cells"),
+    scene = {"sid": sid, "uref": uref, "dir": meta["dir_from_deg"], "solver": meta["solver"], "cells": meta.get("mesh_cells"), "bati": meta.get("bati"),
              "shots": shots, "sectors": list(SECT)}
     (web / "scene.json").write_text(json.dumps(scene))
     srv = subprocess.Popen([sys.executable, "-m", "http.server", "8771", "--bind", "127.0.0.1"], cwd=web,

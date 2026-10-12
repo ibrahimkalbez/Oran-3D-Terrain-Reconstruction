@@ -45,7 +45,7 @@ def main():
     GR = j(R / "geometrie/geometrie_report.json"); GRR = j(R / "geometrie_emprises_reelles/geometrie_report.json")
     INV = {p.stem: j(p) for p in (R / "inventaire").glob("inventaire_*.json")}
     runs = {"S6_ref_coarse": "S6 été NNO — maillage grossier (référence)", "S2_ref_coarse": "S2 SO — maillage grossier",
-            "S6T_ref_coarse": "S6 thermique couplé (Boussinesq)", "S6_ref_medium": "S6 été NNO — maillage fin",
+            "S6T2_ref_coarse": "S6 thermique couplé (Boussinesq, initialisé depuis S6)", "S6_ref_medium": "S6 été NNO — maillage fin",
             "S6_coarse": "S6 — variante bâti « emprises réelles » (sensibilité)"}
     M = {k: meta(k) for k in runs}
     L = []; w = L.append
@@ -139,6 +139,10 @@ def main():
       "SIMPLE, quantité de mouvement linearUpwind limité, k et ε upwind.")
     w("* Thermique : `buoyantBoussinesqSimpleFoam` (Boussinesq, β = 3,3·10⁻³ K⁻¹), toitures et sol à la **LST du 10/07/2024** "
       "(température de surface imposée), murs à la température de l'air (aucune donnée), air entrant à la moyenne observée des après-midi d'été.")
+    w("* **Premier essai thermique divergé** (`S6T_ref_coarse`, démarré au repos, sous-relaxation 0,6) : k et ε non bornés dès "
+      "l'itération 95, arrêt sur exception numérique à l'itération 452 ; aucun résultat n'en est utilisé. Calcul refait "
+      "(`S6T2_ref_coarse`) à partir du champ isotherme convergé de S6, sous-relaxation 0,4 (U, k, ε, T) et 0,2 (p_rgh), "
+      "2 correcteurs de non-orthogonalité, T en upwind (1er ordre, plus diffusif), 1000 itérations.")
     w("")
     w("## 5. Résultats")
     w("")

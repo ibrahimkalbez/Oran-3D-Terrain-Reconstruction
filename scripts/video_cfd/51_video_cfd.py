@@ -74,16 +74,19 @@ def mesh_slice(out, case="S6_ref_coarse"):
     c = CASES / case
     if not (c / "constant/polyMesh/owner").exists():
         return None
-    C = pp.mesh_centres(c)
-    sel = np.abs(C[:, 0] - 1350) < 6
-    P = C[sel]
+    lo, hi = pp.mesh_cell_boxes(c)
+    from matplotlib.collections import PatchCollection
+    from matplotlib.patches import Rectangle
+    sel = (lo[:, 0] <= 1350) & (hi[:, 0] > 1350)    # cells cut by the plane x = 1350 m
+    L, H = lo[sel], hi[sel]
+    hs = H[:, 0] - L[:, 0]                          # horizontal cell size (octree: 100, 50, 25, 12.5 m)
     fig, ax = plt.subplots(figsize=(16, 7), dpi=120)
-    fig.patch.set_facecolor("#0f1720"); ax.set_facecolor("#0f1720")
-    from scipy.spatial import cKDTree
-    d, _ = cKDTree(C).query(P, k=2); h = d[:, 1]
-    im = ax.scatter(P[:, 1], P[:, 2], c=h, s=3, cmap="viridis_r", norm=matplotlib.colors.LogNorm(4, 120))
+    fig.patch.set_facecolor("#050607"); ax.set_facecolor("#050607")
+    pc = PatchCollection([Rectangle((a[1], a[2]), b[1] - a[1], b[2] - a[2]) for a, b in zip(L, H)], cmap="viridis_r",
+                         norm=matplotlib.colors.LogNorm(10, 120), edgecolor="#050607", linewidth=0.3)
+    pc.set_array(hs); ax.add_collection(pc); im = pc
     ax.set_xlim(-800, 3000); ax.set_ylim(0, 400)
-    cb = fig.colorbar(im, ax=ax); cb.set_label("taille de maille (m)", color="w"); cb.ax.tick_params(colors="w")
+    cb = fig.colorbar(im, ax=ax); cb.set_label("taille horizontale de maille (m)", color="w"); cb.ax.tick_params(colors="w")
     ax.set_xlabel("Y (m) — coupe nord-sud par Gambetta (x = 1350 m)", color="#b0bec5"); ax.set_ylabel("z (m)", color="#b0bec5")
     ax.tick_params(colors="#b0bec5")
     fig.tight_layout(); fig.savefig(out, facecolor=fig.get_facecolor()); plt.close(fig)
@@ -94,7 +97,7 @@ def main():
     work, out_mp4 = Path(sys.argv[1]), Path(sys.argv[2]); work.mkdir(parents=True, exist_ok=True)
     W = j(R / "wind/wind_stats.json"); SC = j(R / "wind/cfd_scenarios.json"); GR = j(R / "geometrie/geometrie_report.json")
     INV = {p.stem: j(p) for p in (R / "inventaire").glob("inventaire_*.json")}
-    m6, m2, mT, mF, mV = (meta(c) for c in ("S6_ref_coarse", "S2_ref_coarse", "S6T_ref_coarse", "S6_ref_medium", "S6_coarse"))
+    m6, m2, mT, mF, mV = (meta(c) for c in ("S6_ref_coarse", "S2_ref_coarse", "S6T2_ref_coarse", "S6_ref_medium", "S6_coarse"))
     overview_map(work / "carte_secteurs.png")
     mesh_png = mesh_slice(work / "coupe_maillage.png")
     segs = []
@@ -185,7 +188,8 @@ def main():
         if label == "S6":
             for k in ("CENTRE_VILLE", "GAMBETTA", "BD_DES_LIONS"):
                 cl += [frames(CL / f"wind_aerien_{k}_S6_ref_coarse", 5), frames(CL / f"wind_rue_{k}_S6_ref_coarse", 5)]
-            cl += [image(R / "post" / case / "vues" / f"{v}.png", 3) for v in ("GAMBETTA_rue_0", "BD_DES_LIONS_rue_haute_0", "CENTRE_VILLE_rue_haute_0")]
+            # street level: realistic clips above (textured maquette, cameras on the asphalt); here the aerial result views
+            cl += [image(R / "post" / case / "vues" / f"{v}.png", 3) for v in ("GAMBETTA_aerienne", "BD_DES_LIONS_aerienne")]
         else:
             cl += [image(R / "post" / case / "vues" / f"{v}.png", 3) for v in ("CENTRE_VILLE_aerienne", "GAMBETTA_aerienne", "BD_DES_LIONS_aerienne")]
         cl += [image(next((R / "post" / case).glob("coupes_*.png"), None), 4, zoom=False)]
@@ -207,7 +211,7 @@ def main():
                                bullets=["IMPORTÉ : température de surface LST (toits, sol) — figure Landsat, 10/07/2024", "CALCULÉ : température de l'air (Boussinesq) sous le vent S6",
                                         "Murs à la température de l'air (pas de donnée) · mer supposée à 24 °C", "Non modélisé : rayonnement, ombrage, végétation transpirante"], min=6),
                          image(ROOT / "results/thermal/apercu_3d_thermique_centre.png", 4),
-                         image(next((R / "post/S6T_ref_coarse").glob("carte_Tair_*.png"), None), 6, zoom=False)) if c])
+                         image(next((R / "post/S6T2_ref_coarse").glob("carte_Tair_*.png"), None), 6, zoom=False)) if c])
     else:
         seg("E_thermique", ["Le cas thermique couplé n'était pas disponible au moment du montage : la séquence est présentée comme une étape préparée."],
             [slide("E · Thermique", "Couplage vent – chaleur : étape préparée", badge=("plan", "non exécuté"))])

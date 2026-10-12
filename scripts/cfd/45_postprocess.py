@@ -84,6 +84,33 @@ def mesh_centres(case):
     return C / cnt[:, None]
 
 
+def mesh_cell_boxes(case):
+    """Axis-aligned bounding box (min, max) of every cell, from its face points (used for mesh sections)."""
+    pm = Path(case) / "constant/polyMesh"
+    P = np.fromstring(body(pm / "points")[0][body(pm / "points")[1]:].split("(", 1)[1].rsplit(")", 1)[0]
+                      .replace("(", " ").replace(")", " "), sep=" ").reshape(-1, 3)
+    t, h = body(pm / "faces")
+    ints = np.fromstring(t[t.index("(", h) + 1:t.rindex(")")].replace("(", " ").replace(")", " "), sep=" ", dtype=np.int64)
+    starts, lens = [], []; pos = 0
+    while pos < len(ints):
+        n = int(ints[pos]); starts.append(pos + 1); lens.append(n); pos += n + 1
+    starts = np.array(starts); lens = np.array(lens)
+    fmin = np.zeros((len(starts), 3)); fmax = np.zeros((len(starts), 3))
+    for m in np.unique(lens):
+        k = lens == m
+        V = P[ints[starts[k][:, None] + np.arange(m)[None, :]]]
+        fmin[k] = V.min(1); fmax[k] = V.max(1)
+    def ilist(name):
+        t, h = body(pm / name)
+        return np.fromstring(t[t.index("(", h) + 1:t.rindex(")")], sep=" ", dtype=np.int64)
+    own, nei = ilist("owner"), ilist("neighbour")
+    nc = int(max(own.max(), nei.max())) + 1
+    lo = np.full((nc, 3), np.inf); hi = np.full((nc, 3), -np.inf)
+    for c, n in ((own, len(own)), (nei, len(nei))):
+        np.minimum.at(lo, c, fmin[:n]); np.maximum.at(hi, c, fmax[:n])
+    return lo, hi
+
+
 def footprints(tri_dir):
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
