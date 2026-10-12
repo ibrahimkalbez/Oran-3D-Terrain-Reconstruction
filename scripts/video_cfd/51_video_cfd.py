@@ -97,7 +97,7 @@ def main():
     work, out_mp4 = Path(sys.argv[1]), Path(sys.argv[2]); work.mkdir(parents=True, exist_ok=True)
     W = j(R / "wind/wind_stats.json"); SC = j(R / "wind/cfd_scenarios.json"); GR = j(R / "geometrie/geometrie_report.json")
     INV = {p.stem: j(p) for p in (R / "inventaire").glob("inventaire_*.json")}
-    m6, m2, mT, mF, mV = (meta(c) for c in ("S6_ref_coarse", "S2_ref_coarse", "S6T3_ref_coarse", "S6_ref_medium", "S6_coarse"))
+    m6, m2, mT, mF, mV = (meta(c) for c in ("S6_ref_coarse", "S2_ref_coarse", "S6T3_ref_coarse", "S6_ref_fin_gam", "S6_coarse"))
     overview_map(work / "carte_secteurs.png")
     mesh_png = mesh_slice(work / "coupe_maillage.png")
     segs = []
@@ -206,10 +206,12 @@ def main():
         seg("E_thermique", ["Pour le couplage thermique, les toits et le sol reçoivent la température de surface du 10 juillet 2024, importée de la maquette thermique ; c'est une donnée d'entrée, pas un résultat.",
                             "Le calcul résout ensuite la température de l'air transportée par le vent, avec un air entrant à la température moyenne observée des après-midi d'été.",
                             f"La température de l'air calculée à deux mètres atteint en moyenne {fr(I['CENTRE_VILLE']['T_air_2m_moy_C'], 2)} degrés au centre-ville, {fr(I['GAMBETTA']['T_air_2m_moy_C'], 2)} à Gambetta et {fr(I['BD_DES_LIONS']['T_air_2m_moy_C'], 2)} au boulevard des Lions.",
+                            "Deux premiers essais ont divergé, à cause de mailles déformées plaquées sur le relief hors des secteurs ; ils ne sont pas utilisés. Le calcul retenu part du champ de vent convergé et plafonne la vitesse à trente mètres par seconde, un garde-fou sans effet sur l'écoulement physique.",
                             "Le rayonnement n'est pas modélisé et les murs n'ont pas de donnée : ces valeurs décrivent une tendance, pas une mesure."],
             [c for c in (slide("E · Thermique", "Températures importées et températures calculées", badge=("est", "estimé"),
                                bullets=["IMPORTÉ : température de surface LST (toits, sol) — figure Landsat, 10/07/2024", "CALCULÉ : température de l'air (Boussinesq) sous le vent S6",
-                                        "Murs à la température de l'air (pas de donnée) · mer supposée à 24 °C", "Non modélisé : rayonnement, ombrage, végétation transpirante"], min=6),
+                                        "Murs à la température de l'air (pas de donnée) · mer supposée à 24 °C", "Non modélisé : rayonnement, ombrage, végétation transpirante",
+                                        "2 essais divergés écartés · calcul retenu : départ du champ S6 convergé, garde-fou U ≤ 30 m/s"], min=6),
                          image(ROOT / "results/thermal/apercu_3d_thermique_centre.png", 4),
                          image(next((R / "post/S6T3_ref_coarse").glob("carte_Tair_*.png"), None), 6, zoom=False)) if c])
     else:
@@ -220,8 +222,10 @@ def main():
     cmp = []
     if m6 and mF:
         e = [100 * (mF["indicateurs_secteurs"][k]["U_moy"] - m6["indicateurs_secteurs"][k]["U_moy"]) / mF["indicateurs_secteurs"][k]["U_moy"] for k in NAMES]
-        val.append(f"Entre le maillage grossier et le maillage fin, la vitesse moyenne piétonne change de {fr(abs(e[0]))}, {fr(abs(e[1]))} et {fr(abs(e[2]))} pour cent selon les secteurs.")
-        cmp = [["Secteur", "U grossier", "U fin", "écart"]] + [[NAMES[k], fr(m6["indicateurs_secteurs"][k]["U_moy"], 2), fr(mF["indicateurs_secteurs"][k]["U_moy"], 2), f"{fr(x)} %"] for k, x in zip(NAMES, e)]
+        g = list(NAMES).index("GAMBETTA"); o = [abs(x) for i, x in enumerate(e) if i != g]
+        val.append(f"Le maillage complet plus fin dépassait la mémoire disponible ; le raffinement à six mètres vingt-cinq a donc été appliqué aux bâtiments de Gambetta. "
+                   f"La vitesse moyenne piétonne y change de {fr(abs(e[g]))} pour cent, contre {fr(o[0])} et {fr(o[1])} pour cent dans les secteurs témoins non raffinés.")
+        cmp = [["Secteur", "U référence", "U fin (Gambetta raffiné)", "écart"]] + [[NAMES[k], fr(m6["indicateurs_secteurs"][k]["U_moy"], 2), fr(mF["indicateurs_secteurs"][k]["U_moy"], 2), f"{fr(x)} %"] for k, x in zip(NAMES, e)]
     if m6 and mV:
         val.append(f"La densité du bâti compte beaucoup : avec des emprises incomplètes, la ventilation du centre-ville serait surestimée, avec un rapport de vitesse de {fr(mV['indicateurs_secteurs']['CENTRE_VILLE']['K_moy_U_sur_Uref'], 2)} au lieu de {fr(m6['indicateurs_secteurs']['CENTRE_VILLE']['K_moy_U_sur_Uref'], 2)}.")
     val.append("Aucune mesure de vent n'existe à l'intérieur des secteurs : la comparaison directe avec des observations n'est pas possible, et des mesures anémométriques dans les rues sont recommandées.")

@@ -10,7 +10,7 @@ with u* derived from the observed 10 m speed at Es Senia (z0 = 0.03 m, open airf
 transferred to the upstream roughness through a blending height of 60 m (log-law matching).
 
 Usage:
-  python 44_case_openfoam.py mesh  <case_dir> <coarse|medium>
+  python 44_case_openfoam.py mesh  <case_dir> <coarse|medium|fin_gambetta>
   python 44_case_openfoam.py setup <case_dir> <scenario_id> [--thermal] [--init-from <converged_case>]   (after the mesh)
   --init-from: start from the converged isothermal fields (U, k, epsilon, nut, p -> p_rgh) of a case on the same mesh
 """
@@ -42,7 +42,11 @@ HDR = """FoamFile
 }}
 """
 LEVELS = {"coarse": {"bg": 100.0, "bld": (3, 3), "bld_dist": 12.0, "box": 2, "ground": 1},
-          "medium": {"bg": 80.0, "bld": (4, 4), "bld_dist": 8.0, "box": 2, "ground": 1}}
+          "medium": {"bg": 80.0, "bld": (4, 4), "bld_dist": 8.0, "box": 2, "ground": 1},
+          # mesh sensitivity: "medium" everywhere reached 9.4 M cells and ran out of memory (15 GB) in snappyHexMesh;
+          # the finer level is applied to the Gambetta buildings only (strongest gradients: escarpment)
+          "fin_gambetta": {"bg": 100.0, "bld": (3, 3), "bld_dist": 12.0, "box": 2, "ground": 1,
+                           "sect": {"GAMBETTA": {"bld": (4, 4), "bld_dist": 8.0}}}}
 
 
 def w(path, cls, obj, body):
@@ -86,10 +90,11 @@ boundary
         b = s["model_box_m"]
         boxes += f"""    box_{k} {{ type searchableBox; min ({b[0] - 150} {b[1] - 150} -20); max ({b[2] + 150} {b[3] + 150} 260); }}\n"""
     geom = "".join(f"    {n}.stl {{ type triSurfaceMesh; name {n}; }}\n" for n in names)
+    SL = {k: {**L, **L.get("sect", {}).get(k, {})} for k in SECT}
     rsurf = f"        ground {{ level ({L['ground']} {L['ground'] + 1}); patchInfo {{ type wall; }} }}\n" + "".join(
-        f"        buildings_{k} {{ level ({L['bld'][0]} {L['bld'][1]}); patchInfo {{ type wall; }} }}\n" for k in SECT)
+        f"        buildings_{k} {{ level ({SL[k]['bld'][0]} {SL[k]['bld'][1]}); patchInfo {{ type wall; }} }}\n" for k in SECT)
     rreg = "".join(f"        box_{k} {{ mode inside; levels ((1E15 {L['box']})); }}\n" for k in SECT) + "".join(
-        f"        buildings_{k} {{ mode distance; levels (({L['bld_dist']} {L['bld'][0]})); }}\n" for k in SECT)
+        f"        buildings_{k} {{ mode distance; levels (({SL[k]['bld_dist']} {SL[k]['bld'][0]})); }}\n" for k in SECT)
     w(case / "system/snappyHexMeshDict", "dictionary", "snappyHexMeshDict", f"""
 castellatedMesh true; snap true; addLayers false;
 geometry

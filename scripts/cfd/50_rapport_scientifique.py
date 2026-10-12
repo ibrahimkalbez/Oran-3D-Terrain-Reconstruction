@@ -45,7 +45,7 @@ def main():
     GR = j(R / "geometrie/geometrie_report.json"); GRR = j(R / "geometrie_emprises_reelles/geometrie_report.json")
     INV = {p.stem: j(p) for p in (R / "inventaire").glob("inventaire_*.json")}
     runs = {"S6_ref_coarse": "S6 été NNO — maillage grossier (référence)", "S2_ref_coarse": "S2 SO — maillage grossier",
-            "S6T3_ref_coarse": "S6 thermique couplé (Boussinesq, initialisé depuis S6)", "S6_ref_medium": "S6 été NNO — maillage fin",
+            "S6T3_ref_coarse": "S6 thermique couplé (Boussinesq, initialisé depuis S6)", "S6_ref_fin_gam": "S6 été NNO — maillage fin",
             "S6_coarse": "S6 — variante bâti « emprises réelles » (sensibilité)"}
     M = {k: meta(k) for k in runs}
     L = []; w = L.append
@@ -124,13 +124,17 @@ def main():
     w("")
     w("## 4. Modèle numérique")
     w("")
-    for case in ("mesh_ref_coarse", "mesh_ref_medium"):
+    for case in ("mesh_ref_coarse", "mesh_ref_fin_gam"):
         cm = checkmesh(case)
         if cm:
             w(f"* **{case}** : {cm['cells']} mailles, non-orthogonalité max {cm['nonorth_max']}° (moyenne {cm['nonorth_avg']}°), "
               f"dissymétrie max {cm['skew']}, volume min {cm['minvol']} m³ (aucun volume négatif).")
-    w("* Domaine 17 × 10 km × 900 m couvrant les 3 secteurs ; snappyHexMesh, mailles de fond 100 m (grossier) / 80 m (fin), "
-      "raffinement de boîte autour des secteurs, mailles de 12,5 m (grossier) / 6,25 m (fin) contre les bâtiments.")
+    w("* Domaine 17 × 10 km × 900 m couvrant les 3 secteurs ; snappyHexMesh, mailles de fond 100 m, raffinement de boîte "
+      "autour des secteurs, mailles de 12,5 m contre les bâtiments (maillage de référence).")
+    w("* Sensibilité au maillage : le maillage « fin » sur les trois secteurs (fond 80 m, 6,25 m contre les bâtiments) a "
+      "atteint 9,4 millions de mailles et a dépassé la mémoire disponible (15 Go) pendant snappyHexMesh ; le raffinement "
+      "à 6,25 m a donc été appliqué aux seuls bâtiments de **Gambetta** (secteur aux plus forts gradients, escarpement), "
+      "les deux autres secteurs servant de témoins (maillage inchangé).")
     w("* Entrée : couche limite neutre (Richards & Hoxey) — U(z) = u*/κ ln((z−zg+z0)/z0), k = u*²/√Cμ, ε = u*³/(κ(z−zg+z0)) ; "
       "u* déduit du U10 observé à Es Sénia (z0 = 0,03 m) puis transposé à la rugosité amont via une hauteur de mélange de 60 m.")
     w("* Sol : `nutkAtmRoughWallFunction`, z0 par face (mer 0,0002 m ; secteurs à bâti explicite 0,05 m ; tissu urbain 0,5 m ; autre 0,1 m). "
@@ -181,11 +185,11 @@ def main():
             w("")
     w("## 6. Validation et incertitudes")
     w("")
-    a, b = M.get("S6_ref_coarse"), M.get("S6_ref_medium")
+    a, b = M.get("S6_ref_coarse"), M.get("S6_ref_fin_gam")
     if a and b:
-        w("Comparaison de maillages (S6) :")
+        w("Comparaison de maillages (S6 ; seul Gambetta est raffiné, les autres secteurs sont des témoins) :")
         w("")
-        w("| Secteur | U moy grossier | U moy fin | écart |")
+        w("| Secteur | U moy référence | U moy fin Gambetta | écart |")
         w("|---|---|---|---|")
         for k in a["indicateurs_secteurs"]:
             u1, u2 = a["indicateurs_secteurs"][k]["U_moy"], b["indicateurs_secteurs"][k]["U_moy"]
