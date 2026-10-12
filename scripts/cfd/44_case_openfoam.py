@@ -378,7 +378,7 @@ libs ("libatmosphericModels.so");
 // (IOstream "sha1" error); residuals, mass balance and sampling are computed by 45_postprocess.py
 """)
     div = ("div(phi,U) bounded Gauss linearUpwind grad(U);\n div(phi,k) bounded Gauss upwind;\n div(phi,epsilon) bounded Gauss upwind;\n"
-           " div((nuEff*dev2(T(grad(U))))) Gauss linear;\n div(phi,T) bounded Gauss {'upwind' if thermal else 'linearUpwind grad(T)'};\n")
+           f" div((nuEff*dev2(T(grad(U))))) Gauss linear;\n div(phi,T) bounded Gauss {'upwind' if thermal else 'linearUpwind grad(T)'};\n")
     w(case / "system/fvSchemes", "dictionary", "fvSchemes", f"""
 ddtSchemes {{ default steadyState; }}
 gradSchemes {{ default Gauss linear; grad(U) cellLimited Gauss linear 1; }}
