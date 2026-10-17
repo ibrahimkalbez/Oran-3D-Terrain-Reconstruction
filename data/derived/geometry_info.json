@@ -1,0 +1,19 @@
+{
+ "n_buildings": 41288,
+ "height_source": {
+  "estimated": 39689,
+  "floors": 1586,
+  "height": 13
+ },
+ "dataset": {
+  "Microsoft ML Buildings": 8103,
+  "Google Open Buildings": 14940,
+  "OpenStreetMap": 18245
+ },
+ "H_median": 7.0,
+ "H_max": 111.0,
+ "dem_min": -2.888432741165161,
+ "dem_max": 608.0885009765625,
+ "z0_urban_mean": 1.1425305082952084,
+ "lambda_p_max": 0.9925
+}

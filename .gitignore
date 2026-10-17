@@ -1,0 +1,7 @@
+# Raw / derived data are re-downloadable with scripts/ (too large for git)
+data/copernicus/*.tif
+data/copernicus/*.npy
+data/buildings/*.parquet
+data/derived/*.npy
+data/derived/*.parquet
+__pycache__/
